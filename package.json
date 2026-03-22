@@ -1,0 +1,11 @@
+{
+  "name": "clime-direct",
+  "version": "1.0.0",
+  "description": "Clime Direct — ASX Investment Platform",
+  "scripts": {
+    "start": "npx serve . -p ${PORT:-3000} -s"
+  },
+  "dependencies": {
+    "serve": "^14.2.3"
+  }
+}

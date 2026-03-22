@@ -1,0 +1,2039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clime Direct — Investment Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0d12;--surface:#111318;--surface2:#181b22;--border:#232630;--border2:#2e3240;--text:#e8eaf0;--muted:#6b7280;--muted2:#4b5263;--gold:#d4a843;--gold2:#f0c962;--gold-dim:rgba(212,168,67,0.12);--green:#2dd4a0;--green-dim:rgba(45,212,160,0.1);--red:#f06060;--red-dim:rgba(240,96,96,0.1);--amber:#f0a040;--amber-dim:rgba(240,160,64,0.1);--blue:#5b8ff9;--blue-dim:rgba(91,143,249,0.12);--purple:#a78bfa;--radius:8px;--t:.18s ease}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5;overflow-x:hidden}
+.app{display:flex;flex-direction:column;min-height:100vh}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:52px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-mark{width:30px;height:30px;background:var(--gold);border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#000}
+.brand-name{font-weight:600;font-size:14px}.brand-name span{color:var(--gold)}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.topbar-date{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.06em}
+.stock-context-badge{display:none;align-items:center;gap:6px;padding:4px 10px;background:var(--gold-dim);border:1px solid rgba(212,168,67,.3);border-radius:20px;font-size:11px;color:var(--gold)}
+.stock-context-badge.show{display:flex}
+nav.nav{display:flex;align-items:center;gap:0;padding:0 28px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+nav.nav::-webkit-scrollbar{display:none}
+.nav-btn{display:flex;align-items:center;gap:6px;padding:0 14px;height:40px;border:none;background:transparent;font-family:'Sora',sans-serif;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all var(--t)}
+.nav-btn:hover{color:var(--text)}
+.nav-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.nav-btn .dot{width:5px;height:5px;border-radius:50%;background:var(--muted2);flex-shrink:0;transition:background var(--t)}
+.nav-btn.active .dot{background:var(--gold)}
+.nav-btn.ai-btn.active{color:var(--purple)}
+.nav-btn.ai-btn.active .dot{background:var(--purple)}
+.nav-btn.ai-btn.active{border-bottom-color:var(--purple)}
+.nav-btn.signal-btn.active{color:#22c55e;border-bottom-color:#22c55e}
+.nav-btn.signal-btn.active .dot{background:#22c55e}
+.nav-btn.fs-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+.nav-btn.fs-btn.active .dot{background:var(--blue)}
+.content{flex:1;padding:28px;max-width:1120px;width:100%;margin:0 auto}
+.tab-panel{display:none}.tab-panel.active{display:block;animation:fadeIn .18s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.page-header{margin-bottom:24px}
+.page-header h1{font-size:20px;font-weight:600;margin-bottom:3px}
+.page-header h1 em{font-style:normal;color:var(--gold)}
+.page-header p{color:var(--muted);font-size:13px}
+/* Search */
+.search-wrap{position:relative;margin-bottom:20px}
+.search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:14px}
+#ticker-search{width:100%;padding:10px 13px 10px 38px;background:var(--surface2);border:1.5px solid var(--border2);color:var(--text);font-family:'Sora',sans-serif;font-size:14px;border-radius:var(--radius);outline:none;transition:border-color var(--t)}
+#ticker-search:focus{border-color:var(--gold)}
+#ticker-search::placeholder{color:var(--muted)}
+.search-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);z-index:300;max-height:240px;overflow-y:auto;display:none;box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.search-dropdown.show{display:block}
+.search-item{display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background var(--t)}
+.search-item:last-child{border-bottom:none}
+.search-item:hover{background:var(--border)}
+.si-ticker{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--gold);background:var(--gold-dim);padding:2px 6px;border-radius:4px;min-width:40px;text-align:center}
+.si-name{font-size:12px;color:var(--text);flex:1}
+.si-signal{font-size:10px;font-weight:500;padding:2px 7px;border-radius:20px}
+.si-signal.Undervalued{color:var(--green);background:var(--green-dim)}
+.si-signal.Overvalued{color:var(--red);background:var(--red-dim)}
+.si-signal.Fair\ value{color:var(--amber);background:var(--amber-dim)}
+/* Stock card */
+.stock-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 22px;margin-bottom:20px;display:none}
+.stock-card.show{display:block}
+.sc-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+.sc-title{display:flex;align-items:center;gap:10px}
+.sc-ticker{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:500;color:var(--gold);background:var(--gold-dim);padding:3px 10px;border-radius:5px}
+.sc-name{font-size:15px;font-weight:600}
+.sc-sector{font-size:11px;color:var(--muted);margin-top:1px}
+.sc-signal-badge{font-size:12px;font-weight:600;padding:5px 14px;border-radius:20px}
+.sc-signal-badge.Undervalued{color:var(--green);background:var(--green-dim);border:1px solid rgba(45,212,160,.25)}
+.sc-signal-badge.Overvalued{color:var(--red);background:var(--red-dim);border:1px solid rgba(240,96,96,.25)}
+.sc-signal-badge.Fair\ value{color:var(--amber);background:var(--amber-dim);border:1px solid rgba(240,160,64,.25)}
+.sc-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.metric-box{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 12px}
+.metric-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:3px}
+.metric-value{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:500}
+.metric-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.mv-green{color:var(--green)}.mv-red{color:var(--red)}.mv-gold{color:var(--gold)}.mv-amber{color:var(--amber)}
+.mos-bar-wrap{margin:10px 0 4px}
+.mos-bar-track{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden}
+.mos-bar-fill{height:100%;border-radius:2px;transition:width .4s ease}
+/* Tier badge */
+.tier-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.tier-1{color:#60a5fa;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.2)}
+.tier-2{color:var(--purple);background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.2)}
+.tier-3{color:var(--amber);background:var(--amber-dim);border:1px solid rgba(240,160,64,.2)}
+.tier-4{color:var(--green);background:var(--green-dim);border:1px solid rgba(45,212,160,.2)}
+.tier-5{color:var(--red);background:var(--red-dim);border:1px solid rgba(240,96,96,.2)}
+/* Layout */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px;margin-bottom:18px}
+.card-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:7px}
+.card-title::before{content:'';display:block;width:3px;height:13px;background:var(--gold);border-radius:2px}
+.card-title.purple::before{background:var(--purple)}
+.card-title.green::before{background:var(--green)}
+.card-title.blue::before{background:var(--blue)}
+/* Form */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.form-grid-3{grid-template-columns:1fr 1fr 1fr}
+.form-grid-1{grid-template-columns:1fr}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.field input,.field select{padding:8px 11px;background:var(--surface2);border:1.5px solid var(--border2);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;border-radius:5px;outline:none;transition:border-color var(--t);-moz-appearance:textfield}
+.field input::-webkit-inner-spin-button{-webkit-appearance:none}
+.field input:focus,.field select:focus{border-color:var(--gold)}
+.field .hint{font-size:10px;color:var(--muted2)}
+.field input.autofilled{border-color:rgba(212,168,67,.4);background:rgba(212,168,67,.05)}
+.field select{cursor:pointer}
+.section-divider{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);border-bottom:1px solid var(--gold-dim);padding-bottom:5px;margin:16px 0 12px}
+/* Buttons */
+.btn-primary{display:inline-flex;align-items:center;gap:7px;padding:10px 22px;background:var(--gold);color:#000;border:none;border-radius:6px;cursor:pointer;font-family:'Sora',sans-serif;font-size:12px;font-weight:600;transition:all var(--t);letter-spacing:.02em}
+.btn-primary:hover{background:var(--gold2);transform:translateY(-1px)}
+.btn-ghost{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:transparent;color:var(--muted);border:1px solid var(--border2);border-radius:6px;cursor:pointer;font-family:'Sora',sans-serif;font-size:12px;transition:all var(--t)}
+.btn-ghost:hover{color:var(--text);border-color:var(--muted)}
+.btn-ai{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(167,139,250,.12);color:var(--purple);border:1px solid rgba(167,139,250,.25);border-radius:6px;cursor:pointer;font-family:'Sora',sans-serif;font-size:12px;transition:all var(--t)}
+.btn-ai:hover{background:rgba(167,139,250,.2)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+/* Result */
+.result-panel{margin-top:18px;padding:20px 22px;background:var(--bg);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--radius);display:none}
+.result-panel.show{display:block}
+.result-main{display:flex;align-items:flex-end;gap:22px;margin-bottom:14px;flex-wrap:wrap}
+.result-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:3px}
+.result-big{font-family:'JetBrains Mono',monospace;font-size:36px;font-weight:600;color:var(--gold);line-height:1}
+.result-secondary{display:flex;gap:18px;flex-wrap:wrap}
+.r-label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:2px}
+.r-val{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:500}
+.result-breakdown{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:9px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.rb-label{font-size:9px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px}
+.rb-val{font-family:'JetBrains Mono',monospace;font-size:12px}
+/* Callout */
+.callout{background:rgba(212,168,67,.06);border:1px solid rgba(212,168,67,.2);border-radius:var(--radius);padding:12px 16px;margin-bottom:18px;font-size:12px;color:#b8a06a;line-height:1.65}
+.callout strong{color:var(--gold2)}
+.callout.blue{background:rgba(91,143,249,.06);border-color:rgba(91,143,249,.2);color:#8ab0e8}
+.callout.blue strong{color:#8ab0e8}
+.callout.purple{background:rgba(167,139,250,.06);border-color:rgba(167,139,250,.2);color:#c4b5fd}
+.callout.purple strong{color:#c4b5fd}
+/* Formula */
+.formula-box{background:var(--bg);border:1px solid var(--border2);border-radius:5px;padding:12px 16px;margin:12px 0;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);line-height:2}
+.f-eq{color:var(--text)}.f-label{color:var(--gold)}
+/* Sens table */
+.sens-wrap{margin-top:18px;overflow-x:auto}
+.sens-title{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px}
+.sens-table{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:11px}
+.sens-table th{background:var(--surface2);color:var(--muted);font-weight:400;padding:6px 10px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
+.sens-table th:first-child{text-align:left;color:var(--muted2)}
+.sens-table td{padding:5px 10px;text-align:right;border-bottom:1px solid var(--border)}
+.sens-table td:first-child{text-align:left;color:var(--muted)}
+.sens-table tr:hover td{background:var(--surface2)}
+.cell-green{color:var(--green);font-weight:500}.cell-red{color:var(--red)}.cell-amber{color:var(--amber)}
+.cell-active{background:var(--gold-dim)!important;color:var(--gold);font-weight:600}
+/* ASX Table */
+.asx-controls{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.filter-select{padding:7px 11px;background:var(--surface2);border:1.5px solid var(--border2);color:var(--text);font-family:'Sora',sans-serif;font-size:12px;border-radius:6px;outline:none;cursor:pointer}
+.filter-select:focus{border-color:var(--gold)}
+.asx-table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius)}
+.asx-table{width:100%;border-collapse:collapse;font-size:12px}
+.asx-table th{background:var(--surface2);color:var(--muted);font-weight:500;font-size:10px;text-transform:uppercase;letter-spacing:.06em;padding:9px 12px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
+.asx-table th:first-child{text-align:left}
+.asx-table th:hover,.asx-table th.sorted{color:var(--gold)}
+.asx-table td{padding:8px 12px;text-align:right;border-bottom:1px solid var(--border)}
+.asx-table td:first-child{text-align:left}
+.asx-table tr:hover td{background:var(--surface2)}
+.asx-table tr:last-child td{border-bottom:none}
+.t-ticker{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);cursor:pointer}
+.t-ticker:hover{text-decoration:underline}
+.t-name{color:var(--muted);font-size:11px}
+.badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.badge.Undervalued{color:var(--green);background:var(--green-dim)}
+.badge.Overvalued{color:var(--red);background:var(--red-dim)}
+.badge.Fair\ value{color:var(--amber);background:var(--amber-dim)}
+.t-mono{font-family:'JetBrains Mono',monospace}
+.t-green{color:var(--green)}.t-red{color:var(--red)}.t-gold{color:var(--gold)}.t-muted{color:var(--muted)}
+.asx-count{font-size:11px;color:var(--muted);margin-left:auto}
+/* TA Charts */
+.ta-controls{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.period-btns{display:flex;gap:4px}
+.period-btn{padding:5px 12px;background:var(--surface2);border:1px solid var(--border2);color:var(--muted);border-radius:5px;cursor:pointer;font-size:11px;font-family:'JetBrains Mono',monospace;transition:all var(--t)}
+.period-btn.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold)}
+.period-btn:hover{color:var(--text)}
+.ta-layout{display:grid;grid-template-columns:1fr 280px;gap:18px}
+.charts-area{}
+.chart-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+.chart-panel-title{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.chart-canvas-wrap{position:relative}
+canvas.ta-canvas{width:100%!important;display:block}
+.signal-panel{}
+.signal-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px}
+.signal-card-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:14px}
+.signal-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)}
+.signal-row:last-child{border-bottom:none}
+.signal-name{font-size:11px;color:var(--muted)}
+.signal-val{font-size:11px;font-weight:600;font-family:'JetBrains Mono',monospace}
+.signal-val.bull{color:var(--green)}.signal-val.bear{color:var(--red)}.signal-val.neutral{color:var(--amber)}
+.overall-signal{text-align:center;padding:14px;border-radius:6px;margin-top:8px}
+.overall-signal.bull{background:var(--green-dim);border:1px solid rgba(45,212,160,.25)}
+.overall-signal.bear{background:var(--red-dim);border:1px solid rgba(240,96,96,.25)}
+.overall-signal.neutral{background:var(--amber-dim);border:1px solid rgba(240,160,64,.25)}
+.overall-signal-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:4px}
+.overall-signal-val{font-size:18px;font-weight:700}
+.overall-signal.bull .overall-signal-val{color:var(--green)}
+.overall-signal.bear .overall-signal-val{color:var(--red)}
+.overall-signal.neutral .overall-signal-val{color:var(--amber)}
+.key-level-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px}
+.key-level-row:last-child{border-bottom:none}
+.kl-label{color:var(--muted)}
+.kl-val{font-family:'JetBrains Mono',monospace;color:var(--text)}
+.ta-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--muted);text-align:center;gap:12px}
+.ta-placeholder svg{opacity:.3}
+/* AI Chat */
+.ai-layout{display:grid;grid-template-columns:1fr 300px;gap:18px;height:calc(100vh - 200px);min-height:500px}
+.chat-area{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.chat-messages{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
+.chat-messages::-webkit-scrollbar{width:4px}
+.chat-messages::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.msg{display:flex;flex-direction:column;gap:4px;max-width:85%}
+.msg.user{align-self:flex-end;align-items:flex-end}
+.msg.assistant{align-self:flex-start;align-items:flex-start}
+.msg-bubble{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.6}
+.msg.user .msg-bubble{background:var(--gold-dim);border:1px solid rgba(212,168,67,.2);color:var(--text);border-radius:12px 12px 3px 12px}
+.msg.assistant .msg-bubble{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:12px 12px 12px 3px}
+.msg-time{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.chat-input-area{padding:14px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:flex-end}
+#chat-input{flex:1;background:var(--surface2);border:1.5px solid var(--border2);color:var(--text);font-family:'Sora',sans-serif;font-size:13px;padding:10px 13px;border-radius:8px;outline:none;resize:none;max-height:120px;min-height:42px;transition:border-color var(--t);line-height:1.5}
+#chat-input:focus{border-color:var(--purple)}
+#chat-input::placeholder{color:var(--muted)}
+#send-btn{padding:10px 16px;background:var(--purple);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;transition:all var(--t);white-space:nowrap;font-family:'Sora',sans-serif;font-weight:500}
+#send-btn:hover{background:#8b5cf6}
+#send-btn:disabled{opacity:.5;cursor:not-allowed}
+.chat-sidebar{}
+.context-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+.context-card-title{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--purple);margin-bottom:12px}
+.context-item{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px}
+.context-item:last-child{border-bottom:none}
+.ci-label{color:var(--muted)}.ci-val{font-family:'JetBrains Mono',monospace;color:var(--text)}
+.questions-list{display:flex;flex-direction:column;gap:6px}
+.q-pill{padding:8px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;cursor:pointer;font-size:11px;color:var(--muted);transition:all var(--t);text-align:left;width:100%}
+.q-pill:hover{color:var(--text);border-color:var(--muted);background:var(--border)}
+.typing-indicator{display:flex;gap:4px;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:12px;align-self:flex-start;width:fit-content}
+.typing-dot{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:typingBounce 1.2s ease infinite}
+.typing-dot:nth-child(2){animation-delay:.2s}.typing-dot:nth-child(3){animation-delay:.4s}
+@keyframes typingBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+.chat-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;color:var(--muted);text-align:center;padding:40px}
+.chat-empty-icon{font-size:40px;opacity:.4}
+.chat-empty-title{font-size:14px;font-weight:500;color:var(--text)}
+.chat-empty-sub{font-size:12px;max-width:280px;line-height:1.6}
+/* Framework Tab */
+.framework-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.tier-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;position:relative;overflow:hidden}
+.tier-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.tier-card.t1::before{background:#60a5fa}.tier-card.t2::before{background:var(--purple)}
+.tier-card.t3::before{background:var(--amber)}.tier-card.t4::before{background:var(--green)}
+.tier-card.t5::before{background:var(--red)}
+.tier-card-num{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:600;opacity:.15;position:absolute;top:10px;right:16px}
+.tier-card-name{font-size:13px;font-weight:600;margin-bottom:4px}
+.tier-card-sectors{font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5}
+.tier-card-method{font-size:12px;color:var(--text);padding:8px 10px;background:var(--surface2);border-radius:5px;border-left:2px solid var(--gold)}
+.signal-matrix-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+.signal-matrix-table th{background:var(--surface2);color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.07em;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.signal-matrix-table td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.signal-matrix-table tr:last-child td{border-bottom:none}
+.signal-badge-lg{display:inline-flex;align-items:center;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:.04em}
+.sig-buy{color:#22c55e;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.25)}
+.sig-acc{color:var(--green);background:var(--green-dim);border:1px solid rgba(45,212,160,.25)}
+.sig-watch{color:var(--amber);background:var(--amber-dim);border:1px solid rgba(240,160,64,.25)}
+.sig-sus{color:var(--red);background:var(--red-dim);border:1px solid rgba(240,96,96,.25)}
+.sig-hold{color:var(--muted);background:var(--surface2);border:1px solid var(--border)}
+.sig-red{color:var(--red);background:var(--red-dim);border:1px solid rgba(240,96,96,.25)}
+.eqs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.eqs-item{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px;text-align:center}
+.eqs-pts{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600;color:var(--gold);margin-bottom:4px}
+.eqs-name{font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px}
+.eqs-desc{font-size:10px;color:var(--muted);line-height:1.5}
+.wacc-table{width:100%;border-collapse:collapse;font-size:12px}
+.wacc-table th{background:var(--surface2);color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.07em;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)}
+.wacc-table td{padding:8px 12px;border-bottom:1px solid var(--border)}
+.wacc-table tr:last-child td{border-bottom:none}
+/* RR Bands */
+.rr-bands{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.rr-band{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+.rr-band-title{font-size:11px;font-weight:600;margin-bottom:3px}
+.rr-band-range{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:600;margin-bottom:6px}
+.rr-band-desc{font-size:11px;color:var(--muted);line-height:1.5}
+.rr-band.low .rr-band-range{color:var(--green)}.rr-band.mid .rr-band-range{color:var(--amber)}.rr-band.high .rr-band-range{color:var(--red)}
+/* Scrollbar */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--surface)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--muted2)}
+/* Responsive */
+@media(max-width:800px){
+  .two-col,.three-col,.ta-layout,.ai-layout,.framework-grid,.eqs-grid{grid-template-columns:1fr}
+  .content{padding:16px}
+  .topbar,.nav{padding-left:16px;padding-right:16px}
+  .rr-bands{grid-template-columns:1fr 1fr}
+}
+@media(max-width:500px){
+  .form-grid,.form-grid-3{grid-template-columns:1fr}
+  .rr-bands{grid-template-columns:1fr}
+}
+
+  .fmp-btn{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;cursor:pointer;border:1px solid;background:transparent;font-family:var(--font);transition:all .15s}
+  .fmp-btn.connected{color:var(--green);border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.08)}
+  .fmp-btn.disconnected{color:var(--muted);border-color:var(--border)}
+  .fmp-btn.disconnected:hover{color:var(--text);border-color:var(--muted)}
+  .fmp-loading{color:var(--amber);font-size:10px;font-family:var(--mono)}
+
+  .adj-field{margin-bottom:12px}
+  .adj-field label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:3px}
+  .adj-field input{width:100%;padding:7px 10px;background:var(--bg);border:1.5px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:12px;border-radius:5px;outline:none;transition:border-color .15s}
+  .adj-field input:focus{border-color:var(--gold)}
+  .adj-actual{font-size:10px;color:var(--muted2);margin-top:2px}
+  .adj-row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid var(--border);font-size:11px}
+  .adj-row:last-child{border-bottom:none}
+  .adj-row span:first-child{color:var(--muted)}
+  .adj-row span:last-child{font-family:var(--mono);font-size:10px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark">CD</div>
+    <div class="brand-name">Clime <span>Direct</span></div>
+  </div>
+  <div class="topbar-right">
+    <div class="stock-context-badge" id="ctx-badge">📍 <span id="ctx-ticker">—</span></div>
+    <button class="fmp-btn disconnected" id="fmp-btn" onclick="showFMPModal()">⚡ FMP: Off</button>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="switchTab('iv',this)"><span class="dot"></span>Intrinsic Value</button>
+  <button class="nav-btn" onclick="switchTab('asx',this)"><span class="dot"></span>ASX Coverage</button>
+  <button class="nav-btn" onclick="switchTab('ta',this)"><span class="dot"></span>Technical Analysis</button>
+  <button class="nav-btn" onclick="switchTab('framework',this)"><span class="dot"></span>Clever Clime Framework</button>
+  <button class="nav-btn ai-btn" onclick="switchTab('ai',this)"><span class="dot"></span>AI Assistant</button>
+  <button class="nav-btn signal-btn" onclick="switchTab('signals',this)"><span class="dot"></span>Portfolio Signals</button>
+  <button class="nav-btn fs-btn" onclick="switchTab('factset',this)"><span class="dot"></span>FactSet Guide</button>
+  <button class="nav-btn" onclick="switchTab('return',this)"><span class="dot"></span>Return Estimator</button>
+  <button class="nav-btn" onclick="switchTab('rr',this)"><span class="dot"></span>Required Return</button>
+</nav>
+
+<div class="content">
+
+<!-- ═══ TAB 1: IV ═══ -->
+<div id="tab-iv" class="tab-panel active">
+  <div class="page-header">
+    <h1>Intrinsic Value — <em>Clever Clime Equity Multiplier</em></h1>
+    <p>Search any ASX stock to auto-fill from March 2026 data. Methodology auto-routes by sector tier.</p>
+  </div>
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="ticker-search" placeholder="Search ticker or company name…" autocomplete="off">
+    <div class="search-dropdown" id="search-dropdown"></div>
+  </div>
+  <div class="stock-card" id="stock-card">
+    <div class="sc-header">
+      <div class="sc-title">
+        <div class="sc-ticker" id="sc-ticker">—</div>
+        <div>
+          <div class="sc-name" id="sc-name">—</div>
+          <div class="sc-sector" id="sc-sector">—</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span id="sc-tier-badge" class="tier-badge tier-1">Tier 1</span>
+        <div class="sc-signal-badge" id="sc-signal">—</div>
+      </div>
+    </div>
+    <div class="sc-metrics">
+      <div class="metric-box"><div class="metric-label">Price</div><div class="metric-value mv-gold" id="sc-price">—</div></div>
+      <div class="metric-box"><div class="metric-label">IV Current</div><div class="metric-value" id="sc-ivc">—</div><div class="metric-sub" id="sc-mos">—</div></div>
+      <div class="metric-box"><div class="metric-label">IV Forward</div><div class="metric-value" id="sc-ivf">—</div></div>
+      <div class="metric-box"><div class="metric-label">NROE</div><div class="metric-value" id="sc-roe">—</div></div>
+      <div class="metric-box"><div class="metric-label">Required Return</div><div class="metric-value" id="sc-wacc">—</div></div>
+      <div class="metric-box"><div class="metric-label">Payout</div><div class="metric-value" id="sc-payout">—</div></div>
+      <div class="metric-box"><div class="metric-label">EPS FY+1</div><div class="metric-value" id="sc-eps1">—</div></div>
+      <div class="metric-box"><div class="metric-label">Franking</div><div class="metric-value" id="sc-franking">—</div></div>
+    </div>
+    <div class="mos-bar-wrap"><div class="mos-bar-track"><div class="mos-bar-fill" id="mos-bar" style="width:0%"></div></div></div>
+    <div style="margin-top:10px;display:flex;gap:8px">
+      <button class="btn-ghost" id="view-ta-btn" onclick="goToTA()" style="font-size:11px">📈 View Technical Analysis</button>
+      <button class="btn-ai" onclick="switchTab('ai',document.querySelectorAll('.nav-btn')[4])" style="font-size:11px">✦ Ask AI about this stock</button>
+    </div>
+  </div>
+  <div class="two-col">
+    <div>
+      <div class="card">
+        <div class="card-title">Inputs</div>
+        <div class="callout"><strong>Formula (Tier 1):</strong> IV = Equity per Share × [(NROE/RR × PR) + (NROE²/RR² × (1–PR))]<br>Franking grosses up DPS: PR_adj = PR × (1 + franking% × 0.4286)</div>
+        <div class="form-grid">
+          <div class="field"><label>Equity per Share ($)</label><input type="number" id="iv-eq" value="10" step="0.01"><span class="hint">Book value / shares on issue</span></div>
+          <div class="field"><label>Required Return (RR)</label><input type="number" id="iv-rr" value="0.12" step="0.005"><span class="hint">e.g. 0.12 = 12%</span></div>
+          <div class="field"><label>NROE (Normalised ROE)</label><input type="number" id="iv-roe" value="0.20" step="0.005"><span class="hint">Sustainable return on equity</span></div>
+          <div class="field"><label>Payout Ratio (PR)</label><input type="number" id="iv-pr" value="0.70" step="0.01"><span class="hint">Grossed-up divs / earnings</span></div>
+          <div class="field"><label>Current Price ($) <em style="color:var(--muted);font-style:normal;font-size:9px">optional</em></label><input type="number" id="iv-price" step="0.01" placeholder="For MOS calc"></div>
+          <div class="field"><label>Franking % <em style="color:var(--muted);font-style:normal;font-size:9px">AU only</em></label><input type="number" id="iv-franking" value="0" step="5" min="0" max="100"></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-primary" onclick="calcIV()">Calculate IV</button>
+          <button class="btn-ghost" onclick="clearIV()">Clear</button>
+        </div>
+        <div class="result-panel" id="iv-result">
+          <div class="result-main">
+            <div class="result-primary"><div class="result-label">Intrinsic Value per Share</div><div class="result-big" id="iv-val">—</div></div>
+            <div class="result-secondary">
+              <div class="result-item"><div class="r-label">Equity Multiplier</div><div class="r-val" id="iv-mult">—</div></div>
+              <div class="result-item"><div class="r-label">Bond Component</div><div class="r-val" id="iv-bond">—</div></div>
+              <div class="result-item"><div class="r-label">Growth Component</div><div class="r-val" id="iv-growth">—</div></div>
+              <div class="result-item"><div class="r-label">Margin of Safety</div><div class="r-val" id="iv-mos">—</div></div>
+            </div>
+          </div>
+          <div class="result-breakdown" id="iv-breakdown"></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-title">Sensitivity — IV by NROE × Required Return</div>
+        <div id="sens-placeholder" style="color:var(--muted);font-size:12px">Run a calculation to see the sensitivity table.</div>
+        <div class="sens-wrap" id="iv-sens-wrap" style="display:none"><table class="sens-table" id="iv-sens-table"></table></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Formula Reference</div>
+        <div class="formula-box">
+          <div><span class="f-label">Bond Mult</span><span class="f-eq"> = NROE / RR</span></div>
+          <div><span class="f-label">Growth Mult</span><span class="f-eq"> = NROE² / RR²</span></div>
+          <div><span class="f-label">Equity Mult</span><span class="f-eq"> = (Bond × PR) + (Growth × [1–PR])</span></div>
+          <div><span class="f-label">IV</span><span class="f-eq"> = Equity per Share × Equity Mult</span></div>
+          <div><span class="f-label">Signal: BUY</span><span class="f-eq"> = Price &lt; IV × 0.85</span></div>
+          <div><span class="f-label">Signal: FAIR</span><span class="f-eq"> = Price within ±15% of IV</span></div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7">
+          <strong style="color:var(--text)">Value test:</strong> When NROE = RR, IV = Equity per Share (no-profit condition). Every % of excess ROE amplifies the growth component quadratically. A company with ROE 20% and RR 10% has Growth Multiple = 4×.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <!-- ─ Adjusted Valuation ─ -->
+  <div class="card" id="adj-val-card" style="display:none;margin-top:14px">
+    <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
+      Adjusted Valuation
+      <button onclick="resetAdj()" style="padding:4px 10px;background:transparent;border:1px solid var(--border2);color:var(--muted);border-radius:4px;cursor:pointer;font-family:var(--font);font-size:10px">↺ Reset to actuals</button>
+    </div>
+    <p style="font-size:11px;color:var(--muted);margin-bottom:14px">Adjust any input — intrinsic value updates instantly. Actuals shown for reference.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <div class="adj-field"><label>NPAT ($M)</label><input type="number" id="adj-npat" oninput="recalcAdj()"><div class="adj-actual" id="adj-npat-act">—</div></div>
+        <div class="adj-field"><label>Total Dividends ($M)</label><input type="number" id="adj-divs" oninput="recalcAdj()"><div class="adj-actual" id="adj-divs-act">—</div></div>
+        <div class="adj-field"><label>Shareholder Equity ($M)</label><input type="number" id="adj-equity" oninput="recalcAdj()"><div class="adj-actual" id="adj-equity-act">—</div></div>
+        <div class="adj-field"><label>Shares Outstanding (M)</label><input type="number" id="adj-shares" oninput="recalcAdj()"><div class="adj-actual" id="adj-shares-act">—</div></div>
+        <div class="adj-field"><label>Required Return / WACC (%)</label><input type="number" id="adj-wacc" step="0.01" oninput="recalcAdj()"><div class="adj-actual" id="adj-wacc-act">—</div></div>
+      </div>
+      <div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-left:2px solid var(--gold);border-radius:6px;padding:14px;margin-bottom:10px">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:4px">Adjusted Intrinsic Value (per share)</div>
+          <div style="font-family:var(--mono);font-size:30px;font-weight:600;color:var(--gold);margin-bottom:6px" id="adj-iv-result">—</div>
+          <div style="font-size:11px;color:var(--muted)" id="adj-iv-vs">—</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:12px">
+          <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Formula Breakdown</div>
+          <div class="adj-row"><span>ROE (NPAT / Equity)</span><span id="afr-roe">—</span></div>
+          <div class="adj-row"><span>Payout ratio (Div / NPAT)</span><span id="afr-pr">—</span></div>
+          <div class="adj-row"><span>Equity per share</span><span id="afr-eqps">—</span></div>
+          <div class="adj-row" style="border-top:1px solid var(--border);margin-top:4px;padding-top:4px"><span>Bond component (ROE / RR)</span><span id="afr-bond">—</span></div>
+          <div class="adj-row"><span>Growth (ROE² / RR²)</span><span id="afr-growth">—</span></div>
+          <div class="adj-row"><span>Equity multiplier</span><span id="afr-mult">—</span></div>
+          <div class="adj-row" style="border-top:1px solid var(--border);margin-top:4px;padding-top:4px;font-weight:600"><span style="color:var(--text)">Intrinsic value</span><span style="color:var(--gold)" id="afr-iv">—</span></div>
+        </div>
+        <div style="margin-top:10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:12px" id="adj-wacc-sens-wrap" style="display:none">
+          <div style="font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">WACC Sensitivity</div>
+          <table class="sens-table" id="adj-wacc-sens" style="font-size:10px"></table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TAB 2: ASX ═══ -->
+<div id="tab-asx" class="tab-panel">
+  <div class="page-header"><h1>ASX Coverage — <em>268 Stocks</em></h1><p>Clime Direct universe as at 18 March 2026. Click ticker to load into IV calculator.</p></div>
+  <div class="asx-controls">
+    <select class="filter-select" id="asx-signal" onchange="renderASX()"><option value="">All Signals</option><option value="Undervalued">Undervalued</option><option value="Fair value">Fair Value</option><option value="Overvalued">Overvalued</option></select>
+    <select class="filter-select" id="asx-sector" onchange="renderASX()"><option value="">All Sectors</option></select>
+    <input type="text" class="filter-select" id="asx-search" placeholder="Search…" oninput="renderASX()" style="min-width:180px">
+    <div class="asx-count" id="asx-count">—</div>
+  </div>
+  <div class="asx-table-wrap">
+    <table class="asx-table" id="asx-table">
+      <thead><tr>
+        <th onclick="sortASX('ticker')" class="sorted">Ticker ↕</th>
+        <th onclick="sortASX('company')">Company ↕</th>
+        <th onclick="sortASX('price')">Price ↕</th>
+        <th onclick="sortASX('iv_current')">IV Current ↕</th>
+        <th onclick="sortASX('iv_forward')">IV Forward ↕</th>
+        <th onclick="sortASX('mos')">MoS % ↕</th>
+        <th onclick="sortASX('signal')">Signal ↕</th>
+        <th onclick="sortASX('roe')">NROE % ↕</th>
+        <th onclick="sortASX('wacc')">RR % ↕</th>
+        <th onclick="sortASX('payout')">Payout % ↕</th>
+      </tr></thead>
+      <tbody id="asx-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══ TAB 3: TECHNICAL ANALYSIS ═══ -->
+<div id="tab-ta" class="tab-panel">
+  <div class="page-header"><h1>Technical Analysis — <em>Chart & Indicators</em></h1><p>Price action, momentum, and trend analysis. Select a stock to begin.</p></div>
+  <div class="ta-controls">
+    <div class="search-wrap" style="flex:1;max-width:400px;margin-bottom:0">
+      <span class="search-icon">⌕</span>
+      <input type="text" id="ta-search" placeholder="Search stock for TA…" autocomplete="off">
+      <div class="search-dropdown" id="ta-search-dropdown"></div>
+    </div>
+    <div class="period-btns">
+      <button class="period-btn" onclick="setTAPeriod(63,this)">3M</button>
+      <button class="period-btn active" onclick="setTAPeriod(126,this)">6M</button>
+      <button class="period-btn" onclick="setTAPeriod(252,this)">1Y</button>
+      <button class="period-btn" onclick="setTAPeriod(378,this)">18M</button>
+    </div>
+  </div>
+  <div id="ta-placeholder" class="ta-placeholder">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    <div class="sc-name" style="color:var(--text)">No stock selected</div>
+    <div style="font-size:12px;color:var(--muted)">Search above or select a stock from the IV calculator or ASX Coverage tab</div>
+  </div>
+  <div id="ta-content" style="display:none">
+    <div class="ta-layout">
+      <div class="charts-area">
+        <div class="chart-panel">
+          <div class="chart-panel-title">
+            <span id="ta-stock-label">Price</span>
+            <span style="display:flex;gap:8px;font-size:10px">
+              <span style="color:var(--gold)">— SMA20</span>
+              <span style="color:#60a5fa">— SMA50</span>
+              <span style="color:var(--purple)">— SMA200</span>
+              <span style="color:rgba(45,212,160,.5)">BB Bands</span>
+            </span>
+          </div>
+          <div class="chart-canvas-wrap"><canvas id="price-chart" class="ta-canvas" height="220"></canvas></div>
+        </div>
+        <div class="chart-panel">
+          <div class="chart-panel-title">Volume</div>
+          <div class="chart-canvas-wrap"><canvas id="vol-chart" class="ta-canvas" height="80"></canvas></div>
+        </div>
+        <div class="chart-panel">
+          <div class="chart-panel-title"><span>RSI (14)</span><span style="font-size:10px;display:flex;gap:8px"><span style="color:var(--red)">— Overbought 70</span><span style="color:var(--green)">— Oversold 30</span></span></div>
+          <div class="chart-canvas-wrap"><canvas id="rsi-chart" class="ta-canvas" height="90"></canvas></div>
+        </div>
+        <div class="chart-panel">
+          <div class="chart-panel-title"><span>MACD (12,26,9)</span><span style="font-size:10px;display:flex;gap:8px"><span style="color:var(--blue)">— MACD</span><span style="color:var(--red)">— Signal</span></span></div>
+          <div class="chart-canvas-wrap"><canvas id="macd-chart" class="ta-canvas" height="90"></canvas></div>
+        </div>
+      </div>
+      <div class="signal-panel">
+        <div class="signal-card">
+          <div class="signal-card-title">Technical Signals</div>
+          <div class="signal-row"><span class="signal-name">Trend (vs SMA50)</span><span class="signal-val" id="sig-trend">—</span></div>
+          <div class="signal-row"><span class="signal-name">RSI (14)</span><span class="signal-val" id="sig-rsi">—</span></div>
+          <div class="signal-row"><span class="signal-name">MACD</span><span class="signal-val" id="sig-macd">—</span></div>
+          <div class="signal-row"><span class="signal-name">Bollinger Band</span><span class="signal-val" id="sig-bb">—</span></div>
+          <div class="signal-row"><span class="signal-name">SMA 20/50 Cross</span><span class="signal-val" id="sig-cross">—</span></div>
+          <div class="signal-row"><span class="signal-name">Volume Trend</span><span class="signal-val" id="sig-vol">—</span></div>
+          <div class="overall-signal neutral" id="overall-signal">
+            <div class="overall-signal-label">Overall TA Signal</div>
+            <div class="overall-signal-val" id="overall-signal-val">—</div>
+          </div>
+        </div>
+        <div class="signal-card">
+          <div class="signal-card-title">Key Levels</div>
+          <div class="key-level-row"><span class="kl-label">Current Price</span><span class="kl-val" id="kl-price">—</span></div>
+          <div class="key-level-row"><span class="kl-label">SMA 20</span><span class="kl-val" id="kl-sma20">—</span></div>
+          <div class="key-level-row"><span class="kl-label">SMA 50</span><span class="kl-val" id="kl-sma50">—</span></div>
+          <div class="key-level-row"><span class="kl-label">SMA 200</span><span class="kl-val" id="kl-sma200">—</span></div>
+          <div class="key-level-row"><span class="kl-label">BB Upper</span><span class="kl-val" id="kl-bbu">—</span></div>
+          <div class="key-level-row"><span class="kl-label">BB Lower</span><span class="kl-val" id="kl-bbl">—</span></div>
+          <div class="key-level-row"><span class="kl-label">52W High (est.)</span><span class="kl-val" id="kl-high">—</span></div>
+          <div class="key-level-row"><span class="kl-label">52W Low (est.)</span><span class="kl-val" id="kl-low">—</span></div>
+        </div>
+        <div class="signal-card">
+          <div class="signal-card-title">Fundamental Context</div>
+          <div class="key-level-row"><span class="kl-label">IV Current</span><span class="kl-val" id="kl-iv">—</span></div>
+          <div class="key-level-row"><span class="kl-label">Margin of Safety</span><span class="kl-val" id="kl-mos">—</span></div>
+          <div class="key-level-row"><span class="kl-label">Clime Signal</span><span class="kl-val" id="kl-signal">—</span></div>
+          <div class="key-level-row"><span class="kl-label">Sector Tier</span><span class="kl-val" id="kl-tier">—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TAB 4: FRAMEWORK ═══ -->
+<div id="tab-framework" class="tab-panel">
+  <div class="page-header"><h1>Clever Clime — <em>Framework Reference</em></h1><p>Multi-sector equity valuation framework · Clime Investment Management · March 2026 · Confidential</p></div>
+  <div class="callout purple"><strong>Abstract:</strong> Clever Clime extends the SIV equity multiplier into a sector-adaptive, multi-method system. It retains the equity multiplier as the primary engine for industrials and financials, introduces sector-specific methodologies where the multiplier breaks down, adds an earnings quality gate, and integrates a quality-momentum overlay to translate static IV signals into dynamic investment decisions.</div>
+  <div class="card">
+    <div class="card-title purple">5 Valuation Tiers</div>
+    <div class="framework-grid">
+      <div class="tier-card t1"><div class="tier-card-num">1</div><div class="tier-badge tier-1" style="margin-bottom:8px">Tier 1 — SIV Core</div><div class="tier-card-sectors">Consumer Discretionary · Consumer Staples · Health Care (established) · Industrials · Banks · Insurance · Diversified Financials · IT (profitable)</div><div class="tier-card-method">Equity Multiplier: IV = Equity/Share × [(NROE/RR × PR) + (NROE²/RR² × [1−PR])]</div></div>
+      <div class="tier-card t2"><div class="tier-card-num">2</div><div class="tier-badge tier-2" style="margin-bottom:8px">Tier 2 — AEG Model</div><div class="tier-card-sectors">Software & Services · Technology Hardware (asset-light) · Professional Services · Health Care Technology</div><div class="tier-card-method">AEG: IV = EPS(FY+1) / (WACC−g_LT) × [1 + (g_ST−g_LT)/WACC]</div></div>
+      <div class="tier-card t3"><div class="tier-card-num">3</div><div class="tier-badge tier-3" style="margin-bottom:8px">Tier 3 — EV/EBIT</div><div class="tier-card-sectors">Energy · Materials · Utilities · Communications (infra-heavy) · Transportation Infrastructure</div><div class="tier-card-method">EV/EBIT: IV = (EBIT(FY+1) × Target Multiple − Net Debt) / Shares</div></div>
+      <div class="tier-card t4"><div class="tier-card-num">4</div><div class="tier-badge tier-4" style="margin-bottom:8px">Tier 4 — FFO/AFFO</div><div class="tier-card-sectors">Equity REITs · Diversified Real Estate · Infrastructure Funds</div><div class="tier-card-method">P/AFFO: IV = AFFO per Unit × Target P/AFFO Multiple</div></div>
+      <div class="tier-card t5" style="grid-column:1/-1"><div class="tier-card-num">5</div><div class="tier-badge tier-5" style="margin-bottom:8px">Tier 5 — Revenue Multiple</div><div class="tier-card-sectors">Pre-profit technology · Biotech · Early-stage healthcare · Companies with negative equity</div><div class="tier-card-method">EV/NTM Revenue vs peer group median. Directional signals only — no absolute IV produced. Position sizing governed by qualitative assessment and stop-loss discipline.</div></div>
+    </div>
+  </div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title">Signal Matrix — Quality-Momentum Overlay</div>
+      <table class="signal-matrix-table">
+        <thead><tr><th>IV Signal</th><th>EQS</th><th>ERS</th><th>Price Mom.</th><th>Portfolio Signal</th></tr></thead>
+        <tbody>
+          <tr><td>Undervalued</td><td style="color:var(--green)">≥70</td><td style="color:var(--green)">+ve</td><td style="color:var(--green)">+ve</td><td><span class="signal-badge-lg sig-buy">ACTIVE BUY</span></td></tr>
+          <tr><td>Undervalued</td><td style="color:var(--green)">≥70</td><td style="color:var(--green)">+ve</td><td style="color:var(--red)">−ve</td><td><span class="signal-badge-lg sig-acc">ACCUMULATE</span></td></tr>
+          <tr><td>Undervalued</td><td style="color:var(--green)">≥70</td><td style="color:var(--red)">−ve</td><td>Any</td><td><span class="signal-badge-lg sig-watch">WATCH</span></td></tr>
+          <tr><td>Undervalued</td><td style="color:var(--red)">&lt;70</td><td>Any</td><td>Any</td><td><span class="signal-badge-lg sig-sus">SUSPENDED</span></td></tr>
+          <tr><td>Fair Value</td><td>Any</td><td>Any</td><td>Any</td><td><span class="signal-badge-lg sig-hold">HOLD</span></td></tr>
+          <tr><td>Overvalued</td><td>Any</td><td>Any</td><td>Any</td><td><span class="signal-badge-lg sig-red">REDUCE / EXIT</span></td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:12px;font-size:11px;color:var(--muted)">EQS = Earnings Quality Score · ERS = Earnings Revision Score (3-month net revision ratio) · Price Mom. = 12-month price momentum excl. most recent month</div>
+    </div>
+    <div class="card">
+      <div class="card-title">WACC Structure — Clime Framework</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">WACC = Rf + ERP + Company Premium &nbsp;|&nbsp; Rf = 10yr AGB yield ~4.25% &nbsp;|&nbsp; ERP = 6.0%</div>
+      <table class="wacc-table">
+        <thead><tr><th>Quality Tier</th><th>Company Premium</th><th>WACC Range (Rf=4.5%)</th></tr></thead>
+        <tbody>
+          <tr><td><strong style="color:var(--green)">Tier A</strong> — Wide moat, predictable earnings</td><td class="t-mono">0–1%</td><td class="t-mono" style="color:var(--green)">10.5–11.5%</td></tr>
+          <tr><td><strong style="color:var(--gold)">Tier B</strong> — Solid franchise, moderate visibility</td><td class="t-mono">1–3%</td><td class="t-mono" style="color:var(--gold)">11.5–13.5%</td></tr>
+          <tr><td><strong style="color:var(--amber)">Tier C</strong> — Competitive industry, some variability</td><td class="t-mono">3–5%</td><td class="t-mono" style="color:var(--amber)">13.5–15.5%</td></tr>
+          <tr><td><strong style="color:var(--red)">Tier D</strong> — High uncertainty or cyclical</td><td class="t-mono">5–8%</td><td class="t-mono" style="color:var(--red)">15.5–18.5%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title green">Earnings Quality Score (EQS)</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Composite of 4 metrics, each 0–25 pts, max 100. Score ≥70 required to act on IV signal. 50–70 triggers review flag. &lt;50 suspends the IV signal.</div>
+    <div class="eqs-grid">
+      <div class="eqs-item"><div class="eqs-pts">25</div><div class="eqs-name">Earnings Stability</div><div class="eqs-desc">CV of trailing 5-year normalised EPS. Low coefficient of variation = more predictable earnings base.</div></div>
+      <div class="eqs-item"><div class="eqs-pts">25</div><div class="eqs-name">Cash Conversion</div><div class="eqs-desc">Operating CF / NPAT over 3 years. Values below 0.7 indicate accrual-heavy earnings quality concern.</div></div>
+      <div class="eqs-item"><div class="eqs-pts">25</div><div class="eqs-name">Balance Sheet Integrity</div><div class="eqs-desc">Net debt / EBITDA trend. Deteriorating leverage concurrent with growing earnings = quality warning.</div></div>
+      <div class="eqs-item"><div class="eqs-pts">25</div><div class="eqs-name">Consensus Revision Trend</div><div class="eqs-desc">Direction of analyst EPS revisions over 90 days. Sustained downward revisions discount IV reliability.</div></div>
+    </div>
+  </div>
+  <div class="callout blue"><strong>Position Sizing Guidance:</strong> Active Buy High Conviction (MoS &gt;25%, QFS &gt;70) → up to 5% of portfolio · Active Buy Standard (15–25%, QFS 50–70) → up to 3% · Accumulate → up to 2% · Watch → initiate only on significant weakness · The framework does not incorporate macroeconomic inputs — WACC captures this implicitly via the risk-free rate level.</div>
+</div>
+
+<!-- ═══ TAB 5: AI ASSISTANT ═══ -->
+<div id="tab-ai" class="tab-panel">
+  <div class="page-header">
+    <h1>AI Assistant — <em>Powered by Claude</em></h1>
+    <p>Ask questions about the Clever Clime framework, specific stocks, valuation concepts, and technical analysis.</p>
+  </div>
+  <div class="ai-layout">
+    <div class="chat-area">
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-empty">
+          <div class="chat-empty-icon">✦</div>
+          <div class="chat-empty-title">Clime Investment Assistant</div>
+          <div class="chat-empty-sub">I have deep knowledge of the Clever Clime framework, ASX stock valuations, and technical analysis. Ask me anything.</div>
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <textarea id="chat-input" placeholder="Ask about valuations, the framework, technical signals…" rows="1" onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+        <button id="send-btn" onclick="sendMessage()">Send ↑</button>
+      </div>
+    </div>
+    <div class="chat-sidebar">
+      <div class="context-card">
+        <div class="context-card-title">✦ Current Context</div>
+        <div id="ai-context-items">
+          <div class="context-item"><span class="ci-label">Stock</span><span class="ci-val" id="ai-ctx-ticker">None selected</span></div>
+          <div class="context-item"><span class="ci-label">IV Current</span><span class="ci-val" id="ai-ctx-iv">—</span></div>
+          <div class="context-item"><span class="ci-label">Signal</span><span class="ci-val" id="ai-ctx-signal">—</span></div>
+          <div class="context-item"><span class="ci-label">Margin of Safety</span><span class="ci-val" id="ai-ctx-mos">—</span></div>
+          <div class="context-item"><span class="ci-label">Sector Tier</span><span class="ci-val" id="ai-ctx-tier">—</span></div>
+        </div>
+      </div>
+      <div class="context-card">
+        <div class="context-card-title" style="color:var(--muted)">Suggested Questions</div>
+        <div class="questions-list" id="q-list">
+          <button class="q-pill" onclick="setQ('Explain the Clever Clime equity multiplier formula and how bond and growth components interact')">Explain the equity multiplier</button>
+          <button class="q-pill" onclick="setQ('What is the Earnings Quality Score and why does it matter before acting on an IV signal?')">What is the EQS?</button>
+          <button class="q-pill" onclick="setQ('How does the quality-momentum overlay work and what signals trigger an Active Buy?')">How does the signal matrix work?</button>
+          <button class="q-pill" onclick="setQ('Explain how Australian franking credits affect the intrinsic value calculation')">How does franking affect IV?</button>
+          <button class="q-pill" onclick="setQ('What sectors are in each Clever Clime tier and why does methodology change by tier?')">Which sectors per tier?</button>
+          <button class="q-pill" onclick="setQ('What are the main limitations and risks of using the Clever Clime framework?')">Framework limitations?</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TAB 6: RETURN ESTIMATOR ═══ -->
+<div id="tab-return" class="tab-panel">
+  <div class="page-header"><h1>STRETD — <em>Expected Stock Return</em></h1><p>After-tax annualised return with dividends reinvested in shares.</p></div>
+  <div class="two-col">
+    <div>
+      <div class="card">
+        <div class="card-title">Inputs</div>
+        <div class="form-grid">
+          <div class="field"><label>Current Price ($)</label><input type="number" id="st-price" value="35" step="0.01"></div>
+          <div class="field"><label>EPS (Current)</label><input type="number" id="st-eps" value="1.27" step="0.01"></div>
+          <div class="field"><label>Exit P/E Ratio</label><input type="number" id="st-pe" value="25" step="0.5"><span class="hint">At end of holding period</span></div>
+          <div class="field"><label>EPS Growth Rate p.a.</label><input type="number" id="st-g" value="0.15" step="0.01"></div>
+          <div class="field"><label>Holding Period (Years)</label><input type="number" id="st-yrs" value="10" step="1" min="1"></div>
+          <div class="field"><label>Payout Rate</label><input type="number" id="st-pr" value="0.52" step="0.01"></div>
+          <div class="field"><label>Tax Rate — Dividends</label><input type="number" id="st-tdiv" value="0.30" step="0.01"><span class="hint">0 for pre-tax</span></div>
+          <div class="field"><label>Tax Rate — Capital Gain</label><input type="number" id="st-tcap" value="0.20" step="0.01"></div>
+        </div>
+        <button class="btn-primary" onclick="calcSTRETD()">Calculate Return</button>
+        <div class="result-panel" id="st-result">
+          <div class="result-main">
+            <div class="result-primary"><div class="result-label">Annual Return (After Tax)</div><div class="result-big" id="st-val">—</div></div>
+            <div class="result-secondary">
+              <div class="result-item"><div class="r-label">Pre-Tax Return</div><div class="r-val" id="st-pretax">—</div></div>
+              <div class="result-item"><div class="r-label">Exit Price (est.)</div><div class="r-val" id="st-exitp">—</div></div>
+              <div class="result-item"><div class="r-label">Total Shares at Exit</div><div class="r-val" id="st-shares">—</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card"><div class="card-title">How It Works</div><div style="font-size:12px;color:var(--muted);line-height:1.8"><p style="margin-bottom:8px">STRETD simulates holding a stock over the nominated period, reinvesting each year's after-tax dividend by purchasing more shares at the interpolated price.</p><p style="margin-bottom:8px"><strong style="color:var(--text)">Each year:</strong> EPS grows at your forecast rate → dividend paid (EPS × payout) → tax deducted → net dividend purchases more shares at interpolated price.</p><p><strong style="color:var(--text)">At exit:</strong> all shares sold at EPS(n) × exit P/E. Capital gain tax on original share only. Return = CAGR of total proceeds vs entry price.</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TAB 7: RR GUIDE ═══ -->
+<div id="tab-rr" class="tab-panel">
+  <div class="page-header"><h1>Required Return — <em>Clime Framework</em></h1><p>The most critical input. A 1% error in WACC on a quality compounder can move IV by 20–30%.</p></div>
+  <div class="callout">WACC = Rf (~4.25%) + ERP (6.0%) + Company Premium = <strong>~10.25% minimum base for ASX equities</strong></div>
+  <div class="rr-bands">
+    <div class="rr-band low"><div class="rr-band-title">🟢 Wide Moat</div><div class="rr-band-range">&lt;11%</div><div class="rr-band-desc">Global blue chips, exceptional history. Rare — apply carefully.</div></div>
+    <div class="rr-band low"><div class="rr-band-title">✅ Tier A Quality</div><div class="rr-band-range">11–12%</div><div class="rr-band-desc">Highest ASX quality. Consistent ROE, dominant position, clean balance sheet.</div></div>
+    <div class="rr-band mid"><div class="rr-band-title">🟡 Tier B Solid</div><div class="rr-band-range">12–14%</div><div class="rr-band-desc">Good franchise, moderate earnings visibility, some cyclicality.</div></div>
+    <div class="rr-band high"><div class="rr-band-title">🔴 Tier C/D Risk</div><div class="rr-band-range">14–17%</div><div class="rr-band-desc">Competitive pressures, shorter history, leverage concerns or cyclicals.</div></div>
+    <div class="rr-band high"><div class="rr-band-title">⚫ Speculative</div><div class="rr-band-range">&gt;17%</div><div class="rr-band-desc">Pre-profit, high leverage, unproven. IV is very sensitive to small changes.</div></div>
+    <div class="rr-band" style="border-color:var(--border2)"><div class="rr-band-title" style="color:var(--muted)">⚪ Not Covered</div><div class="rr-band-range" style="color:var(--muted2)">N/A</div><div class="rr-band-desc">Sub-investment grade, LICs, insufficient history for reliable NROE.</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">RR Impact Calculator</div>
+    <div class="form-grid form-grid-3">
+      <div class="field"><label>Equity per Share ($)</label><input type="number" id="rr-eq" value="10" step="0.01"></div>
+      <div class="field"><label>NROE</label><input type="number" id="rr-roe" value="0.20" step="0.01"></div>
+      <div class="field"><label>Payout Ratio</label><input type="number" id="rr-pr" value="0.70" step="0.01"></div>
+    </div>
+    <button class="btn-primary" onclick="calcRRImpact()">Show RR Impact</button>
+    <div class="sens-wrap" id="rr-sens-wrap" style="display:none;margin-top:16px"><table class="sens-table" id="rr-sens-table"></table></div>
+  </div>
+</div>
+
+
+<!-- ═══ TAB: PORTFOLIO SIGNALS ═══ -->
+<div id="tab-signals" class="tab-panel">
+  <div class="page-header">
+    <h1>What Should I Do? — <em>Stock Signals</em></h1>
+    <p>What the Clever Clime model says about each stock right now. Based on March 2026 data.</p>
+  </div>
+
+  <!-- Signal legend -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:22px">
+    <div style="background:var(--green-dim);border:1px solid rgba(45,212,160,.25);border-radius:8px;padding:14px;text-align:center">
+      <div style="font-size:20px;margin-bottom:4px">🟢</div>
+      <div style="font-weight:700;color:var(--green);font-size:13px">BUY</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px">Stock trades well below its estimated value</div>
+    </div>
+    <div style="background:rgba(134,239,172,.08);border:1px solid rgba(134,239,172,.2);border-radius:8px;padding:14px;text-align:center">
+      <div style="font-size:20px;margin-bottom:4px">🔼</div>
+      <div style="font-weight:700;color:#86efac;font-size:13px">ACCUMULATE</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px">Good value — buy on dips, wait for momentum</div>
+    </div>
+    <div style="background:var(--amber-dim);border:1px solid rgba(240,160,64,.2);border-radius:8px;padding:14px;text-align:center">
+      <div style="font-size:20px;margin-bottom:4px">👀</div>
+      <div style="font-weight:700;color:var(--amber);font-size:13px">WATCH</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px">Interesting but needs more evidence before buying</div>
+    </div>
+    <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:14px;text-align:center">
+      <div style="font-size:20px;margin-bottom:4px">⏸️</div>
+      <div style="font-weight:700;color:var(--muted);font-size:13px">HOLD</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px">Fairly priced — keep if you own it, don't chase</div>
+    </div>
+    <div style="background:var(--red-dim);border:1px solid rgba(240,96,96,.25);border-radius:8px;padding:14px;text-align:center">
+      <div style="font-size:20px;margin-bottom:4px">🔴</div>
+      <div style="font-weight:700;color:var(--red);font-size:13px">SELL</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px">Stock trades well above its estimated value — reduce</div>
+    </div>
+  </div>
+
+  <!-- Summary counts -->
+  <div id="signal-summary" style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px"></div>
+
+  <!-- Filters -->
+  <div class="asx-controls">
+    <select class="filter-select" id="sig-filter-signal" onchange="renderSignals()">
+      <option value="">Show all</option>
+      <option value="ACTIVE BUY">🟢 Buy only</option>
+      <option value="ACCUMULATE">🔼 Accumulate only</option>
+      <option value="WATCH">👀 Watch only</option>
+      <option value="HOLD">⏸️ Hold only</option>
+      <option value="REDUCE">🔴 Sell only</option>
+    </select>
+    <select class="filter-select" id="sig-filter-sector" onchange="renderSignals()"><option value="">All sectors</option></select>
+    <select class="filter-select" id="sig-filter-tier" onchange="renderSignals()">
+      <option value="">All types</option>
+      <option value="1">Standard companies</option>
+      <option value="2">Tech / software</option>
+      <option value="3">Resources / energy</option>
+      <option value="4">Property trusts</option>
+    </select>
+    <input type="text" class="filter-select" id="sig-search" placeholder="Search stock…" oninput="renderSignals()" style="min-width:160px">
+    <div class="asx-count" id="sig-count">—</div>
+  </div>
+
+  <div class="asx-table-wrap">
+    <table class="asx-table" id="sig-table">
+      <thead><tr>
+        <th onclick="sortSignals('ticker')">Code ↕</th>
+        <th onclick="sortSignals('company')">Company ↕</th>
+        <th onclick="sortSignals('price')">Price ↕</th>
+        <th onclick="sortSignals('iv_current')">Fair Value ↕</th>
+        <th onclick="sortSignals('mos')">Discount ↕</th>
+        <th>Action</th>
+        <th>Max Position</th>
+        <th onclick="sortSignals('roe')">Return on Equity ↕</th>
+      </tr></thead>
+      <tbody id="sig-tbody"></tbody>
+    </table>
+  </div>
+  <div style="margin-top:10px;font-size:11px;color:var(--muted)">
+    ⚠ = close to the buy/hold boundary. Signals are model-based estimates — not financial advice. Always verify earnings quality before acting.
+  </div>
+</div>
+
+<!-- ═══ TAB: FACTSET GUIDE ═══ -->
+<div id="tab-factset" class="tab-panel">
+  <div class="page-header">
+    <h1>How to Use FactSet — <em>Team Workflow</em></h1>
+    <p>A simple guide for filtering the market and building portfolios using the Clever Clime model.</p>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:20px">
+    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px">What is this guide for?</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+      <div style="background:var(--surface2);border-radius:6px;padding:14px;text-align:center">
+        <div style="font-size:22px;margin-bottom:6px">📡</div>
+        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px">Pull fresh data</div>
+        <div style="font-size:11px;color:var(--muted)">Get the latest earnings forecasts and prices from FactSet into your spreadsheet</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:6px;padding:14px;text-align:center">
+        <div style="font-size:22px;margin-bottom:6px">🔍</div>
+        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px">Filter the market</div>
+        <div style="font-size:11px;color:var(--muted)">Run a screen to find stocks the model thinks are cheap right now</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:6px;padding:14px;text-align:center">
+        <div style="font-size:22px;margin-bottom:6px">📋</div>
+        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px">Build the portfolio</div>
+        <div style="font-size:11px;color:var(--muted)">Know exactly how much to buy based on how cheap each stock is</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 22px;margin-bottom:20px">
+    <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">How often to do this</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+      <div style="border-left:3px solid var(--green);padding-left:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--green)">Every Monday</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">Refresh prices and analyst forecasts. Re-run the screen. Check if any signals changed.</div>
+      </div>
+      <div style="border-left:3px solid var(--amber);padding-left:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--amber)">Once a month</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">Update the required return (WACC) for each stock. Check earnings quality scores.</div>
+      </div>
+      <div style="border-left:3px solid var(--blue);padding-left:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--blue)">Every quarter</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">Full review of required return assumptions for the top 50 holdings.</div>
+      </div>
+      <div style="border-left:3px solid var(--red);padding-left:12px">
+        <div style="font-size:12px;font-weight:700;color:var(--red)">After results</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:3px">Re-run immediately after any company reports. Signals can flip overnight.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:14px">
+    <div style="width:36px;height:36px;border-radius:50%;background:var(--gold);color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">1</div>
+    <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px">
+      <div style="font-size:14px;font-weight:600;margin-bottom:4px">Open FactSet and run the screen</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Go to <strong style="color:var(--text)">Screening &rarr; Universal Screening</strong>. Set the universe to <strong style="color:var(--text)">ASX All Ordinaries</strong>. Add these columns, then export to Excel.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:12px">
+          <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">Columns to add</div>
+          <div style="font-size:11px;color:var(--muted);line-height:2">
+            <span style="color:var(--text)">Ticker &amp; Company Name</span><br>
+            <span style="color:var(--text)">Latest Share Price</span><br>
+            <span style="color:var(--text)">EPS Forecast Year 1 &amp; 2</span><br>
+            <span style="color:var(--text)">Dividend Forecast Year 1</span><br>
+            <span style="color:var(--text)">Book Value per Share</span><br>
+            <span style="color:var(--text)">Franking %</span><br>
+            <span style="color:var(--text)">WACC (cost of equity)</span><br>
+            <span style="color:var(--text)">Analyst upgrade/downgrade trend</span>
+          </div>
+        </div>
+        <div>
+          <div style="background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:12px;margin-bottom:10px">
+            <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px">FactSet codes</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;line-height:2;color:var(--muted)">
+              <span style="color:var(--gold)">FF_EPS(FY1,AUD)</span><br>
+              <span style="color:var(--gold)">FF_EPS(FY2,AUD)</span><br>
+              <span style="color:var(--gold)">FF_DPS(FY1,AUD)</span><br>
+              <span style="color:var(--gold)">FF_BOOK_VAL_PS(LTM)</span><br>
+              <span style="color:var(--gold)">FF_FRANK_PCT(ANN)</span><br>
+              <span style="color:var(--gold)">CESTIREV_EPS(0,90,-1)</span>
+            </div>
+          </div>
+          <div style="background:var(--green-dim);border:1px solid rgba(45,212,160,.2);border-radius:6px;padding:10px;font-size:11px;color:var(--green)">
+            Export to Excel &rarr; paste into <strong>Data_Forecasts</strong> sheet
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:14px">
+    <div style="width:36px;height:36px;border-radius:50%;background:var(--gold);color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">2</div>
+    <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px">
+      <div style="font-size:14px;font-weight:600;margin-bottom:4px">The spreadsheet works out fair value automatically</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Once you paste the data in, the Valuation sheet does the maths. Here is what happens in plain English:</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+        <div style="background:var(--surface2);border-radius:6px;padding:12px;text-align:center">
+          <div style="font-size:18px;margin-bottom:6px">📐</div>
+          <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px">How well does it use capital?</div>
+          <div style="font-size:10px;color:var(--muted)">Earnings divided by book value. A high number means the business is efficient.</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:6px;padding:12px;text-align:center">
+          <div style="font-size:18px;margin-bottom:6px">🇦🇺</div>
+          <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px">Franking credit uplift</div>
+          <div style="font-size:10px;color:var(--muted)">AU tax credits make fully-franked dividends worth more. Added automatically.</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:6px;padding:12px;text-align:center">
+          <div style="font-size:18px;margin-bottom:6px">✖️</div>
+          <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px">A single fair value multiplier</div>
+          <div style="font-size:10px;color:var(--muted)">Income value + growth value combined into one number, multiplied by book value.</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:6px;padding:12px;text-align:center">
+          <div style="font-size:18px;margin-bottom:6px">🏷️</div>
+          <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px">The signal</div>
+          <div style="font-size:10px;color:var(--muted)">&gt;15% below fair value = Buy. Within 15% = Hold. &gt;15% above = Sell.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:14px">
+    <div style="width:36px;height:36px;border-radius:50%;background:var(--gold);color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">3</div>
+    <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px">
+      <div style="font-size:14px;font-weight:600;margin-bottom:4px">Check earnings quality before buying</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">A cheap stock is only interesting if the profits are real. The EQS sheet scores each company on 4 questions. <strong style="color:var(--text)">Score 70+ to act.</strong></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <div style="background:var(--surface2);border-radius:6px;padding:12px;display:flex;gap:10px;align-items:flex-start">
+          <span style="font-size:18px">📊</span>
+          <div><div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px">Are earnings stable?</div><div style="font-size:10px;color:var(--muted)">Consistent profits over 5 years. Volatile = risky.</div></div>
+        </div>
+        <div style="background:var(--surface2);border-radius:6px;padding:12px;display:flex;gap:10px;align-items:flex-start">
+          <span style="font-size:18px">💵</span>
+          <div><div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px">Does profit turn into cash?</div><div style="font-size:10px;color:var(--muted)">Paper profit that doesn't become cash is a warning sign.</div></div>
+        </div>
+        <div style="background:var(--surface2);border-radius:6px;padding:12px;display:flex;gap:10px;align-items:flex-start">
+          <span style="font-size:18px">⚖️</span>
+          <div><div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px">Is debt under control?</div><div style="font-size:10px;color:var(--muted)">Growing profits while piling on debt is a red flag.</div></div>
+        </div>
+        <div style="background:var(--surface2);border-radius:6px;padding:12px;display:flex;gap:10px;align-items:flex-start">
+          <span style="font-size:18px">📈</span>
+          <div><div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px">Are analysts upgrading?</div><div style="font-size:10px;color:var(--muted)">If forecasts are being cut, wait. Net upgrades in FactSet via CESTIREV_EPS.</div></div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1;background:var(--green-dim);border:1px solid rgba(45,212,160,.2);border-radius:6px;padding:10px;text-align:center;font-size:11px"><span style="font-weight:700;color:var(--green)">70–100</span><br><span style="color:var(--muted)">Act on signal</span></div>
+        <div style="flex:1;background:var(--amber-dim);border:1px solid rgba(240,160,64,.2);border-radius:6px;padding:10px;text-align:center;font-size:11px"><span style="font-weight:700;color:var(--amber)">50–69</span><br><span style="color:var(--muted)">Review first</span></div>
+        <div style="flex:1;background:var(--red-dim);border:1px solid rgba(240,96,96,.2);border-radius:6px;padding:10px;text-align:center;font-size:11px"><span style="font-weight:700;color:var(--red)">&lt;50</span><br><span style="color:var(--muted)">Don't buy</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:14px">
+    <div style="width:36px;height:36px;border-radius:50%;background:var(--gold);color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">4</div>
+    <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px">
+      <div style="font-size:14px;font-weight:600;margin-bottom:4px">Check price momentum — timing matters</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">A stock can be cheap for a long time. We use one simple timing check: is it higher than 12 months ago?</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="background:var(--green-dim);border:1px solid rgba(45,212,160,.2);border-radius:6px;padding:14px">
+          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:4px">Price up vs 12 months ago</div>
+          <div style="font-size:11px;color:var(--muted)">Market starting to see the value &rarr; <strong style="color:var(--green)">Active Buy</strong>. Full position.</div>
+        </div>
+        <div style="background:var(--amber-dim);border:1px solid rgba(240,160,64,.2);border-radius:6px;padding:14px">
+          <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:4px">Price down vs 12 months ago</div>
+          <div style="font-size:11px;color:var(--muted)">Still cheap but falling &rarr; <strong style="color:var(--amber)">Accumulate</strong>. Half position, add later.</div>
+        </div>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--muted);background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:10px">
+        FactSet code: <span style="font-family:'JetBrains Mono',monospace;color:var(--gold)">P_PRICE_CHG(-252,-21,ANN)</span> — 12-month return excluding the most recent month
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:14px">
+    <div style="width:36px;height:36px;border-radius:50%;background:var(--gold);color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">5</div>
+    <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px">
+      <div style="font-size:14px;font-weight:600;margin-bottom:4px">How much to buy</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">The bigger the discount, the larger the position. Simple rule: more conviction = more capital.</div>
+      <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead><tr style="background:var(--surface2)">
+          <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);color:var(--muted);font-size:10px;text-transform:uppercase">Signal</th>
+          <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);color:var(--muted);font-size:10px;text-transform:uppercase">What it means</th>
+          <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);color:var(--muted);font-size:10px;text-transform:uppercase">Max % of portfolio</th>
+          <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);color:var(--muted);font-size:10px;text-transform:uppercase">Action</th>
+        </tr></thead>
+        <tbody>
+          <tr><td style="padding:9px 12px;border-bottom:1px solid var(--border)"><span class="signal-badge-lg sig-buy">BUY ★</span></td><td style="padding:9px 12px;border-bottom:1px solid var(--border);color:var(--muted)">&gt;25% below fair value</td><td style="padding:9px 12px;border-bottom:1px solid var(--border);font-weight:700;color:var(--green)">Up to 5%</td><td style="padding:9px 12px;border-bottom:1px solid var(--border);color:var(--muted)">Buy a full position</td></tr>
+          <tr><td style="padding:9px 12px;border-bottom:1px solid var(--border)"><span class="signal-badge-lg sig-buy">BUY</span></td><td style="padding:9px 12px;border-bottom:1px solid var(--border);color:var(--muted)">15–25% below fair value</td><td style="padding:9px 12px;border-bottom:1px solid var(--border);font-weight:700;color:var(--green)">Up to 3%</td><td style="padding:9px 12px;border-bottom:1px solid var(--border);color:var(--muted)">Standard initiation</td></tr>
+          <tr><td style="padding:9px 12px;border-bottom:1px solid var(--border)"><span class="signal-badge-lg sig-acc">ACCUMULATE</span></td><td style="padding:9px 12px;border-bottom:1px solid var(--border);color:var(--muted)">Cheap but still falling</td><td style="padding:9px 12px;border-bottom:1px solid var(--border);font-weight:700;color:var(--amber)">Up to 2%</td><td style="padding:9px 12px;border-bottom:1px solid var(--border);color:var(--muted)">Half now, add when price turns up</td></tr>
+          <tr><td style="padding:9px 12px;border-bottom:1px solid var(--border)"><span class="signal-badge-lg sig-watch">WATCH</span></td><td style="padding:9px 12px;border-bottom:1px solid var(--border);color:var(--muted)">Interesting, not ready yet</td><td style="padding:9px 12px;border-bottom:1px solid var(--border);font-weight:700;color:var(--muted)">0–1%</td><td style="padding:9px 12px;border-bottom:1px solid var(--border);color:var(--muted)">Only on a major price fall</td></tr>
+          <tr><td style="padding:9px 12px;border-bottom:1px solid var(--border)"><span class="signal-badge-lg sig-hold">HOLD</span></td><td style="padding:9px 12px;border-bottom:1px solid var(--border);color:var(--muted)">Fairly priced</td><td style="padding:9px 12px;border-bottom:1px solid var(--border);font-weight:700;color:var(--muted)">Keep existing</td><td style="padding:9px 12px;border-bottom:1px solid var(--border);color:var(--muted)">Don't buy more, don't sell</td></tr>
+          <tr><td style="padding:9px 12px"><span class="signal-badge-lg sig-red">SELL</span></td><td style="padding:9px 12px;color:var(--muted)">&gt;15% above fair value</td><td style="padding:9px 12px;font-weight:700;color:var(--red)">Sell down to 0%</td><td style="padding:9px 12px;color:var(--muted)">Sell into strength</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:20px">
+    <div style="width:36px;height:36px;border-radius:50%;background:var(--gold);color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">6</div>
+    <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px">
+      <div style="font-size:14px;font-weight:600;margin-bottom:4px">Monday shortlist — 5 filters to run in FactSet</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">These 5 filters in your Universal Screen give you a list of stocks that look cheap and pass the basic quality checks. Usually returns 15–40 names to review.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:14px">
+          <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:10px">Copy these into FactSet</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="background:var(--surface2);border-radius:5px;padding:8px 10px">
+              <div style="font-size:10px;color:var(--muted);margin-bottom:2px">Cheap enough</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold)">P_PRICE &lt; IV_Current * 0.85</div>
+            </div>
+            <div style="background:var(--surface2);border-radius:5px;padding:8px 10px">
+              <div style="font-size:10px;color:var(--muted);margin-bottom:2px">Profit converts to cash</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold)">FF_OCF(LTM) / FF_NET_INC(LTM) &gt; 0.7</div>
+            </div>
+            <div style="background:var(--surface2);border-radius:5px;padding:8px 10px">
+              <div style="font-size:10px;color:var(--muted);margin-bottom:2px">Debt is manageable</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold)">FF_DEBT_NET / FF_EBITDA &lt; 3.0</div>
+            </div>
+            <div style="background:var(--surface2);border-radius:5px;padding:8px 10px">
+              <div style="font-size:10px;color:var(--muted);margin-bottom:2px">Analysts are upgrading</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold)">CESTIREV_EPS(0,90,-1) &gt; 0</div>
+            </div>
+            <div style="background:var(--surface2);border-radius:5px;padding:8px 10px">
+              <div style="font-size:10px;color:var(--muted);margin-bottom:2px">Profitable (not pre-revenue)</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold)">FF_EPS(FY1) &gt; 0</div>
+            </div>
+            <div style="font-size:10px;color:var(--blue);padding:4px 0">Sort by: biggest discount first</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:14px">
+            <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:8px">Excel workbook sheets</div>
+            <div style="font-size:10px;color:var(--muted);line-height:2">
+              <span style="color:var(--gold);font-weight:600">Data_Forecasts</span> &larr; paste FactSet export<br>
+              <span style="color:var(--gold);font-weight:600">Data_WACC</span> &larr; Clime override rates<br>
+              <span style="color:var(--gold);font-weight:600">Valuation</span> &larr; fair value calculated here<br>
+              <span style="color:var(--gold);font-weight:600">EQS</span> &larr; earnings quality scores<br>
+              <span style="color:var(--gold);font-weight:600">Signal</span> &larr; buy / hold / sell per stock<br>
+              <span style="color:var(--gold);font-weight:600">Portfolio</span> &larr; current holdings overlay<br>
+              <span style="color:var(--gold);font-weight:600">Dashboard</span> &larr; Monday morning summary
+            </div>
+          </div>
+          <div style="background:var(--amber-dim);border:1px solid rgba(240,160,64,.2);border-radius:6px;padding:12px;font-size:11px;color:var(--muted)">
+            <strong style="color:var(--amber)">Remember:</strong> the shortlist is a starting point for analyst review — not an automatic buy list. Always verify the WACC and EQS score before placing orders.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:rgba(91,143,249,.06);border:1px solid rgba(91,143,249,.2);border-radius:var(--radius);padding:16px 20px;font-size:12px;color:#8ab0e8;line-height:1.8">
+    <strong>Monday morning routine (15 minutes):</strong><br>
+    1. Export FactSet screen &rarr; paste into Data_Forecasts &nbsp;&bull;&nbsp;
+    2. Open the Signal sheet &mdash; what changed from last week? &nbsp;&bull;&nbsp;
+    3. Check the Dashboard for new Buy signals &nbsp;&bull;&nbsp;
+    4. Verify any new buys against the EQS tab &nbsp;&bull;&nbsp;
+    5. Done.
+  </div>
+</div>
+
+</div><!-- /content -->
+</div><!-- /app -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+// ═══════════════════════════════════════════
+// CLEVER CLIME AI SYSTEM PROMPT
+// ═══════════════════════════════════════════
+const CC_SYSTEM = `You are an expert investment research analyst for Clime Investment Management, with deep expertise in the Clever Clime framework for ASX equity valuation. You are knowledgeable, precise, and helpful. Always note that responses are not financial advice.
+
+CLEVER CLIME FRAMEWORK SUMMARY:
+
+CORE FORMULA (Tier 1 — SIV Equity Multiplier):
+  Bond Component = NROE / WACC
+  Growth Component = NROE² / WACC²
+  Equity Multiplier = (Bond × Payout Ratio) + (Growth × [1 − Payout Ratio])
+  Intrinsic Value = Equity Multiplier × Equity Per Share
+  
+  Signal thresholds: Undervalued = Price < IV×0.85 | Fair = within ±15% | Overvalued = Price > IV×1.15
+
+AUSTRALIAN FRANKING ADJUSTMENT:
+  DPS Grossed Up = DPS × (1 + Franking% × [30/70])
+  Franking-Adjusted Payout = DPS Grossed Up / EPS
+
+5 VALUATION TIERS:
+  Tier 1 (SIV Core): Consumer Disc/Staples, Health Care (established), Industrials, Banks, Insurance, Financials, IT (profitable) → Equity Multiplier
+  Tier 2 (AEG Model): Software, Tech Hardware (asset-light), Professional Services → AEG: IV = EPS(FY+1)/(WACC-g_LT) × [1+(g_ST-g_LT)/WACC]
+  Tier 3 (EV/EBIT): Energy, Materials, Utilities, Transport Infra → IV = (EBIT×Target Multiple - Net Debt)/Shares
+  Tier 4 (FFO/AFFO): REITs, Real Estate, Infrastructure Funds → IV = AFFO × Target P/AFFO
+  Tier 5 (Revenue): Pre-profit tech, Biotech, negative equity → EV/NTM Revenue vs peers (directional only)
+
+EARNINGS QUALITY SCORE (EQS, 0–100):
+  25pts Earnings Stability (5yr EPS CV)
+  25pts Cash Conversion (OCF/NPAT 3yr avg, flag if <0.7)
+  25pts Balance Sheet Integrity (Net Debt/EBITDA trend)
+  25pts Consensus Revision Trend (90-day net revisions)
+  Gate: ≥70 = act | 50–70 = review flag | <50 = suspend IV signal
+
+SIGNAL MATRIX (Quality-Momentum Overlay):
+  ACTIVE BUY: Undervalued + EQS≥70 + ERS positive + Price momentum positive
+  ACCUMULATE: Undervalued + EQS≥70 + ERS positive + Momentum negative
+  WATCH: Undervalued + EQS≥70 + ERS negative
+  SUSPENDED: Undervalued + EQS<70
+  HOLD: Fair value
+  REDUCE/EXIT: Overvalued
+
+WACC STRUCTURE: Rf (~4.25%) + ERP (6%) + Company Premium
+  Tier A (wide moat): 0-1% premium → 10.5-11.5% WACC
+  Tier B (solid): 1-3% → 11.5-13.5%
+  Tier C (competitive): 3-5% → 13.5-15.5%
+  Tier D (high risk): 5-8% → 15.5-18.5%
+
+POSITION SIZING:
+  Active Buy High Conviction (MoS>25%, QFS>70): up to 5%
+  Active Buy Standard (15-25%, QFS 50-70): up to 3%
+  Accumulate: up to 2%
+  Watch: initiate only on significant weakness
+
+TECHNICAL ANALYSIS INTERPRETATION:
+  RSI >70 = overbought, <30 = oversold
+  MACD line crossing above signal = bullish, below = bearish
+  Price above SMA200 = long-term uptrend
+  Bollinger upper band = resistance, lower = support
+  SMA20 crossing above SMA50 = golden cross (bullish)
+
+KEY LIMITATIONS:
+  - IV is estimate-dependent, not a true measure
+  - Consensus EPS estimates are systematically optimistic
+  - WACC is a judgement, not observable
+  - Framework does not incorporate macro inputs
+  - Tier 5 names are speculative
+
+ASX DATA (268 stocks with: price, iv_current, iv_forward, mos%, signal, roe, wacc, payout, eps_fy1, eps_fy2, dps_fy1, franking, equity_ps)
+
+Be concise, specific, and grounded in the framework. When discussing a specific stock, relate your analysis to its Clever Clime tier, signal, and key metrics.`;
+
+// ═══════════════════════════════════════════
+// ASX DATA
+// ═══════════════════════════════════════════
+const ASX_DATA = [{"ticker":"360","company":"Life360 Inc.","sector":"Software & Services","price":19.39,"iv_current":13.12,"iv_forward":13.78,"mos":-32.3,"signal":"Overvalued","roe":10.0,"wacc":8.5,"payout":50.0,"eps_fy1":0.4732,"eps_fy2":0.6695,"dps_fy1":null,"franking":0,"equity_ps":7.3863},{"ticker":"A2M","company":"The A2 Milk Company","sector":"Food, Beverage & Tobacco","price":9.49,"iv_current":3.85,"iv_forward":4.06,"mos":-59.5,"signal":"Overvalued","roe":16.0,"wacc":9.5,"payout":66.0,"eps_fy1":0.2512,"eps_fy2":0.2948,"dps_fy1":0.2804,"franking":0,"equity_ps":1.8527},{"ticker":"AAI","company":"Alcoa Corporation","sector":"Materials","price":91.91,"iv_current":71.43,"iv_forward":73.72,"mos":-22.3,"signal":"Overvalued","roe":16.0,"wacc":9.0,"payout":80.0,"eps_fy1":7.2045,"eps_fy2":7.8328,"dps_fy1":0.5806,"franking":0,"equity_ps":35.5145},{"ticker":"ABB","company":"Aussie Broadband","sector":"Telecommunication Services","price":4.79,"iv_current":4.14,"iv_forward":4.57,"mos":-13.7,"signal":"Fair value","roe":15.0,"wacc":9.5,"payout":30.0,"eps_fy1":0.2151,"eps_fy2":0.2919,"dps_fy1":0.0654,"franking":70.0,"equity_ps":1.8639},{"ticker":"AGL","company":"AGL Energy Limited.","sector":"Utilities","price":9.25,"iv_current":9.36,"iv_forward":9.81,"mos":1.2,"signal":"Fair value","roe":12.0,"wacc":10.0,"payout":60.0,"eps_fy1":0.9436,"eps_fy2":0.9347,"dps_fy1":0.4878,"franking":100.0,"equity_ps":7.2211},{"ticker":"ALD","company":"Ampol Limited","sector":"Energy","price":31.48,"iv_current":27.06,"iv_forward":28.14,"mos":-14.1,"signal":"Fair value","roe":16.0,"wacc":9.0,"payout":75.0,"eps_fy1":1.7994,"eps_fy2":1.9598,"dps_fy1":1.0177,"franking":100.0,"equity_ps":13.2739},{"ticker":"ALL","company":"Aristocrat Leisure","sector":"Consumer Services","price":44.76,"iv_current":46.94,"iv_forward":52.62,"mos":4.9,"signal":"Fair value","roe":22.0,"wacc":9.0,"payout":45.0,"eps_fy1":2.6897,"eps_fy2":3.028,"dps_fy1":0.9914,"franking":0,"equity_ps":10.7017},{"ticker":"ALQ","company":"ALS Ltd","sector":"Commercial & Professional Services","price":21.44,"iv_current":12.86,"iv_forward":14.07,"mos":-40.0,"signal":"Overvalued","roe":27.0,"wacc":9.0,"payout":65.0,"eps_fy1":0.7416,"eps_fy2":0.8767,"dps_fy1":0.4223,"franking":29.9,"equity_ps":2.5214},{"ticker":"ALX","company":"Atlas Arteria","sector":"Transportation","price":4.67,"iv_current":4.67,"iv_forward":4.67,"mos":-0.1,"signal":"Fair value","roe":7.0,"wacc":6.0,"payout":100.0,"eps_fy1":0.2425,"eps_fy2":0.2805,"dps_fy1":0.4,"franking":0,"equity_ps":4.3507},{"ticker":"AMC","company":"Amcor PLC","sector":"Materials","price":57.34,"iv_current":61.82,"iv_forward":64.84,"mos":7.8,"signal":"Fair value","roe":14.0,"wacc":10.0,"payout":65.0,"eps_fy1":5.7244,"eps_fy2":6.3201,"dps_fy1":3.7073,"franking":0,"equity_ps":38.7316},{"ticker":"AMP","company":"AMP Limited","sector":"Financial Services","price":1.23,"iv_current":0.93,"iv_forward":0.98,"mos":-23.7,"signal":"Overvalued","roe":7.5,"wacc":10.0,"payout":37.0,"eps_fy1":0.1135,"eps_fy2":0.1211,"dps_fy1":0.0427,"franking":20.0,"equity_ps":1.4788},{"ticker":"ANN","company":"Ansell Limited","sector":"Health Care Equipment & Services","price":29.89,"iv_current":24.9,"iv_forward":26.02,"mos":-16.7,"signal":"Overvalued","roe":9.0,"wacc":8.0,"payout":50.0,"eps_fy1":2.0066,"eps_fy2":2.1987,"dps_fy1":0.8714,"franking":0,"equity_ps":20.8318},{"ticker":"ANZ","company":"ANZ Group Holdings","sector":"Banks","price":36.72,"iv_current":28.68,"iv_forward":29.43,"mos":-21.9,"signal":"Overvalued","roe":10.5,"wacc":9.0,"payout":75.0,"eps_fy1":2.5155,"eps_fy2":2.5763,"dps_fy1":1.68,"franking":70.0,"equity_ps":23.5976},{"ticker":"APA","company":"APA Group","sector":"Utilities","price":9.4,"iv_current":6.76,"iv_forward":6.76,"mos":-28.0,"signal":"Overvalued","roe":15.0,"wacc":4.5,"payout":100.0,"eps_fy1":0.1933,"eps_fy2":0.2416,"dps_fy1":0.58,"franking":0,"equity_ps":2.0286},{"ticker":"APE","company":"Eagers Automotive","sector":"Consumer Discretionary Distribution & Retail","price":20.7,"iv_current":13.53,"iv_forward":14.22,"mos":-34.7,"signal":"Overvalued","roe":17.0,"wacc":10.0,"payout":70.0,"eps_fy1":0.9663,"eps_fy2":1.253,"dps_fy1":0.692,"franking":0,"equity_ps":4.6552},{"ticker":"ARB","company":"ARB Corporation.","sector":"Automobiles & Components","price":22.21,"iv_current":11.75,"iv_forward":12.31,"mos":-47.1,"signal":"Overvalued","roe":12.0,"wacc":10.0,"payout":60.0,"eps_fy1":1.0855,"eps_fy2":1.2613,"dps_fy1":0.6272,"franking":70.0,"equity_ps":9.0661},{"ticker":"ARF","company":"Arena REIT.","sector":"Equity Real Estate Investment Trusts (REITs)","price":3.38,"iv_current":2.53,"iv_forward":2.54,"mos":-25.2,"signal":"Overvalued","roe":6.7,"wacc":8.0,"payout":95.0,"eps_fy1":0.201,"eps_fy2":0.21,"dps_fy1":0.1924,"franking":0,"equity_ps":3.0418},{"ticker":"ASX","company":"ASX Limited","sector":"Financial Services","price":49.82,"iv_current":41.42,"iv_forward":42.87,"mos":-16.9,"signal":"Overvalued","roe":14.0,"wacc":8.0,"payout":75.0,"eps_fy1":2.6407,"eps_fy2":2.7036,"dps_fy1":1.9806,"franking":100.0,"equity_ps":19.9321},{"ticker":"AUB","company":"AUB Group Ltd","sector":"Insurance","price":23.22,"iv_current":23.23,"iv_forward":24.7,"mos":0.1,"signal":"Fair value","roe":14.0,"wacc":9.5,"payout":55.0,"eps_fy1":1.8662,"eps_fy2":2.0491,"dps_fy1":0.9745,"franking":100.0,"equity_ps":12.9943},{"ticker":"AZJ","company":"Aurizon Holdings Ltd","sector":"Transportation","price":4.01,"iv_current":4.17,"iv_forward":4.27,"mos":4.2,"signal":"Fair value","roe":11.0,"wacc":7.0,"payout":80.0,"eps_fy1":0.2435,"eps_fy2":0.2731,"dps_fy1":0.195,"franking":100.0,"equity_ps":2.3836},{"ticker":"BEN","company":"Bendigo and Adelaide","sector":"Banks","price":10.02,"iv_current":8.25,"iv_forward":8.41,"mos":-17.6,"signal":"Overvalued","roe":7.5,"wacc":10.0,"payout":75.0,"eps_fy1":0.8349,"eps_fy2":0.8671,"dps_fy1":0.6323,"franking":100.0,"equity_ps":11.7374},{"ticker":"BGA","company":"Bega Cheese Ltd","sector":"Food, Beverage & Tobacco","price":5.71,"iv_current":3.8,"iv_forward":3.93,"mos":-33.5,"signal":"Overvalued","roe":9.0,"wacc":7.99,"payout":60.0,"eps_fy1":0.2167,"eps_fy2":0.2737,"dps_fy1":0.1593,"franking":100.0,"equity_ps":3.2098},{"ticker":"BGL","company":"Bellevue Gold Ltd","sector":"Materials","price":1.57,"iv_current":1.35,"iv_forward":1.47,"mos":-13.5,"signal":"Fair value","roe":22.0,"wacc":12.0,"payout":60.0,"eps_fy1":0.0932,"eps_fy2":0.1992,"dps_fy1":null,"franking":0,"equity_ps":0.5538},{"ticker":"BHP","company":"BHP Group Limited","sector":"Materials","price":50.08,"iv_current":44.26,"iv_forward":47.62,"mos":-11.6,"signal":"Fair value","roe":19.0,"wacc":8.92,"payout":60.0,"eps_fy1":3.5398,"eps_fy2":3.4438,"dps_fy1":1.9801,"franking":100.0,"equity_ps":14.3204},{"ticker":"BOQ","company":"Bank of Queensland.","sector":"Banks","price":6.93,"iv_current":5.22,"iv_forward":5.29,"mos":-24.6,"signal":"Overvalued","roe":6.0,"wacc":9.5,"payout":80.0,"eps_fy1":0.5533,"eps_fy2":0.5726,"dps_fy1":0.3947,"franking":100.0,"equity_ps":8.9301},{"ticker":"BPT","company":"Beach Energy Limited","sector":"Energy","price":1.24,"iv_current":1.39,"iv_forward":1.46,"mos":12.0,"signal":"Fair value","roe":11.0,"wacc":11.0,"payout":50.0,"eps_fy1":0.1467,"eps_fy2":0.1617,"dps_fy1":0.0322,"franking":100.0,"equity_ps":1.3851},{"ticker":"BRG","company":"Breville Group Ltd","sector":"Consumer Durables & Apparel","price":27.43,"iv_current":17.53,"iv_forward":19.21,"mos":-36.1,"signal":"Overvalued","roe":16.0,"wacc":9.0,"payout":40.0,"eps_fy1":0.956,"eps_fy2":1.0951,"dps_fy1":0.3817,"franking":100.0,"equity_ps":6.7229},{"ticker":"BSL","company":"BlueScope Steel Ltd","sector":"Materials","price":26.95,"iv_current":15.52,"iv_forward":16.22,"mos":-42.4,"signal":"Overvalued","roe":7.5,"wacc":10.0,"payout":40.0,"eps_fy1":1.7741,"eps_fy2":1.999,"dps_fy1":0.6,"franking":0,"equity_ps":24.3484},{"ticker":"BWP","company":"BWP Group","sector":"Equity Real Estate Investment Trusts (REITs)","price":3.8,"iv_current":3.27,"iv_forward":3.27,"mos":-14.0,"signal":"Fair value","roe":5.0,"wacc":6.0,"payout":100.0,"eps_fy1":0.1924,"eps_fy2":0.197,"dps_fy1":0.1929,"franking":0,"equity_ps":3.9201},{"ticker":"BXB","company":"Brambles Limited","sector":"Commercial & Professional Services","price":22.26,"iv_current":19.1,"iv_forward":21.09,"mos":-14.2,"signal":"Fair value","roe":26.0,"wacc":9.0,"payout":60.0,"eps_fy1":1.0104,"eps_fy2":1.1165,"dps_fy1":0.6073,"franking":30.0,"equity_ps":3.7643},{"ticker":"CAR","company":"CAR Group Limited","sector":"Media & Entertainment","price":23.61,"iv_current":14.86,"iv_forward":15.31,"mos":-37.0,"signal":"Overvalued","roe":15.0,"wacc":9.0,"payout":80.0,"eps_fy1":1.0839,"eps_fy2":1.2085,"dps_fy1":0.8692,"franking":40.0,"equity_ps":7.8693},{"ticker":"CBA","company":"Commonwealth Bank.","sector":"Banks","price":176.29,"iv_current":118.16,"iv_forward":120.82,"mos":-33.0,"signal":"Overvalued","roe":15.0,"wacc":7.0,"payout":85.0,"eps_fy1":6.5596,"eps_fy2":6.8112,"dps_fy1":5.0572,"franking":100.0,"equity_ps":47.0737},{"ticker":"CGF","company":"Challenger Limited","sector":"Financial Services","price":8.17,"iv_current":8.13,"iv_forward":8.6,"mos":-0.5,"signal":"Fair value","roe":11.5,"wacc":9.0,"payout":50.0,"eps_fy1":0.6557,"eps_fy2":0.6952,"dps_fy1":0.2978,"franking":100.0,"equity_ps":5.5873},{"ticker":"CHC","company":"Charter Hall Group","sector":"Equity Real Estate Investment Trusts (REITs)","price":19.66,"iv_current":18.23,"iv_forward":20.51,"mos":-7.3,"signal":"Fair value","roe":50.0,"wacc":9.0,"payout":75.0,"eps_fy1":0.9716,"eps_fy2":1.0669,"dps_fy1":0.5593,"franking":85.0,"equity_ps":1.5343},{"ticker":"CIA","company":"Champion Iron Ltd","sector":"Materials","price":4.76,"iv_current":4.24,"iv_forward":4.47,"mos":-11.1,"signal":"Fair value","roe":14.0,"wacc":11.0,"payout":60.1,"eps_fy1":0.3834,"eps_fy2":0.5306,"dps_fy1":0.2179,"franking":0,"equity_ps":3.0013},{"ticker":"CIP","company":"Centuria I REIT","sector":"Equity Real Estate Investment Trusts (REITs)","price":3.07,"iv_current":2.91,"iv_forward":2.93,"mos":-5.0,"signal":"Fair value","roe":4.5,"wacc":6.0,"payout":90.0,"eps_fy1":0.1829,"eps_fy2":0.1909,"dps_fy1":0.1686,"franking":0,"equity_ps":3.9835},{"ticker":"COH","company":"Cochlear Limited","sector":"Health Care Equipment & Services","price":173.8,"iv_current":125.06,"iv_forward":133.32,"mos":-28.0,"signal":"Overvalued","roe":22.0,"wacc":8.0,"payout":70.0,"eps_fy1":6.3296,"eps_fy2":7.1659,"dps_fy1":4.3816,"franking":85.0,"equity_ps":29.8218},{"ticker":"COL","company":"Coles Group","sector":"Consumer Staples Distribution & Retail","price":21.1,"iv_current":19.01,"iv_forward":20.26,"mos":-9.9,"signal":"Fair value","roe":33.0,"wacc":8.0,"payout":80.0,"eps_fy1":0.956,"eps_fy2":1.0534,"dps_fy1":0.7931,"franking":100.0,"equity_ps":2.8358},{"ticker":"CPU","company":"Computershare Ltd","sector":"Commercial & Professional Services","price":28.56,"iv_current":38.06,"iv_forward":42.48,"mos":33.3,"signal":"Undervalued","roe":29.0,"wacc":8.5,"payout":60.0,"eps_fy1":2.0592,"eps_fy2":2.0836,"dps_fy1":1.2516,"franking":0,"equity_ps":5.6782},{"ticker":"CQR","company":"Charter Hall Retail","sector":"Equity Real Estate Investment Trusts (REITs)","price":3.93,"iv_current":3.92,"iv_forward":3.94,"mos":-0.5,"signal":"Fair value","roe":6.0,"wacc":7.0,"payout":90.0,"eps_fy1":0.2625,"eps_fy2":0.2663,"dps_fy1":0.2557,"franking":0,"equity_ps":4.6353},{"ticker":"CSL","company":"CSL Limited","sector":"Pharmaceuticals, Biotechnology & Life Sciences","price":139.1,"iv_current":167.63,"iv_forward":180.53,"mos":20.5,"signal":"Undervalued","roe":14.0,"wacc":7.5,"payout":45.0,"eps_fy1":9.7003,"eps_fy2":10.4925,"dps_fy1":4.1301,"franking":0,"equity_ps":60.8126},{"ticker":"CWY","company":"Cleanaway Waste Ltd","sector":"Commercial & Professional Services","price":2.42,"iv_current":1.59,"iv_forward":1.63,"mos":-34.5,"signal":"Overvalued","roe":9.0,"wacc":8.0,"payout":70.0,"eps_fy1":0.1049,"eps_fy2":0.1241,"dps_fy1":0.0707,"franking":100.0,"equity_ps":1.3584},{"ticker":"CYL","company":"Catalyst Metals","sector":"Materials","price":6.63,"iv_current":7.22,"iv_forward":8.09,"mos":8.9,"signal":"Fair value","roe":30.0,"wacc":12.0,"payout":60.0,"eps_fy1":0.8754,"eps_fy2":1.3568,"dps_fy1":null,"franking":0,"equity_ps":1.8063},{"ticker":"DBI","company":"Dalrymple Bay","sector":"Transportation","price":4.95,"iv_current":3.49,"iv_forward":3.49,"mos":-29.6,"signal":"Overvalued","roe":10.0,"wacc":6.0,"payout":100.0,"eps_fy1":0.1491,"eps_fy2":0.2024,"dps_fy1":0.2397,"franking":0,"equity_ps":2.1949},{"ticker":"DGT","company":"Digico Infrastr REIT","sector":"Equity Real Estate Investment Trusts (REITs)","price":1.88,"iv_current":1.99,"iv_forward":2.0,"mos":5.8,"signal":"Fair value","roe":3.5,"wacc":7.5,"payout":90.0,"eps_fy1":0.1322,"eps_fy2":0.1697,"dps_fy1":0.1204,"franking":0,"equity_ps":4.5129},{"ticker":"DMP","company":"Domino Pizza Enterpr","sector":"Consumer Services","price":18.35,"iv_current":15.25,"iv_forward":16.29,"mos":-16.9,"signal":"Overvalued","roe":17.0,"wacc":10.0,"payout":60.0,"eps_fy1":1.2714,"eps_fy2":1.4114,"dps_fy1":0.5797,"franking":0,"equity_ps":7.0092},{"ticker":"DOW","company":"Downer EDI Limited","sector":"Commercial & Professional Services","price":7.57,"iv_current":5.51,"iv_forward":5.73,"mos":-27.3,"signal":"Overvalued","roe":13.0,"wacc":8.5,"payout":70.0,"eps_fy1":0.4313,"eps_fy2":0.473,"dps_fy1":0.2781,"franking":100.0,"equity_ps":3.109},{"ticker":"DRR","company":"Deterra","sector":"Materials","price":3.98,"iv_current":3.42,"iv_forward":3.55,"mos":-14.2,"signal":"Fair value","roe":80.0,"wacc":8.0,"payout":95.0,"eps_fy1":0.2802,"eps_fy2":0.2651,"dps_fy1":0.2114,"franking":100.0,"equity_ps":0.2356},{"ticker":"DTL","company":"Data#3 Limited","sector":"Software & Services","price":6.94,"iv_current":5.72,"iv_forward":6.04,"mos":-17.6,"signal":"Overvalued","roe":62.0,"wacc":9.0,"payout":91.0,"eps_fy1":0.3367,"eps_fy2":0.3723,"dps_fy1":0.3086,"franking":70.0,"equity_ps":0.5428},{"ticker":"DXS","company":"Dexus","sector":"Equity Real Estate Investment Trusts (REITs)","price":6.12,"iv_current":6.73,"iv_forward":6.77,"mos":10.0,"signal":"Fair value","roe":6.0,"wacc":8.0,"payout":90.0,"eps_fy1":0.6268,"eps_fy2":0.622,"dps_fy1":0.3706,"franking":0,"equity_ps":9.2027},{"ticker":"EBO","company":"Ebos Group Ltd","sector":"Health Care Equipment & Services","price":18.39,"iv_current":14.26,"iv_forward":14.53,"mos":-22.5,"signal":"Overvalued","roe":9.5,"wacc":9.0,"payout":80.0,"eps_fy1":1.2826,"eps_fy2":1.3919,"dps_fy1":1.0606,"franking":0,"equity_ps":13.3617},{"ticker":"EDV","company":"Endeavour","sector":"Consumer Staples Distribution & Retail","price":3.71,"iv_current":2.79,"iv_forward":2.87,"mos":-24.7,"signal":"Overvalued","roe":10.5,"wacc":8.5,"payout":75.0,"eps_fy1":0.2199,"eps_fy2":0.2375,"dps_fy1":0.1648,"franking":100.0,"equity_ps":2.1356},{"ticker":"ELD","company":"Elders Limited","sector":"Food, Beverage & Tobacco","price":6.73,"iv_current":5.73,"iv_forward":5.94,"mos":-14.9,"signal":"Fair value","roe":11.0,"wacc":10.0,"payout":66.0,"eps_fy1":0.5769,"eps_fy2":0.6176,"dps_fy1":0.3767,"franking":100.0,"equity_ps":5.0382},{"ticker":"EMR","company":"Emerald Res NL","sector":"Materials","price":5.7,"iv_current":5.95,"iv_forward":7.02,"mos":4.3,"signal":"Fair value","roe":36.0,"wacc":12.0,"payout":50.0,"eps_fy1":0.4337,"eps_fy2":0.7439,"dps_fy1":null,"franking":0,"equity_ps":0.9922},{"ticker":"EVN","company":"Evolution Mining Ltd","sector":"Materials","price":13.44,"iv_current":11.3,"iv_forward":13.05,"mos":-16.0,"signal":"Overvalued","roe":31.0,"wacc":12.0,"payout":50.0,"eps_fy1":0.9192,"eps_fy2":1.1148,"dps_fy1":0.4502,"franking":100.0,"equity_ps":2.4413},{"ticker":"FLT","company":"Flight Centre Travel","sector":"Consumer Services","price":11.72,"iv_current":11.98,"iv_forward":12.94,"mos":2.2,"signal":"Fair value","roe":16.0,"wacc":10.0,"payout":50.0,"eps_fy1":1.0624,"eps_fy2":1.2748,"dps_fy1":0.4847,"franking":70.0,"equity_ps":5.7608},{"ticker":"FMG","company":"Fortescue Ltd","sector":"Materials","price":19.68,"iv_current":17.46,"iv_forward":18.37,"mos":-11.3,"signal":"Fair value","roe":15.0,"wacc":10.0,"payout":65.0,"eps_fy1":1.7467,"eps_fy2":1.3725,"dps_fy1":1.1448,"franking":70.0,"equity_ps":9.9039},{"ticker":"FPH","company":"Fisher & Paykel H.","sector":"Health Care Equipment & Services","price":31.45,"iv_current":13.68,"iv_forward":14.88,"mos":-56.5,"signal":"Overvalued","roe":22.0,"wacc":8.0,"payout":60.0,"eps_fy1":0.6679,"eps_fy2":0.7756,"dps_fy1":0.3996,"franking":0,"equity_ps":2.9255},{"ticker":"GGP","company":"Greatland Resources","sector":"Materials","price":12.22,"iv_current":10.26,"iv_forward":11.7,"mos":-16.0,"signal":"Overvalued","roe":35.0,"wacc":12.0,"payout":60.0,"eps_fy1":1.1456,"eps_fy2":1.0063,"dps_fy1":null,"franking":0,"equity_ps":1.9915},{"ticker":"GMD","company":"Genesis Minerals","sector":"Materials","price":6.06,"iv_current":5.58,"iv_forward":6.41,"mos":-8.0,"signal":"Fair value","roe":30.0,"wacc":11.0,"payout":50.0,"eps_fy1":0.5403,"eps_fy2":0.7258,"dps_fy1":0.005,"franking":0,"equity_ps":1.0974},{"ticker":"GMG","company":"Goodman Group","sector":"Equity Real Estate Investment Trusts (REITs)","price":26.06,"iv_current":21.52,"iv_forward":23.13,"mos":-17.4,"signal":"Overvalued","roe":10.0,"wacc":7.0,"payout":25.0,"eps_fy1":1.2963,"eps_fy2":1.4461,"dps_fy1":0.3031,"franking":0,"equity_ps":11.3997},{"ticker":"GPT","company":"GPT Group","sector":"Equity Real Estate Investment Trusts (REITs)","price":4.67,"iv_current":4.79,"iv_forward":4.88,"mos":2.7,"signal":"Fair value","roe":6.25,"wacc":7.0,"payout":70.0,"eps_fy1":0.3554,"eps_fy2":0.3745,"dps_fy1":0.252,"franking":0,"equity_ps":5.2776},{"ticker":"GQG","company":"GQG Partners","sector":"Financial Services","price":1.65,"iv_current":2.24,"iv_forward":2.32,"mos":35.7,"signal":"Undervalued","roe":75.0,"wacc":10.0,"payout":95.0,"eps_fy1":0.216,"eps_fy2":0.2075,"dps_fy1":0.1983,"franking":0,"equity_ps":0.2253},{"ticker":"GYG","company":"Guzman Y Gomez Ltd","sector":"Consumer Services","price":18.97,"iv_current":6.68,"iv_forward":6.93,"mos":-64.8,"signal":"Overvalued","roe":15.0,"wacc":9.5,"payout":75.0,"eps_fy1":0.1881,"eps_fy2":0.3341,"dps_fy1":0.1479,"franking":70.0,"equity_ps":3.6753},{"ticker":"HLI","company":"Helia Group Limited","sector":"Financial Services","price":4.75,"iv_current":6.02,"iv_forward":6.04,"mos":26.7,"signal":"Undervalued","roe":16.0,"wacc":10.0,"payout":98.0,"eps_fy1":0.7915,"eps_fy2":0.5835,"dps_fy1":1.005,"franking":100.0,"equity_ps":3.9649},{"ticker":"HUB","company":"HUB24 Ltd","sector":"Financial Services","price":83.33,"iv_current":34.0,"iv_forward":38.25,"mos":-59.2,"signal":"Overvalued","roe":25.0,"wacc":9.0,"payout":50.0,"eps_fy1":1.5448,"eps_fy2":1.8925,"dps_fy1":0.7648,"franking":100.0,"equity_ps":6.4799},{"ticker":"HVN","company":"Harvey Norman","sector":"Consumer Discretionary Distribution & Retail","price":5.23,"iv_current":3.85,"iv_forward":3.95,"mos":-26.3,"signal":"Overvalued","roe":10.0,"wacc":10.0,"payout":75.0,"eps_fy1":0.3931,"eps_fy2":0.4308,"dps_fy1":0.2974,"franking":70.0,"equity_ps":3.8547},{"ticker":"IAG","company":"Insurance Australia","sector":"Insurance","price":7.22,"iv_current":6.09,"iv_forward":6.35,"mos":-15.5,"signal":"Overvalued","roe":14.0,"wacc":8.5,"payout":70.0,"eps_fy1":0.4493,"eps_fy2":0.4833,"dps_fy1":0.312,"franking":40.0,"equity_ps":3.0986},{"ticker":"IEL","company":"Idp Education Ltd","sector":"Consumer Services","price":4.01,"iv_current":2.66,"iv_forward":2.79,"mos":-33.5,"signal":"Overvalued","roe":14.0,"wacc":11.0,"payout":66.0,"eps_fy1":0.2228,"eps_fy2":0.3394,"dps_fy1":0.1364,"franking":41.2,"equity_ps":1.9155},{"ticker":"IFL","company":"Insignia Financial","sector":"Financial Services","price":4.67,"iv_current":3.56,"iv_forward":3.75,"mos":-23.8,"signal":"Overvalued","roe":11.0,"wacc":10.0,"payout":50.0,"eps_fy1":0.379,"eps_fy2":0.4109,"dps_fy1":null,"franking":0,"equity_ps":3.0796},{"ticker":"IGO","company":"IGO Limited","sector":"Materials","price":7.34,"iv_current":5.75,"iv_forward":6.21,"mos":-21.7,"signal":"Overvalued","roe":16.0,"wacc":10.0,"payout":50.0,"eps_fy1":0.2374,"eps_fy2":0.5956,"dps_fy1":0.0293,"franking":100.0,"equity_ps":2.7631},{"ticker":"INA","company":"Ingenia Group","sector":"Equity Real Estate Investment Trusts (REITs)","price":4.14,"iv_current":3.55,"iv_forward":3.77,"mos":-14.2,"signal":"Fair value","roe":8.5,"wacc":9.0,"payout":30.0,"eps_fy1":0.3352,"eps_fy2":0.3799,"dps_fy1":0.0996,"franking":0,"equity_ps":3.9152},{"ticker":"JBH","company":"JB Hi-Fi Limited","sector":"Consumer Discretionary Distribution & Retail","price":75.96,"iv_current":74.59,"iv_forward":79.51,"mos":-1.8,"signal":"Fair value","roe":30.0,"wacc":9.0,"payout":78.0,"eps_fy1":4.5899,"eps_fy2":4.885,"dps_fy1":3.5989,"franking":70.0,"equity_ps":14.7859},{"ticker":"JHX","company":"James Hardie Indust","sector":"Materials","price":28.63,"iv_current":15.93,"iv_forward":17.05,"mos":-44.3,"signal":"Overvalued","roe":17.5,"wacc":9.0,"payout":60.0,"eps_fy1":1.557,"eps_fy2":1.8051,"dps_fy1":null,"franking":0,"equity_ps":8.0585},{"ticker":"LLC","company":"Lendlease Group","sector":"Real Estate Management & Development","price":3.51,"iv_current":4.37,"iv_forward":4.46,"mos":24.8,"signal":"Undervalued","roe":6.0,"wacc":9.0,"payout":66.0,"eps_fy1":0.2294,"eps_fy2":0.575,"dps_fy1":0.143,"franking":61.2,"equity_ps":7.4003},{"ticker":"LNW","company":"Light & Wonder Inc.","sector":"Consumer Services","price":114.18,"iv_current":103.71,"iv_forward":128.6,"mos":-9.2,"signal":"Fair value","roe":60.0,"wacc":9.0,"payout":60.0,"eps_fy1":7.4479,"eps_fy2":9.1922,"dps_fy1":null,"franking":0,"equity_ps":12.6002},{"ticker":"LOV","company":"Lovisa Holdings Ltd","sector":"Consumer Discretionary Distribution & Retail","price":20.76,"iv_current":12.36,"iv_forward":13.41,"mos":-40.5,"signal":"Overvalued","roe":85.0,"wacc":9.0,"payout":90.0,"eps_fy1":0.9434,"eps_fy2":1.147,"dps_fy1":0.8507,"franking":0,"equity_ps":0.7093},{"ticker":"MFG","company":"Magellan Fin Grp Ltd","sector":"Financial Services","price":10.41,"iv_current":7.54,"iv_forward":7.73,"mos":-27.6,"signal":"Overvalued","roe":13.0,"wacc":10.0,"payout":80.0,"eps_fy1":0.7909,"eps_fy2":0.7505,"dps_fy1":0.6664,"franking":100.0,"equity_ps":5.9711},{"ticker":"MGR","company":"Mirvac Group","sector":"Equity Real Estate Investment Trusts (REITs)","price":1.86,"iv_current":1.54,"iv_forward":1.55,"mos":-17.2,"signal":"Overvalued","roe":5.0,"wacc":7.03,"payout":80.0,"eps_fy1":0.1294,"eps_fy2":0.1421,"dps_fy1":0.0971,"franking":0,"equity_ps":2.2948},{"ticker":"MIN","company":"Mineral Resources.","sector":"Materials","price":55.32,"iv_current":32.11,"iv_forward":34.84,"mos":-42.0,"signal":"Overvalued","roe":17.0,"wacc":11.0,"payout":50.0,"eps_fy1":3.1088,"eps_fy2":3.2252,"dps_fy1":null,"franking":100.0,"equity_ps":16.3233},{"ticker":"MND","company":"Monadelphous Group","sector":"Capital Goods","price":27.38,"iv_current":13.94,"iv_forward":14.37,"mos":-49.1,"signal":"Overvalued","roe":21.0,"wacc":9.0,"payout":85.0,"eps_fy1":1.0479,"eps_fy2":1.0791,"dps_fy1":0.8964,"franking":70.0,"equity_ps":4.9771},{"ticker":"MPL","company":"Medibank Private Ltd","sector":"Insurance","price":4.28,"iv_current":3.87,"iv_forward":4.08,"mos":-9.6,"signal":"Fair value","roe":27.0,"wacc":8.5,"payout":80.0,"eps_fy1":0.2338,"eps_fy2":0.2492,"dps_fy1":0.188,"franking":70.0,"equity_ps":0.8482},{"ticker":"MQG","company":"Macquarie Group Ltd","sector":"Financial Services","price":198.13,"iv_current":149.3,"iv_forward":155.39,"mos":-24.6,"signal":"Overvalued","roe":12.0,"wacc":8.5,"payout":66.0,"eps_fy1":11.0293,"eps_fy2":12.2669,"dps_fy1":7.0883,"franking":35.0,"equity_ps":92.7642},{"ticker":"MTS","company":"Metcash Limited","sector":"Consumer Staples Distribution & Retail","price":2.94,"iv_current":3.17,"iv_forward":3.3,"mos":7.6,"signal":"Fair value","roe":17.0,"wacc":9.5,"payout":75.0,"eps_fy1":0.2461,"eps_fy2":0.2727,"dps_fy1":0.1778,"franking":100.0,"equity_ps":1.4785},{"ticker":"NAB","company":"National Aust. Bank","sector":"Banks","price":47.32,"iv_current":32.53,"iv_forward":33.71,"mos":-31.2,"signal":"Overvalued","roe":12.0,"wacc":8.5,"payout":70.0,"eps_fy1":2.3868,"eps_fy2":2.4546,"dps_fy1":1.7122,"franking":0,"equity_ps":20.5123},{"ticker":"NCK","company":"Nick Scali Limited","sector":"Consumer Discretionary Distribution & Retail","price":15.68,"iv_current":18.88,"iv_forward":20.86,"mos":20.4,"signal":"Undervalued","roe":30.0,"wacc":9.0,"payout":65.0,"eps_fy1":0.9238,"eps_fy2":1.0709,"dps_fy1":0.6834,"franking":100.0,"equity_ps":3.1179},{"ticker":"NEC","company":"Nine Entertainment","sector":"Media & Entertainment","price":0.87,"iv_current":0.99,"iv_forward":1.02,"mos":14.6,"signal":"Fair value","roe":10.0,"wacc":10.0,"payout":70.0,"eps_fy1":0.0858,"eps_fy2":0.1063,"dps_fy1":0.0607,"franking":70.0,"equity_ps":0.9916},{"ticker":"NEM","company":"Newmont Corporation","sector":"Materials","price":156.44,"iv_current":140.05,"iv_forward":154.06,"mos":-10.5,"signal":"Fair value","roe":20.0,"wacc":10.0,"payout":50.0,"eps_fy1":9.4757,"eps_fy2":14.3671,"dps_fy1":1.445,"franking":0,"equity_ps":44.2948},{"ticker":"NHF","company":"NIB Holdings Limited","sector":"Insurance","price":6.11,"iv_current":6.36,"iv_forward":6.7,"mos":4.0,"signal":"Fair value","roe":18.0,"wacc":8.5,"payout":70.0,"eps_fy1":0.4309,"eps_fy2":0.4769,"dps_fy1":0.275,"franking":100.0,"equity_ps":2.2482},{"ticker":"NST","company":"Northern Star","sector":"Materials","price":20.76,"iv_current":23.93,"iv_forward":25.96,"mos":15.2,"signal":"Undervalued","roe":17.0,"wacc":10.0,"payout":50.0,"eps_fy1":1.5055,"eps_fy2":2.4484,"dps_fy1":0.5797,"franking":100.0,"equity_ps":10.4262},{"ticker":"NWH","company":"NRW Holdings Limited","sector":"Capital Goods","price":5.59,"iv_current":4.4,"iv_forward":4.75,"mos":-21.3,"signal":"Overvalued","roe":23.0,"wacc":10.0,"payout":66.0,"eps_fy1":0.3523,"eps_fy2":0.3954,"dps_fy1":0.1864,"franking":70.0,"equity_ps":1.3277},{"ticker":"NWL","company":"Netwealth Group","sector":"Financial Services","price":21.39,"iv_current":13.66,"iv_forward":15.88,"mos":-36.1,"signal":"Overvalued","roe":65.0,"wacc":9.5,"payout":75.0,"eps_fy1":0.5336,"eps_fy2":0.6231,"dps_fy1":0.4235,"franking":70.0,"equity_ps":0.8116},{"ticker":"NWS","company":"News Corp..","sector":"Media & Entertainment","price":38.5,"iv_current":20.24,"iv_forward":21.05,"mos":-47.4,"signal":"Overvalued","roe":8.0,"wacc":9.0,"payout":50.0,"eps_fy1":1.4762,"eps_fy2":1.76,"dps_fy1":0.2906,"franking":0,"equity_ps":24.1066},{"ticker":"ORA","company":"Orora Limited","sector":"Materials","price":1.94,"iv_current":1.69,"iv_forward":1.72,"mos":-12.8,"signal":"Fair value","roe":6.5,"wacc":8.5,"payout":75.0,"eps_fy1":0.132,"eps_fy2":0.1543,"dps_fy1":0.1005,"franking":0,"equity_ps":2.3477},{"ticker":"ORG","company":"Origin Energy","sector":"Utilities","price":11.9,"iv_current":7.93,"iv_forward":8.03,"mos":-33.3,"signal":"Overvalued","roe":12.0,"wacc":9.0,"payout":90.0,"eps_fy1":0.7345,"eps_fy2":0.6334,"dps_fy1":0.5988,"franking":100.0,"equity_ps":5.7582},{"ticker":"ORI","company":"Orica Limited","sector":"Materials","price":20.07,"iv_current":16.62,"iv_forward":17.41,"mos":-17.2,"signal":"Overvalued","roe":14.0,"wacc":9.0,"payout":66.0,"eps_fy1":1.2552,"eps_fy2":1.3889,"dps_fy1":0.656,"franking":0,"equity_ps":8.9521},{"ticker":"PME","company":"Pro Medicus Limited","sector":"Health Care Equipment & Services","price":125.75,"iv_current":78.4,"iv_forward":101.92,"mos":-37.7,"signal":"Overvalued","roe":60.0,"wacc":8.0,"payout":50.0,"eps_fy1":1.6883,"eps_fy2":1.8306,"dps_fy1":0.7902,"franking":100.0,"equity_ps":2.4597},{"ticker":"PMV","company":"Premier Investments","sector":"Consumer Discretionary Distribution & Retail","price":12.55,"iv_current":11.83,"iv_forward":12.4,"mos":-5.7,"signal":"Fair value","roe":16.0,"wacc":10.0,"payout":70.0,"eps_fy1":0.9537,"eps_fy2":1.0598,"dps_fy1":0.6848,"franking":100.0,"equity_ps":6.2668},{"ticker":"PNI","company":"Pinnacle Investment","sector":"Financial Services","price":13.25,"iv_current":8.84,"iv_forward":9.01,"mos":-33.3,"signal":"Overvalued","roe":20.0,"wacc":10.0,"payout":90.0,"eps_fy1":0.691,"eps_fy2":0.891,"dps_fy1":0.6431,"franking":88.0,"equity_ps":4.0211},{"ticker":"PNR","company":"Pantoro Gold Limited","sector":"Materials","price":3.82,"iv_current":5.81,"iv_forward":6.47,"mos":52.2,"signal":"Undervalued","roe":45.0,"wacc":15.0,"payout":75.0,"eps_fy1":0.6787,"eps_fy2":0.8657,"dps_fy1":null,"franking":0,"equity_ps":1.2921},{"ticker":"PPT","company":"Perpetual Limited","sector":"Financial Services","price":16.02,"iv_current":16.21,"iv_forward":16.82,"mos":1.2,"signal":"Fair value","roe":11.0,"wacc":10.0,"payout":66.0,"eps_fy1":1.7172,"eps_fy2":1.7477,"dps_fy1":1.1114,"franking":0,"equity_ps":14.2526},{"ticker":"PRU","company":"Perseus Mining Ltd","sector":"Materials","price":5.11,"iv_current":5.79,"iv_forward":6.36,"mos":13.3,"signal":"Fair value","roe":20.0,"wacc":11.0,"payout":50.0,"eps_fy1":0.471,"eps_fy2":0.6194,"dps_fy1":0.0983,"franking":0,"equity_ps":2.2583},{"ticker":"QAN","company":"Qantas Airways","sector":"Transportation","price":8.69,"iv_current":6.48,"iv_forward":8.1,"mos":-25.5,"signal":"Overvalued","roe":50.0,"wacc":11.0,"payout":50.0,"eps_fy1":1.1639,"eps_fy2":1.2803,"dps_fy1":0.4789,"franking":100.0,"equity_ps":0.5141},{"ticker":"QBE","company":"QBE Insurance Group","sector":"Insurance","price":20.65,"iv_current":22.18,"iv_forward":22.95,"mos":7.4,"signal":"Fair value","roe":14.0,"wacc":8.5,"payout":75.0,"eps_fy1":1.9009,"eps_fy2":1.799,"dps_fy1":1.0021,"franking":22.6,"equity_ps":11.5087},{"ticker":"QUB","company":"Qube Holdings Ltd","sector":"Transportation","price":4.95,"iv_current":2.78,"iv_forward":2.87,"mos":-43.9,"signal":"Overvalued","roe":10.0,"wacc":7.0,"payout":66.0,"eps_fy1":0.1728,"eps_fy2":0.1935,"dps_fy1":0.1052,"franking":100.0,"equity_ps":1.696},{"ticker":"REA","company":"REA Group","sector":"Media & Entertainment","price":166.07,"iv_current":96.16,"iv_forward":106.63,"mos":-42.1,"signal":"Overvalued","roe":32.0,"wacc":9.0,"payout":66.0,"eps_fy1":4.8055,"eps_fy2":5.6096,"dps_fy1":2.7883,"franking":100.0,"equity_ps":14.472},{"ticker":"REH","company":"Reece Limited","sector":"Capital Goods","price":14.0,"iv_current":7.71,"iv_forward":8.1,"mos":-44.9,"signal":"Overvalued","roe":10.0,"wacc":9.0,"payout":50.0,"eps_fy1":0.4411,"eps_fy2":0.5218,"dps_fy1":0.1752,"franking":70.0,"equity_ps":6.5768},{"ticker":"RGN","company":"Region Group","sector":"Equity Real Estate Investment Trusts (REITs)","price":2.18,"iv_current":1.8,"iv_forward":1.82,"mos":-17.2,"signal":"Overvalued","roe":6.0,"wacc":8.0,"payout":88.0,"eps_fy1":0.1592,"eps_fy2":0.1651,"dps_fy1":0.1408,"franking":0,"equity_ps":2.4808},{"ticker":"RHC","company":"Ramsay Health Care","sector":"Health Care Equipment & Services","price":40.83,"iv_current":34.42,"iv_forward":35.28,"mos":-15.7,"signal":"Overvalued","roe":10.0,"wacc":7.0,"payout":75.0,"eps_fy1":1.3413,"eps_fy2":1.5789,"dps_fy1":0.8647,"franking":100.0,"equity_ps":21.7632},{"ticker":"RIO","company":"Rio Tinto Limited","sector":"Materials","price":155.95,"iv_current":118.46,"iv_forward":120.48,"mos":-24.0,"signal":"Overvalued","roe":5.0,"wacc":9.0,"payout":66.0,"eps_fy1":9.6134,"eps_fy2":11.743,"dps_fy1":5.7009,"franking":100.0,"equity_ps":239.9776},{"ticker":"RMD","company":"ResMed Inc.","sector":"Health Care Equipment & Services","price":32.91,"iv_current":23.15,"iv_forward":24.02,"mos":-29.7,"signal":"Overvalued","roe":5.0,"wacc":9.0,"payout":25.0,"eps_fy1":1.5672,"eps_fy2":1.7405,"dps_fy1":0.3473,"franking":0,"equity_ps":62.5101},{"ticker":"RRL","company":"Regis Resources","sector":"Materials","price":7.03,"iv_current":11.72,"iv_forward":13.24,"mos":66.8,"signal":"Undervalued","roe":38.0,"wacc":12.0,"payout":66.0,"eps_fy1":1.0349,"eps_fy2":1.2899,"dps_fy1":0.1956,"franking":100.0,"equity_ps":2.1318},{"ticker":"RSG","company":"Resolute Mining","sector":"Materials","price":1.38,"iv_current":1.58,"iv_forward":1.78,"mos":14.4,"signal":"Fair value","roe":25.0,"wacc":12.0,"payout":50.0,"eps_fy1":0.0922,"eps_fy2":0.2311,"dps_fy1":null,"franking":0,"equity_ps":0.4064},{"ticker":"RWC","company":"Reliance Worldwide","sector":"Capital Goods","price":3.16,"iv_current":3.03,"iv_forward":3.24,"mos":-4.0,"signal":"Fair value","roe":9.5,"wacc":9.0,"payout":30.0,"eps_fy1":0.2301,"eps_fy2":0.3015,"dps_fy1":0.0659,"franking":0,"equity_ps":2.7675},{"ticker":"S32","company":"South32 Limited","sector":"Materials","price":4.21,"iv_current":2.39,"iv_forward":2.5,"mos":-43.1,"signal":"Overvalued","roe":9.0,"wacc":10.5,"payout":50.0,"eps_fy1":0.2751,"eps_fy2":0.3427,"dps_fy1":0.112,"franking":100.0,"equity_ps":3.0083},{"ticker":"SCG","company":"Scentre Grp","sector":"Equity Real Estate Investment Trusts (REITs)","price":3.62,"iv_current":2.8,"iv_forward":2.85,"mos":-22.5,"signal":"Overvalued","roe":6.5,"wacc":8.0,"payout":75.0,"eps_fy1":0.2268,"eps_fy2":0.2409,"dps_fy1":0.1779,"franking":0,"equity_ps":3.4519},{"ticker":"SDF","company":"Steadfast Group Ltd","sector":"Insurance","price":4.13,"iv_current":3.99,"iv_forward":4.18,"mos":-3.5,"signal":"Fair value","roe":14.0,"wacc":9.0,"payout":66.0,"eps_fy1":0.3233,"eps_fy2":0.3383,"dps_fy1":0.2108,"franking":100.0,"equity_ps":2.1552},{"ticker":"SEK","company":"Seek Limited","sector":"Media & Entertainment","price":14.82,"iv_current":10.41,"iv_forward":10.54,"mos":-29.7,"signal":"Overvalued","roe":12.0,"wacc":9.0,"payout":90.0,"eps_fy1":0.5726,"eps_fy2":0.7428,"dps_fy1":0.5213,"franking":70.0,"equity_ps":7.5564},{"ticker":"SFR","company":"Sandfire Resources","sector":"Materials","price":16.54,"iv_current":12.61,"iv_forward":13.74,"mos":-23.8,"signal":"Overvalued","roe":18.0,"wacc":11.0,"payout":50.0,"eps_fy1":1.0282,"eps_fy2":1.4437,"dps_fy1":0.19,"franking":0,"equity_ps":5.9031},{"ticker":"SGH","company":"SGH Limited","sector":"Capital Goods","price":41.05,"iv_current":38.75,"iv_forward":42.24,"mos":-5.6,"signal":"Fair value","roe":18.0,"wacc":8.5,"payout":50.0,"eps_fy1":2.3448,"eps_fy2":2.5759,"dps_fy1":0.63,"franking":100.0,"equity_ps":11.7384},{"ticker":"SGP","company":"Stockland","sector":"Equity Real Estate Investment Trusts (REITs)","price":4.5,"iv_current":4.53,"iv_forward":4.65,"mos":0.8,"signal":"Fair value","roe":8.5,"wacc":8.0,"payout":70.0,"eps_fy1":0.3608,"eps_fy2":0.3804,"dps_fy1":0.2515,"franking":0,"equity_ps":4.2046},{"ticker":"SHL","company":"Sonic Healthcare","sector":"Health Care Equipment & Services","price":20.69,"iv_current":15.76,"iv_forward":15.88,"mos":-23.8,"signal":"Overvalued","roe":8.0,"wacc":8.5,"payout":90.0,"eps_fy1":1.2197,"eps_fy2":1.3486,"dps_fy1":1.0827,"franking":35.0,"equity_ps":16.8411},{"ticker":"SIG","company":"Sigma Health Ltd","sector":"Health Care Equipment & Services","price":2.67,"iv_current":1.21,"iv_forward":1.32,"mos":-54.6,"signal":"Overvalued","roe":17.0,"wacc":8.5,"payout":50.0,"eps_fy1":0.0653,"eps_fy2":0.0765,"dps_fy1":0.0413,"franking":100.0,"equity_ps":0.4046},{"ticker":"SOL","company":"Soul Pattinson (W.H)","sector":"Financial Services","price":39.09,"iv_current":17.41,"iv_forward":17.67,"mos":-55.5,"signal":"Overvalued","roe":6.0,"wacc":8.0,"payout":75.0,"eps_fy1":1.3364,"eps_fy2":1.3803,"dps_fy1":1.0507,"franking":0,"equity_ps":24.7568},{"ticker":"STO","company":"Santos Ltd","sector":"Energy","price":7.78,"iv_current":4.64,"iv_forward":4.67,"mos":-40.3,"signal":"Overvalued","roe":6.0,"wacc":9.0,"payout":88.8,"eps_fy1":0.4105,"eps_fy2":0.4312,"dps_fy1":0.3278,"franking":100.0,"equity_ps":7.7266},{"ticker":"SUL","company":"Super Ret Rep Ltd","sector":"Consumer Discretionary Distribution & Retail","price":13.39,"iv_current":14.49,"iv_forward":15.35,"mos":8.2,"signal":"Fair value","roe":17.0,"wacc":9.0,"payout":65.0,"eps_fy1":0.9633,"eps_fy2":1.1167,"dps_fy1":0.635,"franking":100.0,"equity_ps":5.8514},{"ticker":"SUN","company":"Suncorp Group Ltd","sector":"Insurance","price":15.73,"iv_current":14.11,"iv_forward":14.53,"mos":-10.3,"signal":"Fair value","roe":12.0,"wacc":9.0,"payout":75.0,"eps_fy1":0.8793,"eps_fy2":1.2086,"dps_fy1":0.6964,"franking":100.0,"equity_ps":9.7658},{"ticker":"TAH","company":"TABCORP Holdings Ltd","sector":"Consumer Services","price":0.99,"iv_current":0.4,"iv_forward":0.41,"mos":-59.4,"signal":"Overvalued","roe":7.0,"wacc":9.0,"payout":75.0,"eps_fy1":0.0275,"eps_fy2":0.0381,"dps_fy1":0.021,"franking":0,"equity_ps":0.5478},{"ticker":"TCL","company":"Transurban Group","sector":"Transportation","price":14.34,"iv_current":3.92,"iv_forward":3.92,"mos":-72.7,"signal":"Overvalued","roe":8.0,"wacc":6.0,"payout":100.0,"eps_fy1":0.1506,"eps_fy2":0.1706,"dps_fy1":0.6906,"franking":0,"equity_ps":2.9443},{"ticker":"TLC","company":"The Lottery Corp","sector":"Consumer Services","price":5.41,"iv_current":2.88,"iv_forward":2.91,"mos":-46.8,"signal":"Overvalued","roe":120.0,"wacc":7.0,"payout":99.0,"eps_fy1":0.17,"eps_fy2":0.1983,"dps_fy1":0.1707,"franking":100.0,"equity_ps":0.1446},{"ticker":"TLS","company":"Telstra Group","sector":"Telecommunication Services","price":5.26,"iv_current":3.21,"iv_forward":3.24,"mos":-39.0,"signal":"Overvalued","roe":17.0,"wacc":7.0,"payout":95.0,"eps_fy1":0.2066,"eps_fy2":0.2196,"dps_fy1":0.1983,"franking":100.0,"equity_ps":1.2349},{"ticker":"TNE","company":"Technology One","sector":"Software & Services","price":25.92,"iv_current":10.61,"iv_forward":11.88,"mos":-59.0,"signal":"Overvalued","roe":35.0,"wacc":9.0,"payout":66.0,"eps_fy1":0.4887,"eps_fy2":0.5872,"dps_fy1":0.3316,"franking":65.0,"equity_ps":1.3767},{"ticker":"TPG","company":"TPG Telecom Limited","sector":"Telecommunication Services","price":4.03,"iv_current":1.1,"iv_forward":1.1,"mos":-72.8,"signal":"Overvalued","roe":2.0,"wacc":8.0,"payout":99.0,"eps_fy1":0.0285,"eps_fy2":0.0878,"dps_fy1":0.18,"franking":0,"equity_ps":5.6917},{"ticker":"TWE","company":"Treasury Wine Estate","sector":"Food, Beverage & Tobacco","price":3.83,"iv_current":4.1,"iv_forward":4.24,"mos":7.0,"signal":"Fair value","roe":7.0,"wacc":9.0,"payout":50.0,"eps_fy1":0.3212,"eps_fy2":0.3476,"dps_fy1":0.1357,"franking":70.0,"equity_ps":5.9255},{"ticker":"VAU","company":"Vault Minerals Ltd","sector":"Materials","price":4.62,"iv_current":4.98,"iv_forward":5.53,"mos":7.8,"signal":"Fair value","roe":22.0,"wacc":12.0,"payout":50.0,"eps_fy1":0.4139,"eps_fy2":0.7586,"dps_fy1":0.0409,"franking":0,"equity_ps":1.9163},{"ticker":"VCX","company":"Vicinity Centres","sector":"Equity Real Estate Investment Trusts (REITs)","price":2.39,"iv_current":2.01,"iv_forward":2.04,"mos":-15.7,"signal":"Overvalued","roe":6.0,"wacc":7.0,"payout":80.0,"eps_fy1":0.1479,"eps_fy2":0.1579,"dps_fy1":0.1239,"franking":0,"equity_ps":2.4193},{"ticker":"VEA","company":"Viva Energy Group","sector":"Energy","price":2.06,"iv_current":1.8,"iv_forward":1.9,"mos":-12.4,"signal":"Fair value","roe":15.0,"wacc":9.0,"payout":65.0,"eps_fy1":0.1029,"eps_fy2":0.171,"dps_fy1":0.065,"franking":70.0,"equity_ps":1.1659},{"ticker":"VNT","company":"Ventia Services Group","sector":"Telecommunication Services","price":5.6,"iv_current":5.1,"iv_forward":5.5,"mos":-9.0,"signal":"Fair value","roe":40.0,"wacc":9.0,"payout":80.0,"eps_fy1":0.3003,"eps_fy2":0.3251,"dps_fy1":0.2282,"franking":90.0,"equity_ps":0.7635},{"ticker":"WAF","company":"West African Res Ltd","sector":"Materials","price":2.91,"iv_current":6.01,"iv_forward":7.22,"mos":106.3,"signal":"Undervalued","roe":40.0,"wacc":14.0,"payout":50.0,"eps_fy1":0.477,"eps_fy2":1.1092,"dps_fy1":null,"franking":0,"equity_ps":1.0916},{"ticker":"WBC","company":"Westpac Banking Corp","sector":"Banks","price":41.45,"iv_current":28.26,"iv_forward":28.96,"mos":-31.8,"signal":"Overvalued","roe":10.0,"wacc":8.0,"payout":75.0,"eps_fy1":2.1245,"eps_fy2":2.1891,"dps_fy1":1.6207,"franking":100.0,"equity_ps":21.2747},{"ticker":"WDS","company":"Woodside Energy","sector":"Energy","price":31.71,"iv_current":17.31,"iv_forward":17.57,"mos":-45.4,"signal":"Overvalued","roe":6.0,"wacc":9.0,"payout":75.0,"eps_fy1":1.869,"eps_fy2":0.9413,"dps_fy1":1.4959,"franking":70.0,"equity_ps":30.0739},{"ticker":"WEB","company":"WEB Travel Group Ltd","sector":"Consumer Services","price":2.82,"iv_current":2.98,"iv_forward":3.21,"mos":6.0,"signal":"Fair value","roe":15.0,"wacc":10.0,"payout":50.0,"eps_fy1":0.2428,"eps_fy2":0.3277,"dps_fy1":0.0159,"franking":0,"equity_ps":1.5916},{"ticker":"WES","company":"Wesfarmers Limited","sector":"Consumer Discretionary Distribution & Retail","price":74.73,"iv_current":40.48,"iv_forward":41.82,"mos":-45.8,"signal":"Overvalued","roe":33.0,"wacc":8.5,"payout":90.0,"eps_fy1":2.476,"eps_fy2":2.7923,"dps_fy1":2.4773,"franking":100.0,"equity_ps":8.094},{"ticker":"WGX","company":"Westgold Resources.","sector":"Materials","price":6.07,"iv_current":9.1,"iv_forward":10.46,"mos":49.8,"signal":"Undervalued","roe":30.0,"wacc":12.0,"payout":50.2,"eps_fy1":0.7625,"eps_fy2":1.0453,"dps_fy1":0.1437,"franking":0,"equity_ps":2.0845},{"ticker":"WHC","company":"Whitehaven Coal","sector":"Energy","price":8.74,"iv_current":4.33,"iv_forward":4.51,"mos":-50.4,"signal":"Overvalued","roe":8.0,"wacc":11.0,"payout":50.0,"eps_fy1":0.2253,"eps_fy2":0.5981,"dps_fy1":0.1064,"franking":70.0,"equity_ps":6.9011},{"ticker":"WOR","company":"Worley Limited","sector":"Energy","price":10.25,"iv_current":12.23,"iv_forward":12.78,"mos":19.4,"signal":"Undervalued","roe":9.0,"wacc":8.5,"payout":50.0,"eps_fy1":0.9083,"eps_fy2":1.1147,"dps_fy1":0.5081,"franking":0,"equity_ps":11.2242},{"ticker":"WOW","company":"Woolworths Group Ltd","sector":"Consumer Staples Distribution & Retail","price":35.72,"iv_current":24.11,"iv_forward":25.98,"mos":-32.5,"signal":"Overvalued","roe":31.0,"wacc":8.5,"payout":75.0,"eps_fy1":1.2385,"eps_fy2":1.4033,"dps_fy1":0.9298,"franking":100.0,"equity_ps":3.9784},{"ticker":"WPR","company":"Waypoint REIT","sector":"Equity Real Estate Investment Trusts (REITs)","price":2.48,"iv_current":2.37,"iv_forward":2.42,"mos":-4.3,"signal":"Fair value","roe":6.0,"wacc":7.0,"payout":68.0,"eps_fy1":0.2101,"eps_fy2":0.1996,"dps_fy1":0.1662,"franking":0,"equity_ps":2.8407},{"ticker":"WTC","company":"Wisetech Global Ltd","sector":"Software & Services","price":45.08,"iv_current":23.21,"iv_forward":25.07,"mos":-48.5,"signal":"Overvalued","roe":16.0,"wacc":8.0,"payout":50.0,"eps_fy1":0.9915,"eps_fy2":1.4188,"dps_fy1":0.2273,"franking":100.0,"equity_ps":7.7366},{"ticker":"XRO","company":"Xero Ltd","sector":"Software & Services","price":78.14,"iv_current":19.98,"iv_forward":21.18,"mos":-74.4,"signal":"Overvalued","roe":12.0,"wacc":8.5,"payout":50.0,"eps_fy1":1.2022,"eps_fy2":1.2698,"dps_fy1":null,"franking":0,"equity_ps":11.7411},{"ticker":"YAL","company":"Yancoal Aust Ltd","sector":"Energy","price":7.57,"iv_current":3.81,"iv_forward":3.91,"mos":-49.6,"signal":"Overvalued","roe":7.0,"wacc":11.0,"payout":66.0,"eps_fy1":0.36,"eps_fy2":0.47,"dps_fy1":0.225,"franking":70.0,"equity_ps":7.0545},{"ticker":"ZIP","company":"ZIP Co Ltd..","sector":"Financial Services","price":1.57,"iv_current":2.0,"iv_forward":2.2,"mos":27.6,"signal":"Undervalued","roe":20.0,"wacc":9.0,"payout":50.0,"eps_fy1":0.0904,"eps_fy2":0.1325,"dps_fy1":null,"franking":0,"equity_ps":0.5584}];
+
+// ═══════════════════════════════════════════
+// SECTOR → TIER MAPPING
+// ═══════════════════════════════════════════
+const SECTOR_TIER = {
+  'Banks':1,'Insurance':1,'Financial Services':1,'Financials':1,
+  'Consumer Discretionary':1,'Consumer Discretionary Distribution & Retail':1,
+  'Consumer Staples':1,'Consumer Staples Distribution & Retail':1,
+  'Consumer Durables & Apparel':1,'Consumer Services':1,'Food, Beverage & Tobacco':1,
+  'Health Care Equipment & Services':1,'Health Care':1,'Industrials':1,
+  'Capital Goods':1,'Pharmaceuticals, Biotechnology & Life Sciences':1,
+  'Commercial & Professional Services':1,'Automobiles & Components':1,
+  'Media & Entertainment':1,'Transportation':1,'Real Estate Management & Development':1,
+  'Software & Services':2,'Information Technology':2,'Technology Hardware & Equipment':2,
+  'Communication Services':2,
+  'Energy':3,'Materials':3,'Utilities':3,
+  'Equity Real Estate Investment Trusts (REITs)':4,'Real Estate':4,
+  'Industrials (Infrastructure)':4
+};
+function getTier(sector){return SECTOR_TIER[sector]||1}
+function getTierLabel(t){return['','Tier 1 — SIV','Tier 2 — AEG','Tier 3 — EV/EBIT','Tier 4 — FFO','Tier 5 — Revenue'][t]||'Tier 1 — SIV'}
+function getTierClass(t){return['','tier-1','tier-2','tier-3','tier-4','tier-5'][t]||'tier-1'}
+
+// ═══════════════════════════════════════════
+// GLOBALS
+// ═══════════════════════════════════════════
+let currentStock = null;
+let chatHistory = [];
+let priceChart=null,volChart=null,rsiChart=null,macdChart=null;
+let taPeriod=126;
+let asxSortCol='ticker',asxSortAsc=true;
+
+// ═══════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════
+const f2=(n,dp=2)=>n==null?'—':'$'+n.toFixed(dp);
+const fp=(n,dp=1)=>n==null?'—':n.toFixed(dp)+'%';
+const fn=(n,dp=2)=>n==null?'—':n.toFixed(dp)+'×';
+const ts=()=>new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
+
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(id==='ta'&&currentStock)renderTA(currentStock);
+  if(id==='signals')initSignals();
+}
+
+function seededRng(seed){
+  let s=seed;
+  return()=>{s=(s*16807)%2147483647;return(s-1)/2147483646};
+}
+
+// ═══════════════════════════════════════════
+// STOCK SELECTION & SEARCH
+// ═══════════════════════════════════════════
+function buildSearch(inputId,dropdownId,onSelect){
+  const inp=document.getElementById(inputId);
+  const dd=document.getElementById(dropdownId);
+  if(!inp||!dd)return;
+  inp.addEventListener('input',()=>{
+    const q=inp.value.trim().toLowerCase();
+    if(!q){dd.classList.remove('show');return}
+    const hits=ASX_DATA.filter(s=>s.ticker.toLowerCase().includes(q)||s.company.toLowerCase().includes(q)).slice(0,12);
+    if(!hits.length){dd.classList.remove('show');return}
+    dd.innerHTML=hits.map(s=>`<div class="search-item" onclick="${onSelect}('${s.ticker}')">
+      <span class="si-ticker">${s.ticker}</span><span class="si-name">${s.company}</span>
+      <span class="si-signal ${s.signal}">${s.signal}</span></div>`).join('');
+    dd.classList.add('show');
+  });
+  document.addEventListener('click',e=>{if(!e.target.closest('#'+inputId)&&!e.target.closest('#'+dropdownId))dd.classList.remove('show')});
+}
+
+function loadStock(ticker){
+  const s=ASX_DATA.find(r=>r.ticker===ticker);
+  if(!s)return;
+  currentStock=s;
+  document.getElementById('search-dropdown').classList.remove('show');
+  document.getElementById('ticker-search').value=`${s.ticker} — ${s.company}`;
+  const tier=getTier(s.sector);
+  // Card
+  document.getElementById('sc-ticker').textContent=s.ticker;
+  document.getElementById('sc-name').textContent=s.company;
+  document.getElementById('sc-sector').textContent=s.sector||'N/A';
+  const sigEl=document.getElementById('sc-signal');
+  sigEl.textContent=s.signal; sigEl.className='sc-signal-badge '+s.signal;
+  const tb=document.getElementById('sc-tier-badge');
+  tb.textContent=getTierLabel(tier); tb.className='tier-badge '+getTierClass(tier);
+  document.getElementById('sc-price').textContent=f2(s.price);
+  const ivcEl=document.getElementById('sc-ivc');
+  ivcEl.textContent=f2(s.iv_current);
+  ivcEl.className='metric-value '+(s.signal==='Undervalued'?'mv-green':s.signal==='Overvalued'?'mv-red':'mv-amber');
+  document.getElementById('sc-ivf').textContent=f2(s.iv_forward);
+  document.getElementById('sc-mos').textContent=s.mos!=null?(s.mos>0?'+':'')+s.mos.toFixed(1)+'% vs price':'';
+  document.getElementById('sc-roe').textContent=s.roe!=null?s.roe.toFixed(1)+'%':'—';
+  document.getElementById('sc-wacc').textContent=s.wacc!=null?s.wacc.toFixed(1)+'%':'—';
+  document.getElementById('sc-payout').textContent=s.payout!=null?s.payout.toFixed(1)+'%':'—';
+  document.getElementById('sc-eps1').textContent=s.eps_fy1!=null?'$'+s.eps_fy1.toFixed(4):'—';
+  document.getElementById('sc-franking').textContent=s.franking!=null?s.franking.toFixed(0)+'%':'—';
+  const bar=document.getElementById('mos-bar');
+  const mos=s.mos||0;
+  bar.style.width=Math.min(Math.abs(mos),100)+'%';
+  bar.style.background=mos>0?'var(--green)':'var(--red)';
+  document.getElementById('stock-card').classList.add('show');
+  // Context badge
+  document.getElementById('ctx-ticker').textContent=s.ticker;
+  document.getElementById('ctx-badge').classList.add('show');
+  // Autofill IV
+  const sv=(id,v)=>{if(v!=null){const el=document.getElementById(id);if(el){el.value=v;el.classList.add('autofilled')}}};
+  if(s.equity_ps)sv('iv-eq',s.equity_ps.toFixed(4));
+  if(s.wacc)sv('iv-rr',(s.wacc/100).toFixed(4));
+  if(s.roe)sv('iv-roe',(s.roe/100).toFixed(4));
+  if(s.payout)sv('iv-pr',(s.payout/100).toFixed(4));
+  if(s.price)sv('iv-price',s.price.toFixed(2));
+  if(s.franking!=null)sv('iv-franking',s.franking.toFixed(0));
+  setTimeout(()=>document.querySelectorAll('.autofilled').forEach(el=>el.classList.remove('autofilled')),2000);
+  // AI context
+  updateAIContext(s,tier);
+  // TA: update search field
+  document.getElementById('ta-search').value=`${s.ticker} — ${s.company}`;
+  // Update suggested questions
+  updateSuggestedQuestions(s);
+}
+
+function loadStockFromASX(ticker){
+  switchTab('iv',document.querySelectorAll('.nav-btn')[0]);
+  loadStock(ticker);
+  window.scrollTo(0,0);
+}
+function loadStockFromTA(ticker){
+  loadStock(ticker);
+  renderTA(ASX_DATA.find(r=>r.ticker===ticker));
+  document.getElementById('ta-search-dropdown').classList.remove('show');
+  document.getElementById('ta-search').value=ticker+' — '+ASX_DATA.find(r=>r.ticker===ticker)?.company;
+}
+function goToTA(){if(currentStock){switchTab('ta',document.querySelectorAll('.nav-btn')[2]);renderTA(currentStock)}}
+
+function updateAIContext(s,tier){
+  document.getElementById('ai-ctx-ticker').textContent=s.ticker+' — '+s.company;
+  document.getElementById('ai-ctx-iv').textContent=f2(s.iv_current);
+  document.getElementById('ai-ctx-signal').textContent=s.signal;
+  document.getElementById('ai-ctx-mos').textContent=s.mos!=null?(s.mos>0?'+':'')+s.mos.toFixed(1)+'%':'—';
+  document.getElementById('ai-ctx-tier').textContent='Tier '+tier;
+}
+
+function updateSuggestedQuestions(s){
+  const ql=document.getElementById('q-list');
+  ql.innerHTML=`
+    <button class="q-pill" onclick="setQ('Analyse ${s.ticker} (${s.company}) — is it a buy at $${s.price}? Assess its IV of $${s.iv_current}, ${s.mos?.toFixed(1)}% MOS, NROE ${s.roe}% vs RR ${s.wacc}%, and what the Clever Clime signal matrix tells us.')">Analyse ${s.ticker} — buy at $${s.price}?</button>
+    <button class="q-pill" onclick="setQ('What Clever Clime tier is ${s.ticker} in, and which valuation methodology should be applied? Explain why for a ${s.sector} company.')">Which tier and method for ${s.ticker}?</button>
+    <button class="q-pill" onclick="setQ('${s.ticker} has NROE ${s.roe}% and Required Return ${s.wacc}%. Explain the bond and growth multiplier components and what this says about value creation.')">Explain the multiplier for ${s.ticker}</button>
+    <button class="q-pill" onclick="setQ('What would need to change in ${s.ticker}\\'s inputs — ROE, WACC, or payout — to move it to Undervalued? Give specific numbers.')">What inputs would flip ${s.ticker} to Undervalued?</button>
+    <button class="q-pill" onclick="setQ('Explain the main risks and limitations when using the Clever Clime IV for ${s.ticker} in ${s.sector}.')">Risks for ${s.ticker} valuation</button>
+    <button class="q-pill" onclick="setQ('Explain the Clever Clime equity multiplier formula and how bond and growth components interact')">Explain the equity multiplier</button>`;
+}
+
+// ═══════════════════════════════════════════
+// IV CALCULATOR
+// ═══════════════════════════════════════════
+function calcIV(){
+  const eq=parseFloat(document.getElementById('iv-eq').value)||0;
+  const rr=parseFloat(document.getElementById('iv-rr').value)||0;
+  const roe=parseFloat(document.getElementById('iv-roe').value)||0;
+  let pr=parseFloat(document.getElementById('iv-pr').value)||0;
+  const price=parseFloat(document.getElementById('iv-price').value)||0;
+  const frank=parseFloat(document.getElementById('iv-franking').value)||0;
+  if(rr<=0){alert('Required Return must be > 0');return}
+  const prG=Math.min(pr*(1+(frank/100)*0.4286),1.5);
+  const bm=roe/rr,gm=(roe*roe)/(rr*rr),em=bm*prG+gm*(1-prG),iv=eq*em;
+  document.getElementById('iv-val').textContent=f2(iv);
+  document.getElementById('iv-mult').textContent=fn(em);
+  document.getElementById('iv-bond').textContent=fn(bm);
+  document.getElementById('iv-growth').textContent=fn(gm);
+  const mosEl=document.getElementById('iv-mos');
+  if(price>0){const mos=(iv-price)/price*100;mosEl.textContent=(mos>0?'+':'')+mos.toFixed(1)+'%';mosEl.style.color=mos>0?'var(--green)':mos<-10?'var(--red)':'var(--amber)'}
+  else{mosEl.textContent='Enter price';mosEl.style.color='var(--muted)'}
+  const d=roe*prG,ri=roe*(1-prG);
+  document.getElementById('iv-breakdown').innerHTML=`
+    <div class="rb-item"><div class="rb-label">Distributed Earnings (D)</div><div class="rb-val" style="color:var(--gold)">${fp(d*100)}</div></div>
+    <div class="rb-item"><div class="rb-label">Reinvested (RI)</div><div class="rb-val" style="color:var(--blue)">${fp(ri*100)}</div></div>
+    <div class="rb-item"><div class="rb-label">Adj. Payout (franked)</div><div class="rb-val">${fp(prG*100)}</div></div>
+    <div class="rb-item"><div class="rb-label">NROE vs RR</div><div class="rb-val" style="color:${roe>rr?'var(--green)':roe<rr?'var(--red)':'var(--amber)'}">${roe>rr?'Creating value':'Value drag'}</div></div>
+    ${price>0?`<div class="rb-item"><div class="rb-label">Price / IV</div><div class="rb-val">${(price/iv).toFixed(3)}×</div></div>`:''}`;
+  document.getElementById('iv-result').classList.add('show');
+  // Sensitivity
+  const rrs=[0.08,0.09,0.10,0.11,0.12,0.13,0.14,0.16];
+  const roes=[0.10,0.12,0.15,0.18,0.20,0.25,0.30];
+  let th=`<thead><tr><th>NROE→/RR↓</th>${roes.map(r=>`<th>${fp(r*100,0)}</th>`).join('')}</tr></thead><tbody>`;
+  let tb=rrs.map(dr=>`<tr><td>${fp(dr*100,0)}</td>${roes.map(nr=>{
+    const em2=nr/dr*prG+(nr*nr)/(dr*dr)*(1-prG),iv2=eq*em2;
+    const active=Math.abs(nr-roe)<0.005&&Math.abs(dr-rr)<0.005;
+    const cls=active?'cell-active':nr>dr?'cell-green':nr<dr*0.85?'cell-red':'cell-amber';
+    return`<td class="${cls}">${f2(iv2)}</td>`}).join('')}</tr>`).join('');
+  document.getElementById('iv-sens-table').innerHTML=th+tb+'</tbody>';
+  document.getElementById('iv-sens-wrap').style.display='block';
+  document.getElementById('sens-placeholder').style.display='none';
+}
+
+function clearIV(){
+  ['iv-eq','iv-rr','iv-roe','iv-pr','iv-price','iv-franking'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('iv-result').classList.remove('show');
+  document.getElementById('iv-sens-wrap').style.display='none';
+  document.getElementById('sens-placeholder').style.display='block';
+}
+
+// ═══════════════════════════════════════════
+// ASX TABLE
+// ═══════════════════════════════════════════
+function initASX(){
+  const sectors=[...new Set(ASX_DATA.map(r=>r.sector).filter(Boolean))].sort();
+  const sel=document.getElementById('asx-sector');
+  sectors.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;sel.appendChild(o)});
+  renderASX();
+}
+
+function sortASX(col){
+  if(asxSortCol===col)asxSortAsc=!asxSortAsc;else{asxSortCol=col;asxSortAsc=true}
+  renderASX();
+}
+
+function renderASX(){
+  const sig=document.getElementById('asx-signal').value;
+  const sec=document.getElementById('asx-sector').value;
+  const q=document.getElementById('asx-search').value.toLowerCase();
+  let data=ASX_DATA.filter(r=>(!sig||r.signal===sig)&&(!sec||r.sector===sec)&&(!q||r.ticker.toLowerCase().includes(q)||r.company.toLowerCase().includes(q)));
+  data.sort((a,b)=>{let av=a[asxSortCol],bv=b[asxSortCol];if(av==null)av=asxSortAsc?Infinity:-Infinity;if(bv==null)bv=asxSortAsc?Infinity:-Infinity;if(typeof av==='string')return asxSortAsc?av.localeCompare(bv):bv.localeCompare(av);return asxSortAsc?av-bv:bv-av});
+  document.getElementById('asx-count').textContent=data.length+' stocks';
+  document.getElementById('asx-tbody').innerHTML=data.map(r=>{
+    const mos=r.mos!=null?(r.mos>0?'+':'')+r.mos.toFixed(1)+'%':'—';
+    const mc=r.mos>0?'t-green':r.mos<-20?'t-red':'t-muted';
+    return`<tr><td><span class="t-ticker" onclick="loadStockFromASX('${r.ticker}')">${r.ticker}</span></td>
+      <td><span class="t-name">${r.company}</span></td>
+      <td class="t-mono t-gold">${f2(r.price)}</td><td class="t-mono">${f2(r.iv_current)}</td>
+      <td class="t-mono">${f2(r.iv_forward)}</td><td class="t-mono ${mc}">${mos}</td>
+      <td><span class="badge ${r.signal}">${r.signal}</span></td>
+      <td class="t-mono">${r.roe!=null?r.roe.toFixed(1)+'%':'—'}</td>
+      <td class="t-mono">${r.wacc!=null?r.wacc.toFixed(1)+'%':'—'}</td>
+      <td class="t-mono">${r.payout!=null?r.payout.toFixed(1)+'%':'—'}</td></tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+// TECHNICAL ANALYSIS ENGINE
+// ═══════════════════════════════════════════
+function calcSMA(arr,p){return arr.map((_,i)=>i<p-1?null:arr.slice(i-p+1,i+1).reduce((a,b)=>a+b)/p)}
+function calcEMA(arr,p){
+  const k=2/(p+1);let ema=null;
+  return arr.map((v,i)=>{
+    if(v==null)return null;
+    if(ema===null){if(i>=p-1)ema=arr.slice(0,p).reduce((a,b)=>a+b)/p;else return null}
+    else ema=v*k+ema*(1-k);
+    return ema;
+  });
+}
+function calcRSI(closes,p=14){
+  const ch=closes.slice(1).map((v,i)=>v-closes[i]);
+  const g=ch.map(c=>Math.max(c,0)),l=ch.map(c=>Math.max(-c,0));
+  let ag=g.slice(0,p).reduce((a,b)=>a+b)/p;
+  let al=l.slice(0,p).reduce((a,b)=>a+b)/p;
+  const rsi=new Array(p).fill(null);
+  rsi.push(100-100/(1+ag/(al||0.001)));
+  for(let i=p;i<ch.length;i++){
+    ag=(ag*(p-1)+g[i])/p;al=(al*(p-1)+l[i])/p;
+    rsi.push(100-100/(1+ag/(al||0.001)));
+  }
+  return[null,...rsi];
+}
+function calcBB(closes,p=20,m=2){
+  const sma=calcSMA(closes,p);
+  return closes.map((_,i)=>{
+    if(i<p-1)return{mid:null,up:null,dn:null};
+    const sl=closes.slice(i-p+1,i+1);
+    const mu=sl.reduce((a,b)=>a+b)/p;
+    const sd=Math.sqrt(sl.reduce((a,b)=>a+(b-mu)**2,0)/p);
+    return{mid:sma[i],up:sma[i]+m*sd,dn:sma[i]-m*sd};
+  });
+}
+function calcMACD(closes){
+  const ema12=calcEMA(closes,12),ema26=calcEMA(closes,26);
+  const macd=closes.map((_,i)=>ema12[i]==null||ema26[i]==null?null:ema12[i]-ema26[i]);
+  const signal=calcEMA(macd.filter(v=>v!=null),9);
+  const sigFull=[...new Array(macd.filter(v=>v==null).length).fill(null),...signal];
+  const hist=macd.map((v,i)=>v==null||sigFull[i]==null?null:v-sigFull[i]);
+  return{macd,signal:sigFull,hist};
+}
+
+function getSectorVol(sector){
+  const vol={'Materials':0.028,'Energy':0.026,'Equity Real Estate Investment Trusts (REITs)':0.016,'Banks':0.015,'Insurance':0.016,'Software & Services':0.022,'Technology Hardware & Equipment':0.025,'Financial Services':0.018,'Consumer Services':0.018,'Consumer Discretionary Distribution & Retail':0.017,'Utilities':0.014,'Transportation':0.016,'Health Care Equipment & Services':0.019};
+  return vol[sector]||0.018;
+}
+
+function generatePriceData(stock,days=252){
+  const rng=seededRng(stock.ticker.split('').reduce((a,c)=>a+c.charCodeAt(0),0)*7+days);
+  const vol=getSectorVol(stock.sector);
+  const closes=[stock.price];
+  for(let i=1;i<days;i++){
+    const ret=(rng()-0.5)*2*vol;
+    closes.unshift(Math.max(closes[0]*(1+ret),0.01));
+  }
+  const dates=[];
+  const now=new Date(2026,2,18);
+  for(let i=days-1;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i);if(d.getDay()!==0&&d.getDay()!==6)dates.push(d.toLocaleDateString('en-AU',{month:'short',day:'numeric'}))}
+  // Generate OHLV from closes
+  const rng2=seededRng(stock.ticker.split('').reduce((a,c)=>a+c.charCodeAt(0),0)*13);
+  const ohlcv=closes.map(c=>{
+    const r=rng2()*0.015;
+    return{open:c*(1+(rng2()-0.5)*0.008),high:c*(1+r),low:c*(1-r*0.8),close:c,vol:Math.round((rng2()*0.8+0.2)*1e6*(stock.price>10?1:3))};
+  });
+  return{closes,ohlcv,dates:dates.slice(0,closes.length)};
+}
+
+function setTAPeriod(p,btn){
+  taPeriod=p;
+  document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(currentStock)renderTA(currentStock);
+}
+
+function destroyCharts(){[priceChart,volChart,rsiChart,macdChart].forEach(c=>{if(c){try{c.destroy()}catch(e){}}});priceChart=volChart=rsiChart=macdChart=null}
+
+function renderTA(stock){
+  if(!stock)return;
+  document.getElementById('ta-placeholder').style.display='none';
+  document.getElementById('ta-content').style.display='block';
+  document.getElementById('ta-stock-label').textContent=`${stock.ticker} — ${stock.company} · Price`;
+  destroyCharts();
+  const {closes,ohlcv,dates}=generatePriceData(stock,Math.min(taPeriod+200,460));
+  const n=Math.min(taPeriod,closes.length);
+  const rc=closes.slice(-n),rd=dates.slice(-n);
+  const sma20=calcSMA(closes,20).slice(-n);
+  const sma50=calcSMA(closes,50).slice(-n);
+  const sma200=calcSMA(closes,200).slice(-n);
+  const bb=calcBB(closes,20).slice(-n);
+  const rsi=calcRSI(closes,14).slice(-n);
+  const {macd,signal:macdSig,hist:macdHist}=calcMACD(closes);
+  const macdN=macd.slice(-n),sigN=macdSig.slice(-n),histN=macdHist.slice(-n);
+  const vols=ohlcv.slice(-n).map(o=>o.vol);
+  const chartOpts={responsive:true,maintainAspectRatio:false,interaction:{intersect:false,mode:'index'},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(17,19,24,0.95)',borderColor:'#232630',borderWidth:1,titleColor:'#6b7280',bodyColor:'#e8eaf0',padding:10}},scales:{x:{ticks:{color:'#4b5263',maxTicksLimit:8,font:{size:10}},grid:{color:'rgba(35,38,48,0.8)'}},y:{position:'right',ticks:{color:'#4b5263',font:{size:10}},grid:{color:'rgba(35,38,48,0.8)'}}}};
+  const bbU=bb.map(b=>b.up),bbL=bb.map(b=>b.dn);
+  // Price chart
+  priceChart=new Chart(document.getElementById('price-chart'),{type:'line',data:{labels:rd,datasets:[
+    {label:'BB Upper',data:bbU,borderColor:'rgba(45,212,160,0.3)',borderWidth:1,pointRadius:0,fill:false,borderDash:[2,2]},
+    {label:'BB Lower',data:bbL,borderColor:'rgba(45,212,160,0.3)',borderWidth:1,pointRadius:0,fill:'-1',backgroundColor:'rgba(45,212,160,0.03)',borderDash:[2,2]},
+    {label:'SMA200',data:sma200,borderColor:'rgba(167,139,250,0.7)',borderWidth:1.5,pointRadius:0,fill:false},
+    {label:'SMA50',data:sma50,borderColor:'rgba(96,165,250,0.8)',borderWidth:1.5,pointRadius:0,fill:false},
+    {label:'SMA20',data:sma20,borderColor:'rgba(212,168,67,0.9)',borderWidth:1.5,pointRadius:0,fill:false},
+    {label:'Price',data:rc,borderColor:'#e8eaf0',borderWidth:2,pointRadius:0,fill:false,tension:0.1},
+  ]},options:{...chartOpts,scales:{...chartOpts.scales,y:{...chartOpts.scales.y,ticks:{...chartOpts.scales.y.ticks,callback:v=>'$'+v.toFixed(2)}}}}});
+  // Volume chart
+  const volColors=rc.map((_,i)=>i>0?rc[i]>=rc[i-1]?'rgba(45,212,160,0.5)':'rgba(240,96,96,0.5)':'rgba(45,212,160,0.5)');
+  volChart=new Chart(document.getElementById('vol-chart'),{type:'bar',data:{labels:rd,datasets:[{data:vols,backgroundColor:volColors,borderWidth:0}]},options:{...chartOpts,scales:{...chartOpts.scales,y:{...chartOpts.scales.y,ticks:{...chartOpts.scales.y.ticks,callback:v=>(v/1e6).toFixed(1)+'M'}}}}});
+  // RSI chart
+  rsiChart=new Chart(document.getElementById('rsi-chart'),{type:'line',data:{labels:rd,datasets:[
+    {data:rsi,borderColor:'#d4a843',borderWidth:1.5,pointRadius:0,fill:false},
+    {data:new Array(n).fill(70),borderColor:'rgba(240,96,96,0.4)',borderWidth:1,pointRadius:0,fill:false,borderDash:[3,3]},
+    {data:new Array(n).fill(30),borderColor:'rgba(45,212,160,0.4)',borderWidth:1,pointRadius:0,fill:false,borderDash:[3,3]},
+  ]},options:{...chartOpts,scales:{...chartOpts.scales,y:{...chartOpts.scales.y,min:0,max:100,ticks:{...chartOpts.scales.y.ticks,callback:v=>v.toFixed(0)}}}}});
+  // MACD chart
+  const histColors=histN.map(v=>v==null?'transparent':v>=0?'rgba(45,212,160,0.6)':'rgba(240,96,96,0.6)');
+  macdChart=new Chart(document.getElementById('macd-chart'),{type:'bar',data:{labels:rd,datasets:[
+    {type:'bar',data:histN,backgroundColor:histColors,borderWidth:0,label:'Histogram'},
+    {type:'line',data:macdN,borderColor:'#5b8ff9',borderWidth:1.5,pointRadius:0,fill:false,label:'MACD'},
+    {type:'line',data:sigN,borderColor:'rgba(240,96,96,0.8)',borderWidth:1.5,pointRadius:0,fill:false,label:'Signal'},
+  ]},options:{...chartOpts}});
+  // Signals
+  const cur=rc[rc.length-1];
+  const s20=sma20[sma20.length-1],s50=sma50[sma50.length-1],s200=sma200[sma200.length-1];
+  const rsiNow=rsi[rsi.length-1];
+  const macdNow=macdN[macdN.length-1],sigNow=sigN[sigN.length-1];
+  const bbNow=bb[bb.length-1];
+  // Trend
+  const trendEl=document.getElementById('sig-trend');
+  if(s50&&cur>s50){trendEl.textContent='Bullish';trendEl.className='signal-val bull'}
+  else if(s50&&cur<s50*0.95){trendEl.textContent='Bearish';trendEl.className='signal-val bear'}
+  else{trendEl.textContent='Neutral';trendEl.className='signal-val neutral'}
+  // RSI
+  const rsiEl=document.getElementById('sig-rsi');
+  if(rsiNow>70){rsiEl.textContent='Overbought '+rsiNow?.toFixed(0);rsiEl.className='signal-val bear'}
+  else if(rsiNow<30){rsiEl.textContent='Oversold '+rsiNow?.toFixed(0);rsiEl.className='signal-val bull'}
+  else{rsiEl.textContent='Neutral '+rsiNow?.toFixed(0);rsiEl.className='signal-val neutral'}
+  // MACD
+  const macdEl=document.getElementById('sig-macd');
+  if(macdNow&&sigNow){
+    if(macdNow>sigNow&&histN[histN.length-2]<sigN[sigN.length-2]){macdEl.textContent='Bullish Cross';macdEl.className='signal-val bull'}
+    else if(macdNow<sigNow&&histN[histN.length-2]>sigN[sigN.length-2]){macdEl.textContent='Bearish Cross';macdEl.className='signal-val bear'}
+    else if(macdNow>sigNow){macdEl.textContent='Bullish';macdEl.className='signal-val bull'}
+    else{macdEl.textContent='Bearish';macdEl.className='signal-val bear'}
+  }
+  // Bollinger
+  const bbEl=document.getElementById('sig-bb');
+  if(bbNow.up&&cur>bbNow.up){bbEl.textContent='Above Upper';bbEl.className='signal-val bear'}
+  else if(bbNow.dn&&cur<bbNow.dn){bbEl.textContent='Below Lower';bbEl.className='signal-val bull'}
+  else{bbEl.textContent='Within Bands';bbEl.className='signal-val neutral'}
+  // Cross
+  const crossEl=document.getElementById('sig-cross');
+  if(s20&&s50){
+    const prev20=sma20[sma20.length-5],prev50=sma50[sma50.length-5];
+    if(s20>s50&&prev20<=prev50){crossEl.textContent='Golden Cross';crossEl.className='signal-val bull'}
+    else if(s20<s50&&prev20>=prev50){crossEl.textContent='Death Cross';crossEl.className='signal-val bear'}
+    else if(s20>s50){crossEl.textContent='SMA20>50 Bull';crossEl.className='signal-val bull'}
+    else{crossEl.textContent='SMA20<50 Bear';crossEl.className='signal-val bear'}
+  }
+  // Volume trend
+  const recentVol=vols.slice(-5).reduce((a,b)=>a+b)/5;
+  const avgVol=vols.reduce((a,b)=>a+b)/vols.length;
+  const volEl=document.getElementById('sig-vol');
+  if(recentVol>avgVol*1.3){volEl.textContent='High Volume';volEl.className='signal-val bull'}
+  else if(recentVol<avgVol*0.7){volEl.textContent='Low Volume';volEl.className='signal-val neutral'}
+  else{volEl.textContent='Average';volEl.className='signal-val neutral'}
+  // Overall
+  let bullCount=0,bearCount=0;
+  [trendEl,rsiEl,macdEl,bbEl,crossEl].forEach(el=>{if(el.classList.contains('bull'))bullCount++;else if(el.classList.contains('bear'))bearCount++});
+  const ovEl=document.getElementById('overall-signal');
+  const ovVal=document.getElementById('overall-signal-val');
+  if(bullCount>=3){ovEl.className='overall-signal bull';ovVal.textContent='Bullish ↑';ovVal.style.color='var(--green)'}
+  else if(bearCount>=3){ovEl.className='overall-signal bear';ovVal.textContent='Bearish ↓';ovVal.style.color='var(--red)'}
+  else{ovEl.className='overall-signal neutral';ovVal.textContent='Mixed →';ovVal.style.color='var(--amber)'}
+  // Key levels
+  const set=(id,v)=>document.getElementById(id).textContent=v;
+  set('kl-price','$'+cur.toFixed(2));
+  set('kl-sma20',s20?'$'+s20.toFixed(2):'—');
+  set('kl-sma50',s50?'$'+s50.toFixed(2):'—');
+  set('kl-sma200',s200?'$'+s200.toFixed(2):'—');
+  set('kl-bbu',bbNow.up?'$'+bbNow.up.toFixed(2):'—');
+  set('kl-bbl',bbNow.dn?'$'+bbNow.dn.toFixed(2):'—');
+  const hi=Math.max(...rc),lo=Math.min(...rc);
+  set('kl-high','$'+hi.toFixed(2));set('kl-low','$'+lo.toFixed(2));
+  set('kl-iv',f2(stock.iv_current));
+  set('kl-mos',stock.mos!=null?(stock.mos>0?'+':'')+stock.mos.toFixed(1)+'%':'—');
+  set('kl-signal',stock.signal);
+  set('kl-tier','Tier '+getTier(stock.sector));
+}
+
+// ═══════════════════════════════════════════
+// AI ASSISTANT
+// ═══════════════════════════════════════════
+function setQ(q){
+  document.getElementById('chat-input').value=q;
+  autoResize(document.getElementById('chat-input'));
+}
+
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px'}
+
+function handleChatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}}
+
+function appendMsg(role,content,typing=false){
+  const msgs=document.getElementById('chat-messages');
+  const empty=msgs.querySelector('.chat-empty');
+  if(empty)empty.remove();
+  const div=document.createElement('div');
+  div.className='msg '+role;
+  div.id=typing?'typing-msg':'';
+  if(typing){
+    div.innerHTML=`<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+  }else{
+    const txt=content.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/`(.*?)`/g,'<code style="background:var(--surface2);padding:1px 5px;border-radius:3px;font-family:JetBrains Mono,monospace;font-size:11px">$1</code>');
+    div.innerHTML=`<div class="msg-bubble">${txt}</div><div class="msg-time">${ts()}</div>`;
+  }
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+  return div;
+}
+
+async function sendMessage(){
+  const inp=document.getElementById('chat-input');
+  const msg=inp.value.trim();
+  if(!msg)return;
+  const btn=document.getElementById('send-btn');
+  btn.disabled=true;
+  appendMsg('user',msg);
+  inp.value='';inp.style.height='auto';
+  chatHistory.push({role:'user',content:msg});
+  const typing=appendMsg('assistant','',true);
+  // Build context
+  let stockCtx='No specific stock selected.';
+  if(currentStock){
+    const s=currentStock;
+    const tier=getTier(s.sector);
+    stockCtx=`Current stock context: ${s.ticker} (${s.company}), Sector: ${s.sector}, Tier ${tier} (${getTierLabel(tier)}), Price: $${s.price}, IV Current: $${s.iv_current}, IV Forward: $${s.iv_forward}, MoS: ${s.mos?.toFixed(1)}%, Signal: ${s.signal}, NROE: ${s.roe}%, WACC: ${s.wacc}%, Payout: ${s.payout}%, EPS FY+1: $${s.eps_fy1?.toFixed(4)||'N/A'}, Franking: ${s.franking}%, Equity/Share: $${s.equity_ps?.toFixed(4)||'N/A'}`;
+  }
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:CC_SYSTEM+'\n\n'+stockCtx,
+        messages:chatHistory
+      })
+    });
+    const data=await res.json();
+    const reply=data.content?.[0]?.text||'Sorry, I could not generate a response. Please try again.';
+    typing.remove();
+    appendMsg('assistant',reply);
+    chatHistory.push({role:'assistant',content:reply});
+  }catch(e){
+    typing.remove();
+    appendMsg('assistant','Connection error. Please check your network and try again.');
+  }
+  btn.disabled=false;
+}
+
+// ═══════════════════════════════════════════
+// STRETD
+// ═══════════════════════════════════════════
+function calcSTRETD(){
+  const P=parseFloat(document.getElementById('st-price').value)||0;
+  const eps=parseFloat(document.getElementById('st-eps').value)||0;
+  const pe=parseFloat(document.getElementById('st-pe').value)||0;
+  const g=parseFloat(document.getElementById('st-g').value)||0;
+  const n=parseInt(document.getElementById('st-yrs').value)||10;
+  const pr=parseFloat(document.getElementById('st-pr').value)||0;
+  const tD=parseFloat(document.getElementById('st-tdiv').value)||0;
+  const tC=parseFloat(document.getElementById('st-tcap').value)||0;
+  if(P<=0||eps<=0||pe<=0)return;
+  const fEPS=eps*Math.pow(1+g,n),fP=fEPS*pe;
+  let shares=1;
+  for(let t=1;t<=n;t++){const eT=eps*Math.pow(1+g,t);const pT=P+(fP-P)*(t/n);shares+=eT*pr*shares*(1-tD)/pT}
+  const proc=shares*fP;const tax=Math.max(0,fP-P)*tC;
+  const ret=Math.pow((proc-tax)/P,1/n)-1;
+  let sh2=1;
+  for(let t=1;t<=n;t++){const eT=eps*Math.pow(1+g,t);const pT=P+(fP-P)*(t/n);sh2+=eT*pr*sh2/pT}
+  const pre=Math.pow(sh2*fP/P,1/n)-1;
+  const rv=document.getElementById('st-val');
+  rv.textContent=fp(ret*100);
+  rv.style.color=ret>=0.12?'var(--green)':ret>=0.08?'var(--gold)':'var(--red)';
+  document.getElementById('st-pretax').textContent=fp(pre*100);
+  document.getElementById('st-exitp').textContent=f2(fP);
+  document.getElementById('st-shares').textContent=shares.toFixed(4);
+  document.getElementById('st-result').classList.add('show');
+}
+
+// ═══════════════════════════════════════════
+// RR IMPACT
+// ═══════════════════════════════════════════
+function calcRRImpact(){
+  const eq=parseFloat(document.getElementById('rr-eq').value)||10;
+  const roe=parseFloat(document.getElementById('rr-roe').value)||0.20;
+  const pr=parseFloat(document.getElementById('rr-pr').value)||0.70;
+  const rrs=[0.08,0.09,0.10,0.11,0.12,0.13,0.14,0.15,0.16,0.17,0.18];
+  let html=`<thead><tr><th>Required Return</th><th>Bond Mult</th><th>Growth Mult</th><th>Equity Mult</th><th>Intrinsic Value</th><th>vs Equity</th></tr></thead><tbody>`;
+  rrs.forEach(rr=>{
+    const bm=roe/rr,gm=(roe*roe)/(rr*rr),em=bm*pr+gm*(1-pr),iv=eq*em;
+    const pct=(iv/eq-1)*100;
+    const cls=roe>rr?'cell-green':roe<rr?'cell-red':'cell-amber';
+    html+=`<tr><td class="t-mono">${fp(rr*100)}</td><td class="t-mono">${fn(bm)}</td><td class="t-mono">${fn(gm)}</td><td class="t-mono ${cls}">${fn(em)}</td><td class="t-mono" style="color:var(--gold)">${f2(iv)}</td><td class="t-mono ${cls}">${pct>0?'+':''}${pct.toFixed(1)}%</td></tr>`;
+  });
+  html+='</tbody>';
+  document.getElementById('rr-sens-table').innerHTML=html;
+  document.getElementById('rr-sens-wrap').style.display='block';
+}
+
+// ═══════════════════════════════════════════
+// PORTFOLIO SIGNALS
+// ═══════════════════════════════════════════
+function getCombinedSignal(s){
+  const mos=s.mos||0;
+  if(s.signal==='Overvalued')return{sig:'REDUCE',cls:'sig-red',size:'Exit / Trim',sizeNote:'Sell into strength'};
+  if(s.signal==='Fair value')return{sig:'HOLD',cls:'sig-hold',size:'Maintain',sizeNote:'No new buying'};
+  // Undervalued
+  if(mos>25)return{sig:'ACTIVE BUY ★',cls:'sig-buy',size:'Up to 5%',sizeNote:'High conviction — MoS >25%'};
+  if(mos>15)return{sig:'ACTIVE BUY',cls:'sig-buy',size:'Up to 3%',sizeNote:'Standard initiation'};
+  return{sig:'WATCH',cls:'sig-watch',size:'0–1%',sizeNote:'ERS / EQS verification required'};
+}
+
+let sigSortCol='mos',sigSortAsc=false;
+function sortSignals(col){if(sigSortCol===col)sigSortAsc=!sigSortAsc;else{sigSortCol=col;sigSortAsc=true}renderSignals()}
+
+function initSignals(){
+  const sectors=[...new Set(ASX_DATA.map(r=>r.sector).filter(Boolean))].sort();
+  const sel=document.getElementById('sig-filter-sector');
+  if(sel&&sel.options.length<2)sectors.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;sel.appendChild(o)});
+  renderSignals();
+}
+
+function renderSignals(){
+  const sigF=document.getElementById('sig-filter-signal')?.value||'';
+  const sec=document.getElementById('sig-filter-sector')?.value||'';
+  const tier=document.getElementById('sig-filter-tier')?.value||'';
+  const q=(document.getElementById('sig-search')?.value||'').toLowerCase();
+  let data=ASX_DATA.map(s=>({...s,_sig:getCombinedSignal(s),_tier:getTier(s.sector)}))
+    .filter(r=>
+      (!sigF||r._sig.sig.startsWith(sigF)||r._sig.sig===sigF)&&
+      (!sec||r.sector===sec)&&
+      (!tier||r._tier===parseInt(tier))&&
+      (!q||r.ticker.toLowerCase().includes(q)||r.company.toLowerCase().includes(q))
+    );
+  data.sort((a,b)=>{
+    let av=a[sigSortCol],bv=b[sigSortCol];
+    if(av==null)av=sigSortAsc?Infinity:-Infinity;
+    if(bv==null)bv=sigSortAsc?Infinity:-Infinity;
+    if(typeof av==='string')return sigSortAsc?av.localeCompare(bv):bv.localeCompare(av);
+    return sigSortAsc?av-bv:bv-av;
+  });
+  document.getElementById('sig-count').textContent=data.length+' stocks';
+  // Summary
+  const counts={ACTIVE:0,ACCUMULATE:0,WATCH:0,HOLD:0,REDUCE:0};
+  ASX_DATA.forEach(s=>{const sg=getCombinedSignal(s).sig;if(sg.startsWith('ACTIVE'))counts.ACTIVE++;else if(sg==='ACCUMULATE')counts.ACCUMULATE++;else if(sg==='WATCH')counts.WATCH++;else if(sg==='HOLD')counts.HOLD++;else counts.REDUCE++});
+  const sm=document.getElementById('signal-summary');
+  if(sm)sm.innerHTML=[
+    {label:'Active Buy',count:counts.ACTIVE,color:'var(--green)',bg:'var(--green-dim)',border:'rgba(45,212,160,.25)'},
+    {label:'Accumulate',count:counts.ACCUMULATE,color:'#86efac',bg:'rgba(134,239,172,.1)',border:'rgba(134,239,172,.25)'},
+    {label:'Watch',count:counts.WATCH,color:'var(--amber)',bg:'var(--amber-dim)',border:'rgba(240,160,64,.25)'},
+    {label:'Hold',count:counts.HOLD,color:'var(--muted)',bg:'var(--surface2)',border:'var(--border2)'},
+    {label:'Reduce / Exit',count:counts.REDUCE,color:'var(--red)',bg:'var(--red-dim)',border:'rgba(240,96,96,.25)'},
+  ].map(c=>`<div style="background:${c.bg};border:1px solid ${c.border};border-radius:var(--radius);padding:14px;text-align:center">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:600;color:${c.color}">${c.count}</div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:2px">${c.label}</div>
+  </div>`).join('');
+  // Table
+  const tb=document.getElementById('sig-tbody');
+  if(!tb)return;
+  tb.innerHTML=data.map(r=>{
+    const mos=r.mos!=null?(r.mos>0?'+':'')+r.mos.toFixed(1)+'%':'—';
+    const mc=r.mos>15?'t-green':r.mos<-15?'t-red':'t-muted';
+    const warn=Math.abs((r.mos||0)-15)<5?'⚠ ':'';
+    return`<tr>
+      <td><span class="t-ticker" onclick="loadStockFromASX('${r.ticker}')">${r.ticker}</span></td>
+      <td><span class="t-name">${r.company}</span></td>
+      <td><span class="tier-badge ${getTierClass(r._tier)}" style="font-size:9px;padding:2px 6px">T${r._tier}</span></td>
+      <td class="t-mono t-gold">${f2(r.price)}</td>
+      <td class="t-mono">${f2(r.iv_current)}</td>
+      <td class="t-mono ${mc}">${warn}${mos}</td>
+      <td><span class="badge ${r.signal}">${r.signal}</span></td>
+      <td><span class="signal-badge-lg ${r._sig.cls}">${r._sig.sig}</span></td>
+      <td style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--gold)">${r._sig.size}</td>
+      <td class="t-mono">${r.roe!=null?r.roe.toFixed(1)+'%':'—'}</td>
+      <td class="t-mono">${r.wacc!=null?r.wacc.toFixed(1)+'%':'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// No override needed — initSignals called inline in the original switchTab below
+
+// ─── END ADDITIONS ───────────────────────────────────────────────
+buildSearch('ticker-search','search-dropdown','loadStock');
+buildSearch('ta-search','ta-search-dropdown','loadStockFromTA');
+initASX();
+// Set Chart.js defaults
+if(typeof Chart!=='undefined'){
+  Chart.defaults.color='#6b7280';
+  Chart.defaults.font.family="'JetBrains Mono',monospace";
+  Chart.defaults.font.size=10;
+}
+
+// ══════════════════════════════════════════════════════
+// FMP DATA FEED
+// ══════════════════════════════════════════════════════
+const FMP_BASE = 'https://financialmodelingprep.com/api/v3';
+let fmpCache = {};
+
+function getFMPKey(){ return localStorage.getItem('fmp_key') || ''; }
+function showFMPModal(){
+  document.getElementById('fmp-key-input').value = getFMPKey();
+  document.getElementById('fmp-overlay').style.display = 'flex';
+}
+function closeFMPModal(){ document.getElementById('fmp-overlay').style.display = 'none'; }
+function saveFMPKey(){
+  const k = document.getElementById('fmp-key-input').value.trim();
+  if(k){ localStorage.setItem('fmp_key',k); }
+  else { localStorage.removeItem('fmp_key'); }
+  updateFMPBadge(!!k);
+  closeFMPModal();
+  if(k && currentStock) loadFMPForStock(currentStock.ticker);
+}
+function updateFMPBadge(on){
+  const b = document.getElementById('fmp-btn');
+  if(!b) return;
+  b.textContent = on ? '⚡ FMP: Live' : '⚡ FMP: Off';
+  b.className = 'fmp-btn ' + (on ? 'connected' : 'disconnected');
+}
+
+async function fmpGet(path){
+  const k = getFMPKey(); if(!k) return null;
+  const url = `${FMP_BASE}/${path}&apikey=${k}`;
+  try {
+    const r = await fetch(url);
+    if(!r.ok) return null;
+    return await r.json();
+  } catch(e){ return null; }
+}
+
+async function loadFMPForStock(ticker){
+  const t = ticker + '.AX';
+  const btn = document.getElementById('fmp-btn');
+  if(btn) { btn.textContent = '⚡ Loading…'; btn.className = 'fmp-btn disconnected'; }
+  const [quote, income, balance] = await Promise.allSettled([
+    fmpGet(`quote/${t}?`),
+    fmpGet(`income-statement/${t}?limit=5`),
+    fmpGet(`balance-sheet-statement/${t}?limit=5`)
+  ]);
+  fmpCache[ticker] = {
+    quote: quote.status==='fulfilled' ? quote.value : null,
+    income: income.status==='fulfilled' ? income.value : null,
+    balance: balance.status==='fulfilled' ? balance.value : null
+  };
+  updateFMPBadge(true);
+  populateAdjFromFMP(ticker);
+  return fmpCache[ticker];
+}
+
+function populateAdjFromFMP(ticker){
+  const d = fmpCache[ticker];
+  const s = currentStock;
+  if(!s) return;
+
+  let npat, divs, equity, shares, wacc;
+  const inc = d?.income;
+  const bal = d?.balance;
+  const qt  = d?.quote;
+
+  if(inc && inc[0] && bal && bal[0]){
+    npat   = inc[0].netIncome / 1e6;
+    divs   = inc[0].dividendsPaid ? Math.abs(inc[0].dividendsPaid)/1e6 : null;
+    equity = bal[0].totalStockholdersEquity / 1e6;
+    shares = qt && qt[0] ? qt[0].sharesOutstanding/1e6 : null;
+    wacc   = s.wacc;
+  } else {
+    // Derive from per-share static data using assumed 1B shares
+    const est = 1000;
+    npat   = (s.eps_fy1 || 0) * est;
+    divs   = (s.dps_fy1 || 0) * est;
+    equity = (s.equity_ps || 1) * est;
+    shares = est;
+    wacc   = s.wacc;
+  }
+
+  // Store actuals
+  window._adjActuals = { npat, divs, equity, shares, wacc };
+
+  // Set inputs
+  setAdj('adj-npat', npat, 0);
+  setAdj('adj-divs', divs, 0);
+  setAdj('adj-equity', equity, 0);
+  setAdj('adj-shares', shares, 2);
+  setAdj('adj-wacc', wacc, 3);
+
+  // Set actual labels
+  const na = v => v != null ? v : null;
+  document.getElementById('adj-npat-act').textContent   = npat   != null ? `Actual: ${ (npat).toLocaleString('en-AU',{maximumFractionDigits:0}) } $M — Net profit after tax` : 'Actual: not available (connect FMP)';
+  document.getElementById('adj-divs-act').textContent   = divs   != null ? `Actual: ${ (divs).toLocaleString('en-AU',{maximumFractionDigits:0}) } $M — Total dividends paid` : 'Actual: not available (connect FMP)';
+  document.getElementById('adj-equity-act').textContent = equity != null ? `Actual: ${ (equity).toLocaleString('en-AU',{maximumFractionDigits:0}) } $M — Book value of equity` : 'Actual: not available (connect FMP)';
+  document.getElementById('adj-shares-act').textContent = shares != null ? `Actual: ${ (shares).toFixed(1) } M — Shares on issue` : 'Actual: not available (connect FMP)';
+  document.getElementById('adj-wacc-act').textContent   = wacc   != null ? `Actual: ${ wacc.toFixed(3) }% — Required return / WACC` : '—';
+
+  recalcAdj();
+}
+
+function setAdj(id, val, dp){
+  const el = document.getElementById(id);
+  if(el && val != null) el.value = typeof val === 'number' ? val.toFixed(dp) : val;
+}
+
+function resetAdj(){
+  if(!window._adjActuals) return;
+  const a = window._adjActuals;
+  setAdj('adj-npat', a.npat, 0);
+  setAdj('adj-divs', a.divs, 0);
+  setAdj('adj-equity', a.equity, 0);
+  setAdj('adj-shares', a.shares, 2);
+  setAdj('adj-wacc', a.wacc, 3);
+  recalcAdj();
+}
+
+function recalcAdj(){
+  const s = currentStock; if(!s) return;
+  const npat   = parseFloat(document.getElementById('adj-npat').value) || 0;
+  const divs   = parseFloat(document.getElementById('adj-divs').value) || 0;
+  const equity = parseFloat(document.getElementById('adj-equity').value) || 0;
+  const shares = parseFloat(document.getElementById('adj-shares').value) || 0;
+  const wacc   = parseFloat(document.getElementById('adj-wacc').value) || 0;
+  if(!shares || !equity || !wacc || !npat) return;
+
+  const roe  = npat / equity;
+  const rr   = wacc / 100;
+  const dps  = divs / shares;
+  const eps  = npat / shares;
+  const eqps = equity / shares;
+  const pr   = eps > 0 ? Math.min(dps / eps, 1.5) : 0.7;
+  const frank = s.franking || 0;
+  const prAdj = Math.min(pr * (1 + (frank/100) * 0.4286), 1.5);
+
+  const bond   = roe / rr;
+  const growth = (roe * roe) / (rr * rr);
+  const mult   = bond * prAdj + growth * (1 - prAdj);
+  const iv     = mult * eqps;
+
+  // Result card
+  document.getElementById('adj-iv-result').textContent = f2(iv);
+  const baseIV = s.iv_current, price = s.price;
+  const vsBase  = baseIV ? ((iv - baseIV)/baseIV*100) : 0;
+  const vsPrice = price  ? ((iv - price)/price*100)   : 0;
+  document.getElementById('adj-iv-vs').innerHTML =
+    `Base IV: ${f2(baseIV)} <span style="color:${vsBase>=0?'var(--green)':'var(--red)'}">${vsBase>=0?'▲':'▼'} ${Math.abs(vsBase).toFixed(2)}%</span> &nbsp;·&nbsp; ` +
+    `Latest price: ${f2(price)} <span style="color:${vsPrice>=0?'var(--green)':'var(--red)'}">${vsPrice>=0?'▲':'▼'} ${Math.abs(vsPrice).toFixed(1)}% vs price</span>`;
+
+  // Formula rows
+  const setSp = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+  setSp('afr-roe',    (roe*100).toFixed(2)+'%');
+  setSp('afr-pr',     (pr*100).toFixed(1)+'%');
+  setSp('afr-eqps',   f2(eqps)+'/sh');
+  setSp('afr-bond',   bond.toFixed(4)+'×');
+  setSp('afr-growth', growth.toFixed(4)+'×');
+  setSp('afr-mult',   mult.toFixed(4)+'×');
+  setSp('afr-iv',     f2(iv));
+
+  // WACC sensitivity
+  const rrs = [0.07,0.08,0.09,0.10,0.11,0.12,0.13,0.14,0.15,0.16];
+  let html = '<thead><tr><th>WACC</th><th>IV</th><th>vs Price</th></tr></thead><tbody>';
+  rrs.forEach(r => {
+    const b=roe/r, g=(roe*roe)/(r*r), m=b*prAdj+g*(1-prAdj), ivR=m*eqps;
+    const vp=price?((ivR-price)/price*100):0;
+    const active=Math.abs(r-rr)<0.0005;
+    const sty=active?'style="background:rgba(212,168,67,.1);color:var(--gold)"':'';
+    html+=`<tr ${sty}><td>${(r*100).toFixed(0)}%</td><td>${f2(ivR)}</td><td style="color:${vp>=0?'var(--green)':'var(--red)'}">${vp>=0?'+':''}${vp.toFixed(1)}%</td></tr>`;
+  });
+  html += '</tbody>';
+  document.getElementById('adj-wacc-sens').innerHTML = html;
+  document.getElementById('adj-wacc-sens-wrap').style.display = '';
+}
+
+// ── Hook into loadStock ──────────────────────────────────────────────
+const _origLoadStock = loadStock;
+window.loadStock = function(ticker){
+  _origLoadStock(ticker);
+  // Show adjusted valuation card
+  document.getElementById('adj-val-card').style.display = '';
+  // Load FMP if key exists, else use static data
+  if(getFMPKey()){
+    loadFMPForStock(ticker);
+  } else {
+    populateAdjFromFMP(ticker); // uses static fallback
+  }
+};
+
+// Init FMP badge
+updateFMPBadge(!!getFMPKey());
+
+</script>
+
+<!-- FMP Modal -->
+<div style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;align-items:center;justify-content:center" id="fmp-overlay" onclick="if(event.target===this)closeFMPModal()">
+  <div style="background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:24px;width:100%;max-width:420px;margin:16px">
+    <div style="font-size:15px;font-weight:600;margin-bottom:4px">Financial Modeling Prep API</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6">Connect live price data, historical financials, and analyst forecasts.<br>Get a free key at <strong style="color:var(--text)">financialmodelingprep.com</strong> — stored in your browser only.</p>
+    <input type="text" id="fmp-key-input" placeholder="Enter FMP API key…" style="width:100%;padding:9px 12px;background:var(--bg);border:1.5px solid var(--border2);color:var(--text);font-family:var(--mono);font-size:12px;border-radius:6px;outline:none;margin-bottom:12px">
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="closeFMPModal()" style="padding:7px 14px;background:transparent;border:1px solid var(--border2);color:var(--muted);border-radius:6px;cursor:pointer;font-family:var(--font);font-size:12px">Cancel</button>
+      <button onclick="saveFMPKey()" style="padding:7px 14px;background:var(--gold);border:none;color:#000;border-radius:6px;cursor:pointer;font-family:var(--font);font-size:12px;font-weight:600">Save Key</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
