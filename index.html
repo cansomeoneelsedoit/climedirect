@@ -1897,45 +1897,91 @@ function appendMsg(role,content,typing=false){
   return div;
 }
 
-async function sendMessage(){
+async async function sendMessage(){
   const inp=document.getElementById('chat-input');
   const msg=inp.value.trim();
   if(!msg)return;
+
+  // Check for API key
+  const apiKey = localStorage.getItem('claude_api_key');
+  if(!apiKey){
+    showApiKeyPrompt();
+    return;
+  }
+
   const btn=document.getElementById('send-btn');
   btn.disabled=true;
   appendMsg('user',msg);
   inp.value='';inp.style.height='auto';
   chatHistory.push({role:'user',content:msg});
   const typing=appendMsg('assistant','',true);
-  // Build context
+
+  // Build stock context
   let stockCtx='No specific stock selected.';
   if(currentStock){
     const s=currentStock;
-    const tier=getTier(s.sector);
-    stockCtx=`Current stock context: ${s.ticker} (${s.company}), Sector: ${s.sector}, Tier ${tier} (${getTierLabel(tier)}), Price: $${s.price}, IV Current: $${s.iv_current}, IV Forward: $${s.iv_forward}, MoS: ${s.mos?.toFixed(1)}%, Signal: ${s.signal}, NROE: ${s.roe}%, WACC: ${s.wacc}%, Payout: ${s.payout}%, EPS FY+1: $${s.eps_fy1?.toFixed(4)||'N/A'}, Franking: ${s.franking}%, Equity/Share: $${s.equity_ps?.toFixed(4)||'N/A'}`;
+    const tier=getTier?getTier(s.sector):1;
+    const tl=getTierLabel?getTierLabel(tier):'Tier 1';
+    stockCtx=`Current stock context: ${s.ticker} (${s.company}), Sector: ${s.sector}, Tier ${tier} (${tl}), Price: $${s.price}, IV Current: $${s.iv_current}, IV Forward: $${s.iv_forward}, MoS: ${s.mos?.toFixed(1)}%, Signal: ${s.signal}, NROE: ${s.roe}%, RR/WACC: ${s.wacc}%, Payout: ${s.payout}%, EPS FY+1: $${s.eps_fy1?.toFixed(4)||'N/A'}, Franking: ${s.franking}%, Equity/Share: $${s.equity_ps?.toFixed(4)||'N/A'}`;
   }
+
   try{
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514',
         max_tokens:1000,
-        system:CC_SYSTEM+'\n\n'+stockCtx,
+        system:(typeof CC_SYSTEM !== 'undefined' ? CC_SYSTEM : 'You are a helpful investment research assistant specialising in ASX equities and the Clever Clime valuation framework.') + '\n\n' + stockCtx,
         messages:chatHistory
       })
     });
     const data=await res.json();
-    const reply=data.content?.[0]?.text||'Sorry, I could not generate a response. Please try again.';
-    typing.remove();
-    appendMsg('assistant',reply);
-    chatHistory.push({role:'assistant',content:reply});
+    if(data.error){
+      typing.remove();
+      if(data.error.type==='authentication_error'){
+        appendMsg('assistant','\u274c Invalid API key. Please update your Claude API key.');
+        localStorage.removeItem('claude_api_key');
+        setTimeout(showApiKeyPrompt, 1000);
+      } else {
+        appendMsg('assistant','API error: '+data.error.message);
+      }
+    } else {
+      const reply=data.content?.[0]?.text||'No response generated.';
+      typing.remove();
+      appendMsg('assistant',reply);
+      chatHistory.push({role:'assistant',content:reply});
+    }
   }catch(e){
     typing.remove();
-    appendMsg('assistant','Connection error. Please check your network and try again.');
+    appendMsg('assistant','\u274c Network error: '+e.message+'. Check your connection and try again.');
   }
   btn.disabled=false;
 }
+
+function showApiKeyPrompt(){
+  const existing = localStorage.getItem('claude_api_key');
+  const key = prompt(
+    (existing ? 'Update your Claude API key:\n' : 'Enter your Claude (Anthropic) API key to use the AI Assistant:\n') +
+    'Get yours at: console.anthropic.com\n\nKey starts with sk-ant-...',
+    existing || ''
+  );
+  if(key && key.trim().startsWith('sk-')){
+    localStorage.setItem('claude_api_key', key.trim());
+    // Update UI
+    const badge = document.getElementById('ai-key-badge');
+    if(badge) badge.textContent = '\u2713 API Key Set';
+    appendMsg('assistant', '\u2705 API key saved. Ask me anything about ASX stocks, the Clever Clime framework, or valuations.');
+  } else if(key !== null && key.trim()) {
+    alert('Invalid key format. Claude API keys start with sk-ant-...');
+  }
+}
+
 
 // ═══════════════════════════════════════════
 // STRETD
