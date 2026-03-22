@@ -1209,6 +1209,165 @@ canvas.ta-canvas{width:100%!important;display:block}
   </div>
 </div>
 
+
+
+<!-- ═══ TAB: IMA MODELS ═══ -->
+<div id="tab-models" class="tab-panel">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
+    <div>
+      <div class="page-header" style="margin-bottom:0"><h1>IMA Models <em>Portfolio Management</em></h1>
+      <p>Clime Asset Management · AFSL 221146 · Signals from March 2026 valuations · Click any model to view holdings</p></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <div style="padding:4px 10px;background:rgba(212,168,67,.1);border:1px solid rgba(212,168,67,.2);border-radius:4px;font-size:10px;font-weight:600;color:var(--gold)">3 NEW</div>
+      <div style="padding:4px 10px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:4px;font-size:10px;font-weight:600;color:var(--green)">6 ESTABLISHED</div>
+    </div>
+  </div>
+  <div id="model-cards-view">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:8px" id="model-grid"></div>
+    <div style="font-size:10px;color:var(--muted2);margin-top:6px">AFSL 221146 · Wholesale investors only · Does not constitute financial advice</div>
+  </div>
+  <div id="model-holdings-view" style="display:none">
+    <button class="btn-ghost" onclick="closeModelHoldings()" style="font-size:11px;margin-bottom:16px">← All models</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:3px">
+          <div style="font-size:20px;font-weight:700" id="mh-name">—</div>
+          <span id="mh-status" class="model-status">—</span>
+        </div>
+        <div style="font-size:12px;color:var(--muted)" id="mh-subtitle">—</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap" id="mh-signal-counts"></div>
+    </div>
+    <div style="display:flex;gap:1px;background:var(--border);border-radius:var(--radius);padding:2px;width:fit-content;margin-bottom:16px">
+      <button class="period-btn active" onclick="switchModelTab('holdings',this)" id="mhTab-holdings">Holdings &amp; Signals</button>
+      <button class="period-btn" onclick="switchModelTab('rebalance',this)" id="mhTab-rebalance">Rebalancing Ideas</button>
+      <button class="period-btn" onclick="switchModelTab('overview',this)" id="mhTab-overview">Mandate &amp; Rules</button>
+    </div>
+    <div id="mh-panel-holdings">
+      <div class="callout" style="margin-bottom:12px">Click any row to open the stock in the IV Calculator for full research detail. Holdings shown reflect March 2026 model positions — update weights as trades occur.</div>
+      <div class="asx-table-wrap">
+        <table class="asx-table">
+          <thead><tr>
+            <th>Ticker</th>
+            <th style="text-align:left">Company / Position</th>
+            <th>Weight</th>
+            <th>Entry Price</th>
+            <th>Current</th>
+            <th>P&amp;L %</th>
+            <th>IV Current</th>
+            <th>Margin of Safety</th>
+            <th>IV Signal</th>
+            <th style="text-align:left">Recommended Action</th>
+          </tr></thead>
+          <tbody id="mh-tbody"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:10px;font-size:10px;color:var(--muted2)">Signals derived from Clever Clime equity multiplier · EQS and ERS verification required before acting on any signal</div>
+    </div>
+    <div id="mh-panel-rebalance" style="display:none">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
+        <div style="background:var(--red-dim);border:1px solid rgba(240,96,96,.2);border-radius:8px;padding:14px;text-align:center">
+          <div style="font-size:22px;font-weight:700;color:var(--red);font-family:var(--mono)" id="rb-sell-count">—</div>
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:2px">Holdings to Review / Sell</div>
+        </div>
+        <div style="background:var(--green-dim);border:1px solid rgba(45,212,160,.2);border-radius:8px;padding:14px;text-align:center">
+          <div style="font-size:22px;font-weight:700;color:var(--green);font-family:var(--mono)" id="rb-buy-count">—</div>
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:2px">Research Buys Available</div>
+        </div>
+        <div style="background:var(--gold-dim);border:1px solid rgba(212,168,67,.2);border-radius:8px;padding:14px;text-align:center">
+          <div style="font-size:22px;font-weight:700;color:var(--gold);font-family:var(--mono)" id="rb-swap-count">—</div>
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:2px">Suggested Swaps</div>
+        </div>
+      </div>
+
+      <!-- Sell candidates (from holdings) -->
+      <div style="margin-bottom:20px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--red);border-bottom:2px solid var(--red-dim);padding-bottom:6px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+          <span>↓ Step 1 — Holdings to Exit or Trim</span>
+          <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">Overvalued positions currently held in this model</span>
+        </div>
+        <div class="asx-table-wrap">
+          <table class="asx-table">
+            <thead><tr>
+              <th>Ticker</th>
+              <th style="text-align:left">Company</th>
+              <th>Weight</th>
+              <th>Entry</th>
+              <th>Current</th>
+              <th>P&amp;L %</th>
+              <th>IV</th>
+              <th>Premium to IV</th>
+              <th>Action</th>
+            </tr></thead>
+            <tbody id="rb-sell-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Buy candidates (from research) -->
+      <div style="margin-bottom:20px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--green);border-bottom:2px solid var(--green-dim);padding-bottom:6px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+          <span>↑ Step 2 — Research Buys Not Yet Held</span>
+          <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">Undervalued stocks from the research universe, absent from this model</span>
+        </div>
+        <div class="asx-table-wrap">
+          <table class="asx-table">
+            <thead><tr>
+              <th>Ticker</th>
+              <th style="text-align:left">Company</th>
+              <th style="text-align:left">Sector</th>
+              <th>Price</th>
+              <th>IV Current</th>
+              <th>Margin of Safety</th>
+              <th>ROE</th>
+              <th>RR</th>
+              <th>Tier</th>
+            </tr></thead>
+            <tbody id="rb-buy-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Matched swap recommendations -->
+      <div>
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);border-bottom:2px solid var(--gold-dim);padding-bottom:6px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+          <span>⇄ Step 3 — Suggested Swaps</span>
+          <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">Sell overvalued holding → fund undervalued research pick of similar weight</span>
+        </div>
+        <div id="rb-swaps-wrap"></div>
+      </div>
+
+      <div style="margin-top:14px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:6px;font-size:10px;color:var(--muted2)">
+        Rebalancing ideas are generated from March 2026 IV signals only. EQS ≥70, positive ERS, and portfolio construction rules must be verified before executing any trade. This does not constitute financial advice.
+      </div>
+    </div>
+
+        <div id="mh-panel-overview" style="display:none">
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px">
+        <div class="card">
+          <div class="card-title">Investment Strategy</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.7" id="mh-strategy">—</div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="card-title">Model Rules</div>
+            <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:5px" id="mh-rules"></ul>
+          </div>
+          <div class="card">
+            <div class="card-title">Fees</div>
+            <div class="md-fee-row"><span class="fl">Mgmt Fee</span><span class="fv" id="mh-fee">—</span></div>
+            <div class="md-fee-row"><span class="fl">Perf Fee</span><span class="fv">20% above benchmark</span></div>
+            <div class="md-fee-row"><span class="fl">Benchmark</span><span class="fv" id="mh-bench">—</span></div>
+            <div class="md-fee-row"><span class="fl">Min. Investment</span><span class="fv">$500,000</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 </div><!-- /content -->
 </div><!-- /app -->
 
@@ -3725,161 +3884,6 @@ function showCRMSettings() {
 
 
 
-<!-- ═══ TAB: IMA MODELS ═══ -->
-<div id="tab-models" class="tab-panel">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
-    <div>
-      <div class="page-header" style="margin-bottom:0"><h1>IMA Models <em>Portfolio Management</em></h1>
-      <p>Clime Asset Management · AFSL 221146 · Signals from March 2026 valuations · Click any model to view holdings</p></div>
-    </div>
-    <div style="display:flex;gap:8px">
-      <div style="padding:4px 10px;background:rgba(212,168,67,.1);border:1px solid rgba(212,168,67,.2);border-radius:4px;font-size:10px;font-weight:600;color:var(--gold)">3 NEW</div>
-      <div style="padding:4px 10px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:4px;font-size:10px;font-weight:600;color:var(--green)">6 ESTABLISHED</div>
-    </div>
-  </div>
-  <div id="model-cards-view">
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:8px" id="model-grid"></div>
-    <div style="font-size:10px;color:var(--muted2);margin-top:6px">AFSL 221146 · Wholesale investors only · Does not constitute financial advice</div>
-  </div>
-  <div id="model-holdings-view" style="display:none">
-    <button class="btn-ghost" onclick="closeModelHoldings()" style="font-size:11px;margin-bottom:16px">← All models</button>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:10px">
-      <div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:3px">
-          <div style="font-size:20px;font-weight:700" id="mh-name">—</div>
-          <span id="mh-status" class="model-status">—</span>
-        </div>
-        <div style="font-size:12px;color:var(--muted)" id="mh-subtitle">—</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap" id="mh-signal-counts"></div>
-    </div>
-    <div style="display:flex;gap:1px;background:var(--border);border-radius:var(--radius);padding:2px;width:fit-content;margin-bottom:16px">
-      <button class="period-btn active" onclick="switchModelTab('holdings',this)" id="mhTab-holdings">Holdings &amp; Signals</button>
-      <button class="period-btn" onclick="switchModelTab('rebalance',this)" id="mhTab-rebalance">Rebalancing Ideas</button>
-      <button class="period-btn" onclick="switchModelTab('overview',this)" id="mhTab-overview">Mandate &amp; Rules</button>
-    </div>
-    <div id="mh-panel-holdings">
-      <div class="callout" style="margin-bottom:12px">Click any row to open the stock in the IV Calculator for full research detail. Holdings shown reflect March 2026 model positions — update weights as trades occur.</div>
-      <div class="asx-table-wrap">
-        <table class="asx-table">
-          <thead><tr>
-            <th>Ticker</th>
-            <th style="text-align:left">Company / Position</th>
-            <th>Weight</th>
-            <th>Entry Price</th>
-            <th>Current</th>
-            <th>P&amp;L %</th>
-            <th>IV Current</th>
-            <th>Margin of Safety</th>
-            <th>IV Signal</th>
-            <th style="text-align:left">Recommended Action</th>
-          </tr></thead>
-          <tbody id="mh-tbody"></tbody>
-        </table>
-      </div>
-      <div style="margin-top:10px;font-size:10px;color:var(--muted2)">Signals derived from Clever Clime equity multiplier · EQS and ERS verification required before acting on any signal</div>
-    </div>
-    <div id="mh-panel-rebalance" style="display:none">
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
-        <div style="background:var(--red-dim);border:1px solid rgba(240,96,96,.2);border-radius:8px;padding:14px;text-align:center">
-          <div style="font-size:22px;font-weight:700;color:var(--red);font-family:var(--mono)" id="rb-sell-count">—</div>
-          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:2px">Holdings to Review / Sell</div>
-        </div>
-        <div style="background:var(--green-dim);border:1px solid rgba(45,212,160,.2);border-radius:8px;padding:14px;text-align:center">
-          <div style="font-size:22px;font-weight:700;color:var(--green);font-family:var(--mono)" id="rb-buy-count">—</div>
-          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:2px">Research Buys Available</div>
-        </div>
-        <div style="background:var(--gold-dim);border:1px solid rgba(212,168,67,.2);border-radius:8px;padding:14px;text-align:center">
-          <div style="font-size:22px;font-weight:700;color:var(--gold);font-family:var(--mono)" id="rb-swap-count">—</div>
-          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:2px">Suggested Swaps</div>
-        </div>
-      </div>
-
-      <!-- Sell candidates (from holdings) -->
-      <div style="margin-bottom:20px">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--red);border-bottom:2px solid var(--red-dim);padding-bottom:6px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
-          <span>↓ Step 1 — Holdings to Exit or Trim</span>
-          <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">Overvalued positions currently held in this model</span>
-        </div>
-        <div class="asx-table-wrap">
-          <table class="asx-table">
-            <thead><tr>
-              <th>Ticker</th>
-              <th style="text-align:left">Company</th>
-              <th>Weight</th>
-              <th>Entry</th>
-              <th>Current</th>
-              <th>P&amp;L %</th>
-              <th>IV</th>
-              <th>Premium to IV</th>
-              <th>Action</th>
-            </tr></thead>
-            <tbody id="rb-sell-tbody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Buy candidates (from research) -->
-      <div style="margin-bottom:20px">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--green);border-bottom:2px solid var(--green-dim);padding-bottom:6px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
-          <span>↑ Step 2 — Research Buys Not Yet Held</span>
-          <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">Undervalued stocks from the research universe, absent from this model</span>
-        </div>
-        <div class="asx-table-wrap">
-          <table class="asx-table">
-            <thead><tr>
-              <th>Ticker</th>
-              <th style="text-align:left">Company</th>
-              <th style="text-align:left">Sector</th>
-              <th>Price</th>
-              <th>IV Current</th>
-              <th>Margin of Safety</th>
-              <th>ROE</th>
-              <th>RR</th>
-              <th>Tier</th>
-            </tr></thead>
-            <tbody id="rb-buy-tbody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Matched swap recommendations -->
-      <div>
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);border-bottom:2px solid var(--gold-dim);padding-bottom:6px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
-          <span>⇄ Step 3 — Suggested Swaps</span>
-          <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">Sell overvalued holding → fund undervalued research pick of similar weight</span>
-        </div>
-        <div id="rb-swaps-wrap"></div>
-      </div>
-
-      <div style="margin-top:14px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:6px;font-size:10px;color:var(--muted2)">
-        Rebalancing ideas are generated from March 2026 IV signals only. EQS ≥70, positive ERS, and portfolio construction rules must be verified before executing any trade. This does not constitute financial advice.
-      </div>
-    </div>
-
-        <div id="mh-panel-overview" style="display:none">
-      <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px">
-        <div class="card">
-          <div class="card-title">Investment Strategy</div>
-          <div style="font-size:12px;color:var(--muted);line-height:1.7" id="mh-strategy">—</div>
-        </div>
-        <div>
-          <div class="card">
-            <div class="card-title">Model Rules</div>
-            <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:5px" id="mh-rules"></ul>
-          </div>
-          <div class="card">
-            <div class="card-title">Fees</div>
-            <div class="md-fee-row"><span class="fl">Mgmt Fee</span><span class="fv" id="mh-fee">—</span></div>
-            <div class="md-fee-row"><span class="fl">Perf Fee</span><span class="fv">20% above benchmark</span></div>
-            <div class="md-fee-row"><span class="fl">Benchmark</span><span class="fv" id="mh-bench">—</span></div>
-            <div class="md-fee-row"><span class="fl">Min. Investment</span><span class="fv">$500,000</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
 
 <!-- FMP Modal -->
