@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Clime Direct — Investment Platform</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0b0d12;--surface:#111318;--surface2:#181b22;--border:#232630;--border2:#2e3240;--text:#e8eaf0;--muted:#6b7280;--muted2:#4b5263;--gold:#d4a843;--gold2:#f0c962;--gold-dim:rgba(212,168,67,0.12);--green:#2dd4a0;--green-dim:rgba(45,212,160,0.1);--red:#f06060;--red-dim:rgba(240,96,96,0.1);--amber:#f0a040;--amber-dim:rgba(240,160,64,0.1);--blue:#5b8ff9;--blue-dim:rgba(91,143,249,0.12);--purple:#a78bfa;--radius:8px;--t:.18s ease}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -419,6 +419,63 @@ canvas.ta-canvas{width:100%!important;display:block}
   .log-time{color:var(--muted2);flex-shrink:0}
   .log-ok{color:var(--green)}.log-err{color:var(--red)}.log-info{color:var(--gold)}
 
+
+  /* Formula tooltip */
+  .formula-tip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--gold);cursor:help;border-bottom:1px dashed rgba(212,168,67,.4);position:relative}
+  .formula-tip:hover .formula-tooltip{opacity:1;visibility:visible;transform:translateY(0)}
+  .formula-tooltip{position:absolute;top:calc(100% + 8px);left:0;background:var(--surface);border:1px solid var(--border2);border-left:3px solid var(--gold);border-radius:8px;padding:12px 16px;width:420px;max-width:90vw;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);line-height:1.9;opacity:0;visibility:hidden;transform:translateY(-4px);transition:all .18s ease;z-index:400;box-shadow:0 8px 32px rgba(0,0,0,.5);font-weight:400;pointer-events:none}
+  .formula-tooltip .ft-title{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted2);margin-bottom:8px;font-family:'Sora',sans-serif}
+  .formula-tooltip .ft-eq{color:var(--text)}
+  .formula-tooltip .ft-label{color:var(--gold)}
+  .formula-tooltip .ft-note{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:10px;color:var(--muted2);font-family:'Sora',sans-serif;letter-spacing:0}
+
+
+  /* Accordion */
+  .acc-list{display:flex;flex-direction:column;gap:6px}
+  .acc-item{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color .15s}
+  .acc-item.t1{border-left:3px solid #60a5fa}.acc-item.t2{border-left:3px solid var(--purple)}
+  .acc-item.t3{border-left:3px solid var(--amber)}.acc-item.t4{border-left:3px solid var(--green)}
+  .acc-item.t5{border-left:3px solid var(--red)}
+  .acc-item.open{border-color:var(--border2)}
+  .acc-header{width:100%;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--surface2);border:none;cursor:pointer;font-family:'Sora',sans-serif;transition:background .15s;text-align:left}
+  .acc-header:hover{background:var(--border)}
+  .acc-item.open .acc-header{background:var(--surface)}
+  .acc-left{display:flex;align-items:center;gap:12px}
+  .acc-num{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--muted2);min-width:24px}
+  .acc-item.t1 .acc-num{color:#60a5fa}.acc-item.t2 .acc-num{color:var(--purple)}
+  .acc-item.t3 .acc-num{color:var(--amber)}.acc-item.t4 .acc-num{color:var(--green)}
+  .acc-item.t5 .acc-num{color:var(--red)}
+  .acc-name{font-size:13px;font-weight:600;color:var(--text)}
+  .acc-sectors{font-size:11px;color:var(--muted);margin-top:2px}
+  .acc-arrow{font-size:18px;color:var(--muted);transition:transform .2s;line-height:1;flex-shrink:0}
+  .acc-item.open .acc-arrow{transform:rotate(90deg);color:var(--gold)}
+  .acc-body{max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;padding:0 16px}
+  .acc-item.open .acc-body{max-height:300px;padding:14px 16px}
+  .acc-sectors-full{font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.6}
+  .acc-formula{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:2;margin-bottom:10px}
+  .acc-formula .f-label{color:var(--gold);display:inline-block;min-width:52px}
+  .acc-formula .f-eq{color:var(--text)}
+  .acc-formula .f-main{border-top:1px solid var(--border);margin-top:4px;padding-top:4px;font-weight:600}
+  .acc-formula .f-main .f-eq{color:var(--gold)}
+  .acc-note{font-size:11px;color:var(--muted2);line-height:1.6;font-style:italic}
+
+
+  /* Brand logo */
+  .brand-logo-wrap{display:flex;align-items:center}
+  .brand-logo-img{
+    height:38px;
+    width:auto;
+    mix-blend-mode:screen;
+    filter:brightness(1.2) contrast(1.15) saturate(0);
+  }
+
+
+  /* Brand logo - SVG mark + Didot-style wordmark */
+  .brand-lockup{display:flex;align-items:center;gap:10px;text-decoration:none;cursor:pointer}
+  .brand-icon{flex-shrink:0;opacity:.95}
+  .brand-wordmark{font-family:'Playfair Display','Didot','Georgia',serif;font-size:22px;font-weight:400;color:#ffffff;letter-spacing:-.01em;line-height:1;white-space:nowrap}
+  .brand-direct{font-family:'Sora','Inter',sans-serif;font-size:13px;font-weight:600;color:var(--gold);letter-spacing:.04em;text-transform:uppercase;vertical-align:middle;position:relative;top:-1px}
+
 </style>
 </head>
 <body>
@@ -427,8 +484,55 @@ canvas.ta-canvas{width:100%!important;display:block}
 <!-- Top Bar -->
 <div class="topbar">
   <div class="brand">
-    <div class="brand-mark">CD</div>
-    <div class="brand-name">Clime <span>Direct</span></div>
+    <a class="brand-lockup" href="#">
+      <svg class="brand-icon" viewBox="0 0 44 44" width="34" height="34" xmlns="http://www.w3.org/2000/svg">
+        <!-- Radial sun/wheel - matches Clime logo mark -->
+        <circle cx="22" cy="22" r="8.5" fill="white"/>
+        <!-- 36 radial spokes fanning out, thicker near center, thin at edge -->
+        <g stroke="white" stroke-linecap="round">
+          <!-- Generate spokes at 10-degree intervals -->
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="2.2"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="2.2" transform="rotate(10 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="2.0" transform="rotate(20 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="1.8" transform="rotate(30 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="1.6" transform="rotate(40 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="1.4" transform="rotate(50 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="1.2" transform="rotate(60 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="1.1" transform="rotate(70 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="1.0" transform="rotate(80 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="0.9" transform="rotate(90 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="0.85" transform="rotate(100 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="0.8" transform="rotate(110 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="0.75" transform="rotate(120 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="0.7" transform="rotate(130 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="0.65" transform="rotate(140 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="0.6" transform="rotate(150 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="0.55" transform="rotate(160 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="0.5" transform="rotate(170 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="2.2" transform="rotate(180 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="2.2" transform="rotate(190 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="2.0" transform="rotate(200 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="1.8" transform="rotate(210 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="1.6" transform="rotate(220 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="1.4" transform="rotate(230 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="1.2" transform="rotate(240 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="1.1" transform="rotate(250 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="1.0" transform="rotate(260 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="0.9" transform="rotate(270 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="0.85" transform="rotate(280 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="0.8" transform="rotate(290 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="0.75" transform="rotate(300 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="0.7" transform="rotate(310 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="0.65" transform="rotate(320 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="0.6" transform="rotate(330 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="0.55" transform="rotate(340 22 22)"/>
+          <line x1="22" y1="12.5" x2="22" y2="2.5" stroke-width="0.5" transform="rotate(350 22 22)"/>
+        </g>
+        <!-- Small dot at top like in the Clime logo -->
+        <circle cx="22" cy="3.5" r="1.8" fill="white"/>
+      </svg>
+      <span class="brand-wordmark">clime<span class="brand-direct"> Direct</span></span>
+    </a>
   </div>
   <div class="topbar-right">
     <div class="stock-context-badge" id="ctx-badge">📍 <span id="ctx-ticker">—</span></div>
@@ -451,7 +555,7 @@ canvas.ta-canvas{width:100%!important;display:block}
   <button class="nav-btn models-btn" onclick="switchTab('models',this)"><span class="dot"></span>IMA Models</button>
 </nav>
 
-<div class="content">
+<div class="content" id="main-content">
 
 <!-- ═══ TAB 1: IV ═══ -->
 <div id="tab-iv" class="tab-panel active">
@@ -474,7 +578,17 @@ canvas.ta-canvas{width:100%!important;display:block}
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
-        <span id="sc-tier-badge" class="tier-badge tier-1">Tier 1</span>
+        <span id="sc-tier-badge" class="tier-badge tier-1 formula-tip" style="cursor:help">Tier 1
+            <div class="formula-tooltip" id="sc-tier-tooltip" style="left:auto;right:0">
+              <div class="ft-title" id="sct-title">Tier 1 — SIV Core</div>
+              <div id="sct-formula" style="font-size:11px;line-height:1.9">
+                <div><span class="ft-label">Bond  </span><span class="ft-eq">= NROE / RR</span></div>
+                <div><span class="ft-label">Growth</span><span class="ft-eq">= NROE² / RR²</span></div>
+                <div><span class="ft-label">IV    </span><span class="ft-eq">= Equity/Share × Mult</span></div>
+              </div>
+              <div class="ft-note" id="sct-sectors">Consumer · Industrials · Banks · Insurance</div>
+            </div>
+          </span>
         <div class="sc-signal-badge" id="sc-signal">—</div>
       </div>
     </div>
@@ -498,7 +612,20 @@ canvas.ta-canvas{width:100%!important;display:block}
     <div>
       <div class="card">
         <div class="card-title">Inputs</div>
-        <div class="callout"><strong>Formula (Tier 1):</strong> IV = Equity per Share × [(NROE/RR × PR) + (NROE²/RR² × (1–PR))]<br>Franking grosses up DPS: PR_adj = PR × (1 + franking% × 0.4286)</div>
+        <div style="margin-bottom:14px;display:flex;align-items:center;gap:8px">
+          <span class="formula-tip">
+            ƒ Formula (Tier 1)
+            <div class="formula-tooltip">
+              <div class="ft-title">Clever Clime Equity Multiplier</div>
+              <div><span class="ft-label">Bond  </span><span class="ft-eq">= NROE / RR</span></div>
+              <div><span class="ft-label">Growth</span><span class="ft-eq">= NROE² / RR²</span></div>
+              <div><span class="ft-label">Mult  </span><span class="ft-eq">= (Bond × PR) + (Growth × [1−PR])</span></div>
+              <div><span class="ft-label">IV    </span><span class="ft-eq">= Equity/Share × Mult</span></div>
+              <div class="ft-note">🇦🇺 Franking: PR_adj = PR × (1 + franking% × 0.4286)</div>
+            </div>
+          </span>
+          <span id="iv-tier-formula-label" style="font-size:11px;color:var(--muted)"></span>
+        </div>
         <div class="form-grid">
           <div class="field"><label>Equity per Share ($)</label><input type="number" id="iv-eq" value="10" step="0.01"><span class="hint">Book value / shares on issue</span></div>
           <div class="field"><label>Required Return (RR)</label><input type="number" id="iv-rr" value="0.12" step="0.005"><span class="hint">e.g. 0.12 = 12%</span></div>
@@ -708,16 +835,104 @@ canvas.ta-canvas{width:100%!important;display:block}
 <div id="tab-framework" class="tab-panel">
   <div class="page-header"><h1>Clever Clime — <em>Framework Reference</em></h1><p>Multi-sector equity valuation framework · Clime Investment Management · March 2026 · Confidential</p></div>
   <div class="callout purple"><strong>Abstract:</strong> Clever Clime extends the SIV equity multiplier into a sector-adaptive, multi-method system. It retains the equity multiplier as the primary engine for industrials and financials, introduces sector-specific methodologies where the multiplier breaks down, adds an earnings quality gate, and integrates a quality-momentum overlay to translate static IV signals into dynamic investment decisions.</div>
+
+  <!-- 5 Valuation Tiers — Accordion -->
   <div class="card">
     <div class="card-title purple">5 Valuation Tiers</div>
-    <div class="framework-grid">
-      <div class="tier-card t1"><div class="tier-card-num">1</div><div class="tier-badge tier-1" style="margin-bottom:8px">Tier 1 — SIV Core</div><div class="tier-card-sectors">Consumer Discretionary · Consumer Staples · Health Care (established) · Industrials · Banks · Insurance · Diversified Financials · IT (profitable)</div><div class="tier-card-method">Equity Multiplier: IV = Equity/Share × [(NROE/RR × PR) + (NROE²/RR² × [1−PR])]</div></div>
-      <div class="tier-card t2"><div class="tier-card-num">2</div><div class="tier-badge tier-2" style="margin-bottom:8px">Tier 2 — AEG Model</div><div class="tier-card-sectors">Software & Services · Technology Hardware (asset-light) · Professional Services · Health Care Technology</div><div class="tier-card-method">AEG: IV = EPS(FY+1) / (WACC−g_LT) × [1 + (g_ST−g_LT)/WACC]</div></div>
-      <div class="tier-card t3"><div class="tier-card-num">3</div><div class="tier-badge tier-3" style="margin-bottom:8px">Tier 3 — EV/EBIT</div><div class="tier-card-sectors">Energy · Materials · Utilities · Communications (infra-heavy) · Transportation Infrastructure</div><div class="tier-card-method">EV/EBIT: IV = (EBIT(FY+1) × Target Multiple − Net Debt) / Shares</div></div>
-      <div class="tier-card t4"><div class="tier-card-num">4</div><div class="tier-badge tier-4" style="margin-bottom:8px">Tier 4 — FFO/AFFO</div><div class="tier-card-sectors">Equity REITs · Diversified Real Estate · Infrastructure Funds</div><div class="tier-card-method">P/AFFO: IV = AFFO per Unit × Target P/AFFO Multiple</div></div>
-      <div class="tier-card t5" style="grid-column:1/-1"><div class="tier-card-num">5</div><div class="tier-badge tier-5" style="margin-bottom:8px">Tier 5 — Revenue Multiple</div><div class="tier-card-sectors">Pre-profit technology · Biotech · Early-stage healthcare · Companies with negative equity</div><div class="tier-card-method">EV/NTM Revenue vs peer group median. Directional signals only — no absolute IV produced. Position sizing governed by qualitative assessment and stop-loss discipline.</div></div>
+    <div class="acc-list">
+
+      <div class="acc-item t1">
+        <button class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-left">
+            <span class="acc-num">1</span>
+            <div><div class="acc-name">Tier 1 — SIV Core</div><div class="acc-sectors">Consumer · Industrials · Banks · Insurance · IT</div></div>
+          </div>
+          <span class="acc-arrow">›</span>
+        </button>
+        <div class="acc-body">
+          <div class="acc-sectors-full">Consumer Discretionary · Consumer Staples · Health Care (established) · Industrials · Banks · Insurance · Diversified Financials · IT (profitable)</div>
+          <div class="acc-formula">
+            <div><span class="f-label">Bond  </span><span class="f-eq"> = NROE / RR</span></div>
+            <div><span class="f-label">Growth</span><span class="f-eq"> = NROE² / RR²</span></div>
+            <div><span class="f-label">Mult  </span><span class="f-eq"> = (Bond × PR) + (Growth × [1−PR])</span></div>
+            <div class="f-main"><span class="f-label">IV    </span><span class="f-eq"> = Equity/Share × Equity Mult</span></div>
+          </div>
+          <div class="acc-note">🇦🇺 Franking grosses up DPS: PR_adj = PR × (1 + franking% × 0.4286)</div>
+        </div>
+      </div>
+
+      <div class="acc-item t2">
+        <button class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-left">
+            <span class="acc-num">2</span>
+            <div><div class="acc-name">Tier 2 — AEG Model</div><div class="acc-sectors">Software · Tech Hardware · Professional Services</div></div>
+          </div>
+          <span class="acc-arrow">›</span>
+        </button>
+        <div class="acc-body">
+          <div class="acc-sectors-full">Software & Services · Technology Hardware (asset-light) · Professional Services · Health Care Technology</div>
+          <div class="acc-formula">
+            <div class="f-main"><span class="f-label">IV</span><span class="f-eq"> = EPS(FY+1) / (WACC − g_LT) × [1 + (g_ST − g_LT) / WACC]</span></div>
+          </div>
+          <div class="acc-note">Use when earnings are capitalised rather than distributed. Growth rate split: near-term g_ST tapers to long-term g_LT.</div>
+        </div>
+      </div>
+
+      <div class="acc-item t3">
+        <button class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-left">
+            <span class="acc-num">3</span>
+            <div><div class="acc-name">Tier 3 — EV/EBIT</div><div class="acc-sectors">Energy · Materials · Utilities · Transport Infrastructure</div></div>
+          </div>
+          <span class="acc-arrow">›</span>
+        </button>
+        <div class="acc-body">
+          <div class="acc-sectors-full">Energy · Materials · Utilities · Communications (infra-heavy) · Transportation Infrastructure</div>
+          <div class="acc-formula">
+            <div><span class="f-label">EV    </span><span class="f-eq"> = EBIT(FY+1) × Target Multiple</span></div>
+            <div class="f-main"><span class="f-label">IV    </span><span class="f-eq"> = (EV − Net Debt) / Shares Outstanding</span></div>
+          </div>
+          <div class="acc-note">Target multiple derived from sector peer group median. Net debt normalised at cycle-average commodity price.</div>
+        </div>
+      </div>
+
+      <div class="acc-item t4">
+        <button class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-left">
+            <span class="acc-num">4</span>
+            <div><div class="acc-name">Tier 4 — FFO/AFFO</div><div class="acc-sectors">REITs · Real Estate · Infrastructure Funds</div></div>
+          </div>
+          <span class="acc-arrow">›</span>
+        </button>
+        <div class="acc-body">
+          <div class="acc-sectors-full">Equity REITs · Diversified Real Estate · Infrastructure Funds</div>
+          <div class="acc-formula">
+            <div class="f-main"><span class="f-label">IV</span><span class="f-eq"> = AFFO per Unit × Target P/AFFO Multiple</span></div>
+          </div>
+          <div class="acc-note">AFFO = FFO adjusted for maintenance capex and straight-line rent. P/AFFO target set relative to WACC and distribution yield.</div>
+        </div>
+      </div>
+
+      <div class="acc-item t5">
+        <button class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-left">
+            <span class="acc-num">5</span>
+            <div><div class="acc-name">Tier 5 — Revenue Multiple</div><div class="acc-sectors">Pre-profit Tech · Biotech · Early-stage Healthcare</div></div>
+          </div>
+          <span class="acc-arrow">›</span>
+        </button>
+        <div class="acc-body">
+          <div class="acc-sectors-full">Pre-profit technology · Biotech · Early-stage healthcare · Companies with negative equity</div>
+          <div class="acc-formula">
+            <div class="f-main"><span class="f-label">Signal</span><span class="f-eq"> = EV / NTM Revenue vs peer group median</span></div>
+          </div>
+          <div class="acc-note">Directional signals only — no absolute IV produced. Position sizing governed by qualitative assessment and stop-loss discipline.</div>
+        </div>
+      </div>
+
     </div>
   </div>
+
   <div class="two-col">
     <div class="card">
       <div class="card-title">Signal Matrix — Quality-Momentum Overlay</div>
@@ -760,8 +975,6 @@ canvas.ta-canvas{width:100%!important;display:block}
   </div>
   <div class="callout blue"><strong>Position Sizing Guidance:</strong> Active Buy High Conviction (MoS &gt;25%, QFS &gt;70) → up to 5% of portfolio · Active Buy Standard (15–25%, QFS 50–70) → up to 3% · Accumulate → up to 2% · Watch → initiate only on significant weakness · The framework does not incorporate macroeconomic inputs — WACC captures this implicitly via the risk-free rate level.</div>
 </div>
-
-<!-- ═══ TAB 5: AI ASSISTANT ═══ -->
 <div id="tab-ai" class="tab-panel">
   <div class="page-header">
     <h1>AI Assistant — <em>Powered by <span style="color:#f97316">BizGPT</span></em></h1>
@@ -773,7 +986,8 @@ canvas.ta-canvas{width:100%!important;display:block}
         <div class="chat-empty">
           <div class="chat-empty-icon">✦</div>
           <div class="chat-empty-title">Clime Investment Assistant</div>
-          <div class="chat-empty-sub">I have deep knowledge of the Clever Clime framework, ASX stock valuations, and technical analysis. Ask me anything.</div>
+          <div class="chat-empty-sub" id="ai-empty-sub">I have deep knowledge of the Clever Clime framework, ASX stock valuations, and technical analysis. Ask me anything.</div>
+          <div id="ai-key-status" style="margin-top:12px;font-size:11px;color:var(--muted)">No API key set — <button onclick="showApiKeyPrompt()" style="background:none;border:none;color:var(--purple);cursor:pointer;font-size:11px;text-decoration:underline;font-family:var(--font)">click here to add your Claude API key</button></div>
         </div>
       </div>
       <div class="chat-input-area">
@@ -783,7 +997,10 @@ canvas.ta-canvas{width:100%!important;display:block}
     </div>
     <div class="chat-sidebar">
       <div class="context-card">
-        <div class="context-card-title">✦ Current Context</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div class="context-card-title" style="margin-bottom:0">✦ Current Context</div>
+          <button onclick="showApiKeyPrompt()" id="ai-key-badge" style="padding:3px 8px;border-radius:4px;font-size:9px;font-weight:700;cursor:pointer;border:1px solid rgba(167,139,250,.3);background:rgba(167,139,250,.1);color:var(--purple);font-family:var(--font)">⚙ API Key</button>
+        </div>
         <div id="ai-context-items">
           <div class="context-item"><span class="ci-label">Stock</span><span class="ci-val" id="ai-ctx-ticker">None selected</span></div>
           <div class="context-item"><span class="ci-label">IV Current</span><span class="ci-val" id="ai-ctx-iv">—</span></div>
@@ -1468,6 +1685,7 @@ const SECTOR_TIER = {
   'Industrials (Infrastructure)':4
 };
 function getTier(sector){return SECTOR_TIER[sector]||1}
+function getTierClass(t){return ['tier-1','tier-1','tier-2','tier-3','tier-4','tier-5'][t]||'tier-1'}
 // getTierLabel defined in rebalancing section
 
 
@@ -1518,7 +1736,22 @@ function loadStock(ticker){
   const sigEl=document.getElementById('sc-signal');
   sigEl.textContent=s.signal; sigEl.className='sc-signal-badge '+s.signal;
   const tb=document.getElementById('sc-tier-badge');
-  tb.textContent=getTierLabel(tier); tb.className='tier-badge '+getTierClass(tier);
+  tb.textContent=getTierLabel(tier); tb.className='tier-badge formula-tip '+getTierClass(tier);
+  const _tf=[null,
+    {t:'Tier 1 — SIV Core',f:'<div><span class="ft-label">Bond  </span><span class="ft-eq">=  NROE / RR</span></div><div><span class="ft-label">Growth</span><span class="ft-eq">=  NROE² / RR²</span></div><div><span class="ft-label">IV    </span><span class="ft-eq">=  Equity/Share × Mult</span></div>',s:'Consumer · Industrials · Banks · Insurance'},
+    {t:'Tier 2 — AEG Model',f:'<div><span class="ft-label">IV</span><span class="ft-eq">=  EPS(FY+1) / (WACC − g_LT) × [1 + (g_ST−g_LT)/WACC]</span></div>',s:'Software · Tech · Professional Services'},
+    {t:'Tier 3 — EV/EBIT',f:'<div><span class="ft-label">EV</span><span class="ft-eq">=  EBIT × Target Multiple</span></div><div><span class="ft-label">IV</span><span class="ft-eq">=  (EV − Net Debt) / Shares</span></div>',s:'Energy · Materials · Utilities'},
+    {t:'Tier 4 — P/AFFO',f:'<div><span class="ft-label">IV</span><span class="ft-eq">=  AFFO per Unit × Target P/AFFO</span></div>',s:'REITs · Real Estate · Infrastructure'},
+    {t:'Tier 5 — Revenue',f:'<div><span class="ft-label">Signal</span><span class="ft-eq">=  EV/NTM Revenue vs peer median</span></div><div style="color:var(--muted)">Directional only — no absolute IV</div>',s:'Pre-profit Tech · Biotech'},
+  ];
+  if(_tf[tier]){
+    const tEl=document.getElementById('sct-title');
+    const fEl=document.getElementById('sct-formula');
+    const sEl=document.getElementById('sct-sectors');
+    if(tEl)tEl.textContent=_tf[tier].t;
+    if(fEl)fEl.innerHTML=_tf[tier].f;
+    if(sEl)sEl.textContent=_tf[tier].s;
+  }
   document.getElementById('sc-price').textContent=f2(s.price);
   const ivcEl=document.getElementById('sc-ivc');
   ivcEl.textContent=f2(s.iv_current);
@@ -1745,6 +1978,9 @@ function generatePriceData(stock,days=252){
   return{closes,ohlcv,dates:dates.slice(0,closes.length)};
 }
 
+let taPeriod=126;
+let priceChart=null,volChart=null,rsiChart=null,macdChart=null;
+
 function setTAPeriod(p,btn){
   taPeriod=p;
   document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
@@ -1879,6 +2115,8 @@ function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrol
 
 function handleChatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}}
 
+let chatHistory = [];
+
 function appendMsg(role,content,typing=false){
   const msgs=document.getElementById('chat-messages');
   const empty=msgs.querySelector('.chat-empty');
@@ -1897,7 +2135,7 @@ function appendMsg(role,content,typing=false){
   return div;
 }
 
-async async function sendMessage(){
+async function sendMessage(){
   const inp=document.getElementById('chat-input');
   const msg=inp.value.trim();
   if(!msg)return;
@@ -1981,7 +2219,6 @@ function showApiKeyPrompt(){
     alert('Invalid key format. Claude API keys start with sk-ant-...');
   }
 }
-
 
 // ═══════════════════════════════════════════
 // STRETD
@@ -2086,10 +2323,16 @@ function renderSignals(){
     {label:'Watch',count:counts.WATCH,color:'var(--amber)',bg:'var(--amber-dim)',border:'rgba(240,160,64,.25)'},
     {label:'Hold',count:counts.HOLD,color:'var(--muted)',bg:'var(--surface2)',border:'var(--border2)'},
     {label:'Reduce / Exit',count:counts.REDUCE,color:'var(--red)',bg:'var(--red-dim)',border:'rgba(240,96,96,.25)'},
-  ].map(c=>`<div style="background:${c.bg};border:1px solid ${c.border};border-radius:var(--radius);padding:14px;text-align:center">
-    <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:600;color:${c.color}">${c.count}</div>
-    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:2px">${c.label}</div>
-  </div>`).join('');
+  ].map(d=>{
+    const filterVal = {
+      'Active Buy':'ACTIVE BUY','Accumulate':'ACCUMULATE','Watch':'WATCH',
+      'Hold':'HOLD','Reduce / Exit':'REDUCE'
+    }[d.label]||'';
+    return `<button onclick="filterBySignalCard('${filterVal}')" style="background:${d.bg};border:1px solid ${d.border};border-radius:var(--radius);padding:14px;text-align:center;cursor:pointer;transition:all .15s;width:100%;font-family:inherit" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 16px rgba(0,0,0,.3)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:${d.color}">${d.count}</div>
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:4px">${d.label}</div>
+    </button>`;
+  }).join('');
   // Table
   const tb=document.getElementById('sig-tbody');
   if(!tb)return;
@@ -3534,6 +3777,7 @@ function switchTab(id,btn){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
   if(btn)btn.classList.add('active');
+  // Hide .content wrapper when not on IV tab (it creates layout gap)
   const contentEl=document.querySelector('.content');
   if(contentEl)contentEl.style.display=(id==='iv')?'':'none';
   if(id==='ta'&&currentStock)renderTA(currentStock);
@@ -3926,6 +4170,52 @@ function showCRMSettings() {
     document.getElementById('crm-optout-hrs').value = cfg.optoutHrs || 48;
   }
   document.getElementById('crm-settings-overlay').style.display = 'flex';
+}
+
+
+// ── AI Assistant key status check on load ──
+(function(){
+  const key = localStorage.getItem('claude_api_key');
+  const badge = document.getElementById('ai-key-badge');
+  const status = document.getElementById('ai-key-status');
+  if(key){
+    if(badge) badge.textContent = '\u2713 Key Set';
+    if(status) status.style.display = 'none';
+  }
+})();
+
+function toggleAcc(btn){
+  const item = btn.closest('.acc-item');
+  const isOpen = item.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.acc-item.open').forEach(el => el.classList.remove('open'));
+  // Open this one if it was closed
+  if(!isOpen) item.classList.add('open');
+}
+
+
+function filterBySignalCard(val){
+  const sel = document.getElementById('sig-filter-signal');
+  if(!sel) return;
+  // Toggle: if already filtered to this, clear it
+  if(sel.value === val){
+    sel.value = '';
+  } else {
+    sel.value = val;
+  }
+  renderSignals();
+  // Scroll to table
+  const tbl = document.getElementById('sig-table');
+  if(tbl) tbl.scrollIntoView({behavior:'smooth', block:'start'});
+  // Highlight active card
+  document.querySelectorAll('#signal-summary button').forEach(btn => {
+    btn.style.outline = 'none';
+  });
+  if(sel.value){
+    const activeBtn = [...document.querySelectorAll('#signal-summary button')]
+      .find(btn => btn.onclick?.toString().includes(val));
+    if(activeBtn) activeBtn.style.outline = '2px solid var(--gold)';
+  }
 }
 
 </script>
