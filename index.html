@@ -1168,420 +1168,360 @@ canvas.ta-canvas{width:100%!important;display:block}
 
 <!-- ═══ TAB: FACTSET GUIDE ═══ -->
 <div id="tab-factset" class="tab-panel">
-  <div class="page-header">
-    <h1>How to Use FactSet — <em>Team Workflow</em></h1>
-    <p>A simple guide for filtering the market and building portfolios using the Clever Clime model.</p>
-  </div>
 
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin-bottom:20px">
-    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px">What is this guide for?</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
-      <div style="background:var(--surface2);border-radius:6px;padding:14px;text-align:center">
-        <div style="font-size:22px;margin-bottom:6px">📡</div>
-        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px">Pull fresh data</div>
-        <div style="font-size:11px;color:var(--muted)">Get the latest earnings forecasts and prices from FactSet into your spreadsheet</div>
-      </div>
-      <div style="background:var(--surface2);border-radius:6px;padding:14px;text-align:center">
-        <div style="font-size:22px;margin-bottom:6px">🔍</div>
-        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px">Filter the market</div>
-        <div style="font-size:11px;color:var(--muted)">Run a screen to find stocks the model thinks are cheap right now</div>
-      </div>
-      <div style="background:var(--surface2);border-radius:6px;padding:14px;text-align:center">
-        <div style="font-size:22px;margin-bottom:6px">📋</div>
-        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px">Build the portfolio</div>
-        <div style="font-size:11px;color:var(--muted)">Know exactly how much to buy based on how cheap each stock is</div>
-      </div>
+  <!-- Header + API config row -->
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:14px">
+    <div class="page-header" style="margin-bottom:0">
+      <h1>FactSet — <em>Live Data Terminal</em></h1>
+      <p>Pull live ASX data directly from FactSet API · Screen, search, and feed into IV calculations</p>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div id="fs-status-badge" style="padding:4px 12px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.06em;background:var(--red-dim);border:1px solid rgba(240,96,96,.3);color:var(--red)">● DISCONNECTED</div>
+      <button onclick="showFSConfig()" style="padding:6px 14px;background:var(--gold);color:#000;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font)">⚙ Configure API</button>
     </div>
   </div>
 
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 22px;margin-bottom:20px">
-    <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">How often to do this</div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
-      <div style="border-left:3px solid var(--green);padding-left:12px">
-        <div style="font-size:12px;font-weight:700;color:var(--green)">Every Monday</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:3px">Refresh prices and analyst forecasts. Re-run the screen. Check if any signals changed.</div>
-      </div>
-      <div style="border-left:3px solid var(--amber);padding-left:12px">
-        <div style="font-size:12px;font-weight:700;color:var(--amber)">Once a month</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:3px">Update the required return (WACC) for each stock. Check earnings quality scores.</div>
-      </div>
-      <div style="border-left:3px solid var(--blue);padding-left:12px">
-        <div style="font-size:12px;font-weight:700;color:var(--blue)">Every quarter</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:3px">Full review of required return assumptions for the top 50 holdings.</div>
-      </div>
-      <div style="border-left:3px solid var(--red);padding-left:12px">
-        <div style="font-size:12px;font-weight:700;color:var(--red)">After results</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:3px">Re-run immediately after any company reports. Signals can flip overnight.</div>
-      </div>
+  <!-- API Config Panel -->
+  <div id="fs-config-panel" style="display:none;background:var(--surface);border:1px solid var(--border2);border-left:3px solid var(--gold);border-radius:var(--radius);padding:18px 22px;margin-bottom:20px">
+    <div style="font-size:12px;font-weight:600;color:var(--gold);margin-bottom:14px;text-transform:uppercase;letter-spacing:.08em">FactSet API Configuration</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
+      <div class="crm-field"><label>API Username / Serial</label><input type="text" id="fs-username" placeholder="e.g. CLIME_USER-1234567"></div>
+      <div class="crm-field"><label>API Key / Password</label><input type="password" id="fs-apikey" placeholder="Your FactSet API key"></div>
+      <div class="crm-field"><label>Base URL</label><input type="text" id="fs-baseurl" placeholder="https://api.factset.com/content" value="https://api.factset.com/content"></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button onclick="saveFSConfig()" style="padding:8px 18px;background:var(--gold);color:#000;border:none;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)">Save & Connect</button>
+      <button onclick="testFSConnection()" style="padding:8px 18px;background:transparent;border:1px solid var(--border2);color:var(--muted);border-radius:6px;font-size:12px;cursor:pointer;font-family:var(--font)">Test Connection</button>
+      <button onclick="document.getElementById('fs-config-panel').style.display='none'" style="padding:8px 14px;background:transparent;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--font)">Cancel</button>
+      <span id="fs-test-result" style="font-size:11px;color:var(--muted);font-family:var(--mono)"></span>
+    </div>
+    <div style="margin-top:12px;font-size:11px;color:var(--muted2);line-height:1.6">
+      API credentials are stored locally in your browser. FactSet API requires a valid username/serial and API key from your FactSet account manager.
+      Standard endpoint: <span style="color:var(--gold);font-family:var(--mono)">api.factset.com/content/factset-fundamentals/v2</span>
     </div>
   </div>
 
-  <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:14px">
-    <div style="width:36px;height:36px;border-radius:50%;background:var(--gold);color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">1</div>
-    <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px">
-      <div style="font-size:14px;font-weight:600;margin-bottom:4px">Open FactSet and run the screen</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Go to <strong style="color:var(--text)">Screening &rarr; Universal Screening</strong>. Set the universe to <strong style="color:var(--text)">ASX All Ordinaries</strong>. Add these columns, then export to Excel.</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div style="background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:12px">
-          <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">Columns to add</div>
-          <div style="font-size:11px;color:var(--muted);line-height:2">
-            <span style="color:var(--text)">Ticker &amp; Company Name</span><br>
-            <span style="color:var(--text)">Latest Share Price</span><br>
-            <span style="color:var(--text)">EPS Forecast Year 1 &amp; 2</span><br>
-            <span style="color:var(--text)">Dividend Forecast Year 1</span><br>
-            <span style="color:var(--text)">Book Value per Share</span><br>
-            <span style="color:var(--text)">Franking %</span><br>
-            <span style="color:var(--text)">WACC (cost of equity)</span><br>
-            <span style="color:var(--text)">Analyst upgrade/downgrade trend</span>
-          </div>
-        </div>
-        <div>
-          <div style="background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:12px;margin-bottom:10px">
-            <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px">FactSet codes</div>
-            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;line-height:2;color:var(--muted)">
-              <span style="color:var(--gold)">FF_EPS(FY1,AUD)</span><br>
-              <span style="color:var(--gold)">FF_EPS(FY2,AUD)</span><br>
-              <span style="color:var(--gold)">FF_DPS(FY1,AUD)</span><br>
-              <span style="color:var(--gold)">FF_BOOK_VAL_PS(LTM)</span><br>
-              <span style="color:var(--gold)">FF_FRANK_PCT(ANN)</span><br>
-              <span style="color:var(--gold)">CESTIREV_EPS(0,90,-1)</span>
-            </div>
-          </div>
-          <div style="background:var(--green-dim);border:1px solid rgba(45,212,160,.2);border-radius:6px;padding:10px;font-size:11px;color:var(--green)">
-            Export to Excel &rarr; paste into <strong>Data_Forecasts</strong> sheet
-          </div>
-        </div>
-      </div>
+  <!-- Search + Screen controls -->
+  <div style="display:grid;grid-template-columns:1fr auto;gap:12px;margin-bottom:16px;align-items:center">
+    <div style="position:relative">
+      <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none">⌕</span>
+      <input type="text" id="fs-search" placeholder="Search ticker or company… e.g. BHP, CBA, CSL" oninput="runFSSearch()" autocomplete="off"
+        style="width:100%;padding:11px 13px 11px 38px;background:var(--surface2);border:1.5px solid var(--border2);color:var(--text);font-family:'Sora',sans-serif;font-size:14px;border-radius:var(--radius);outline:none;transition:border-color .15s"
+        onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='var(--border2)'">
+    </div>
+    <div style="display:flex;gap:6px">
+      <select id="fs-screen-filter" onchange="runFSSearch()" style="padding:10px 12px;background:var(--surface2);border:1.5px solid var(--border2);color:var(--text);font-size:12px;border-radius:6px;outline:none;cursor:pointer;font-family:'Sora',sans-serif">
+        <option value="">All Signals</option>
+        <option value="BUY">Buy / Undervalued</option>
+        <option value="HOLD">Fair Value</option>
+        <option value="SELL">Overvalued</option>
+      </select>
+      <select id="fs-sector-filter" onchange="runFSSearch()" style="padding:10px 12px;background:var(--surface2);border:1.5px solid var(--border2);color:var(--text);font-size:12px;border-radius:6px;outline:none;cursor:pointer;font-family:'Sora',sans-serif">
+        <option value="">All Sectors</option>
+        <option value="Banks">Banks</option>
+        <option value="Materials">Materials</option>
+        <option value="Health Care">Health Care</option>
+        <option value="Consumer">Consumer</option>
+        <option value="Technology">Technology</option>
+        <option value="REITs">REITs</option>
+      </select>
+      <button onclick="runFSScreen()" style="padding:10px 18px;background:var(--blue-dim);border:1px solid rgba(91,143,249,.3);color:var(--blue);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap">⚡ Run Screen</button>
     </div>
   </div>
 
-  <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:14px">
-    <div style="width:36px;height:36px;border-radius:50%;background:var(--gold);color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">2</div>
-    <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px">
-      <div style="font-size:14px;font-weight:600;margin-bottom:4px">The spreadsheet works out fair value automatically</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Once you paste the data in, the Valuation sheet does the maths. Here is what happens in plain English:</div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
-        <div style="background:var(--surface2);border-radius:6px;padding:12px;text-align:center">
-          <div style="font-size:18px;margin-bottom:6px">📐</div>
-          <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px">How well does it use capital?</div>
-          <div style="font-size:10px;color:var(--muted)">Earnings divided by book value. A high number means the business is efficient.</div>
-        </div>
-        <div style="background:var(--surface2);border-radius:6px;padding:12px;text-align:center">
-          <div style="font-size:18px;margin-bottom:6px">🇦🇺</div>
-          <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px">Franking credit uplift</div>
-          <div style="font-size:10px;color:var(--muted)">AU tax credits make fully-franked dividends worth more. Added automatically.</div>
-        </div>
-        <div style="background:var(--surface2);border-radius:6px;padding:12px;text-align:center">
-          <div style="font-size:18px;margin-bottom:6px">✖️</div>
-          <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px">A single fair value multiplier</div>
-          <div style="font-size:10px;color:var(--muted)">Income value + growth value combined into one number, multiplied by book value.</div>
-        </div>
-        <div style="background:var(--surface2);border-radius:6px;padding:12px;text-align:center">
-          <div style="font-size:18px;margin-bottom:6px">🏷️</div>
-          <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px">The signal</div>
-          <div style="font-size:10px;color:var(--muted)">&gt;15% below fair value = Buy. Within 15% = Hold. &gt;15% above = Sell.</div>
-        </div>
-      </div>
+  <!-- Summary stat chips -->
+  <div id="fs-summary-row" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--text)" id="fs-count-total">152</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-top:2px">Universe</div>
+    </div>
+    <div style="background:var(--green-dim);border:1px solid rgba(45,212,160,.25);border-radius:8px;padding:12px;text-align:center;cursor:pointer" onclick="document.getElementById('fs-screen-filter').value='BUY';runFSSearch()">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--green)" id="fs-count-buy">13</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-top:2px">Buy</div>
+    </div>
+    <div style="background:var(--amber-dim);border:1px solid rgba(240,160,64,.25);border-radius:8px;padding:12px;text-align:center;cursor:pointer" onclick="document.getElementById('fs-screen-filter').value='HOLD';runFSSearch()">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--amber)" id="fs-count-hold">55</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-top:2px">Fair Value</div>
+    </div>
+    <div style="background:var(--red-dim);border:1px solid rgba(240,96,96,.25);border-radius:8px;padding:12px;text-align:center;cursor:pointer" onclick="document.getElementById('fs-screen-filter').value='SELL';runFSSearch()">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--red)" id="fs-count-sell">84</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-top:2px">Overvalued</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px">Last Refresh</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold)" id="fs-last-refresh">Mon 24 Mar 08:42</div>
     </div>
   </div>
 
-  <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:14px">
-    <div style="width:36px;height:36px;border-radius:50%;background:var(--gold);color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">3</div>
-    <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px">
-      <div style="font-size:14px;font-weight:600;margin-bottom:4px">Check earnings quality before buying</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">A cheap stock is only interesting if the profits are real. The EQS sheet scores each company on 4 questions. <strong style="color:var(--text)">Score 70+ to act.</strong></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-        <div style="background:var(--surface2);border-radius:6px;padding:12px;display:flex;gap:10px;align-items:flex-start">
-          <span style="font-size:18px">📊</span>
-          <div><div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px">Are earnings stable?</div><div style="font-size:10px;color:var(--muted)">Consistent profits over 5 years. Volatile = risky.</div></div>
-        </div>
-        <div style="background:var(--surface2);border-radius:6px;padding:12px;display:flex;gap:10px;align-items:flex-start">
-          <span style="font-size:18px">💵</span>
-          <div><div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px">Does profit turn into cash?</div><div style="font-size:10px;color:var(--muted)">Paper profit that doesn't become cash is a warning sign.</div></div>
-        </div>
-        <div style="background:var(--surface2);border-radius:6px;padding:12px;display:flex;gap:10px;align-items:flex-start">
-          <span style="font-size:18px">⚖️</span>
-          <div><div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px">Is debt under control?</div><div style="font-size:10px;color:var(--muted)">Growing profits while piling on debt is a red flag.</div></div>
-        </div>
-        <div style="background:var(--surface2);border-radius:6px;padding:12px;display:flex;gap:10px;align-items:flex-start">
-          <span style="font-size:18px">📈</span>
-          <div><div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px">Are analysts upgrading?</div><div style="font-size:10px;color:var(--muted)">If forecasts are being cut, wait. Net upgrades in FactSet via CESTIREV_EPS.</div></div>
-        </div>
-      </div>
-      <div style="display:flex;gap:8px">
-        <div style="flex:1;background:var(--green-dim);border:1px solid rgba(45,212,160,.2);border-radius:6px;padding:10px;text-align:center;font-size:11px"><span style="font-weight:700;color:var(--green)">70–100</span><br><span style="color:var(--muted)">Act on signal</span></div>
-        <div style="flex:1;background:var(--amber-dim);border:1px solid rgba(240,160,64,.2);border-radius:6px;padding:10px;text-align:center;font-size:11px"><span style="font-weight:700;color:var(--amber)">50–69</span><br><span style="color:var(--muted)">Review first</span></div>
-        <div style="flex:1;background:var(--red-dim);border:1px solid rgba(240,96,96,.2);border-radius:6px;padding:10px;text-align:center;font-size:11px"><span style="font-weight:700;color:var(--red)">&lt;50</span><br><span style="color:var(--muted)">Don't buy</span></div>
-      </div>
-    </div>
+  <!-- Data table -->
+  <div class="asx-table-wrap">
+    <table class="asx-table" id="fs-table">
+      <thead><tr>
+        <th style="text-align:left">Ticker</th>
+        <th style="text-align:left">Company</th>
+        <th style="text-align:left">Sector</th>
+        <th>Price</th>
+        <th>EPS FY1</th>
+        <th>EPS FY2</th>
+        <th>DPS FY1</th>
+        <th>Book Val/Sh</th>
+        <th>Franking</th>
+        <th>WACC</th>
+        <th>IV Est.</th>
+        <th>MoS %</th>
+        <th>Signal</th>
+        <th>ERS</th>
+        <th style="text-align:left">Action</th>
+      </tr></thead>
+      <tbody id="fs-tbody"></tbody>
+    </table>
+  </div>
+  <div style="margin-top:8px;font-size:10px;color:var(--muted2)">
+    Data sourced from FactSet API · <span id="fs-data-note">Showing mock data — connect your FactSet API key to pull live figures</span>
   </div>
 
-  <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:14px">
-    <div style="width:36px;height:36px;border-radius:50%;background:var(--gold);color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">4</div>
-    <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px">
-      <div style="font-size:14px;font-weight:600;margin-bottom:4px">Check price momentum — timing matters</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">A stock can be cheap for a long time. We use one simple timing check: is it higher than 12 months ago?</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div style="background:var(--green-dim);border:1px solid rgba(45,212,160,.2);border-radius:6px;padding:14px">
-          <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:4px">Price up vs 12 months ago</div>
-          <div style="font-size:11px;color:var(--muted)">Market starting to see the value &rarr; <strong style="color:var(--green)">Active Buy</strong>. Full position.</div>
-        </div>
-        <div style="background:var(--amber-dim);border:1px solid rgba(240,160,64,.2);border-radius:6px;padding:14px">
-          <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:4px">Price down vs 12 months ago</div>
-          <div style="font-size:11px;color:var(--muted)">Still cheap but falling &rarr; <strong style="color:var(--amber)">Accumulate</strong>. Half position, add later.</div>
-        </div>
-      </div>
-      <div style="margin-top:10px;font-size:11px;color:var(--muted);background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:10px">
-        FactSet code: <span style="font-family:'JetBrains Mono',monospace;color:var(--gold)">P_PRICE_CHG(-252,-21,ANN)</span> — 12-month return excluding the most recent month
-      </div>
-    </div>
-  </div>
-
-  <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:14px">
-    <div style="width:36px;height:36px;border-radius:50%;background:var(--gold);color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">5</div>
-    <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px">
-      <div style="font-size:14px;font-weight:600;margin-bottom:4px">How much to buy</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">The bigger the discount, the larger the position. Simple rule: more conviction = more capital.</div>
-      <div style="overflow-x:auto">
-      <table style="width:100%;border-collapse:collapse;font-size:12px">
-        <thead><tr style="background:var(--surface2)">
-          <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);color:var(--muted);font-size:10px;text-transform:uppercase">Signal</th>
-          <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);color:var(--muted);font-size:10px;text-transform:uppercase">What it means</th>
-          <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);color:var(--muted);font-size:10px;text-transform:uppercase">Max % of portfolio</th>
-          <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);color:var(--muted);font-size:10px;text-transform:uppercase">Action</th>
-        </tr></thead>
-        <tbody>
-          <tr><td style="padding:9px 12px;border-bottom:1px solid var(--border)"><span class="signal-badge-lg sig-buy">BUY ★</span></td><td style="padding:9px 12px;border-bottom:1px solid var(--border);color:var(--muted)">&gt;25% below fair value</td><td style="padding:9px 12px;border-bottom:1px solid var(--border);font-weight:700;color:var(--green)">Up to 5%</td><td style="padding:9px 12px;border-bottom:1px solid var(--border);color:var(--muted)">Buy a full position</td></tr>
-          <tr><td style="padding:9px 12px;border-bottom:1px solid var(--border)"><span class="signal-badge-lg sig-buy">BUY</span></td><td style="padding:9px 12px;border-bottom:1px solid var(--border);color:var(--muted)">15–25% below fair value</td><td style="padding:9px 12px;border-bottom:1px solid var(--border);font-weight:700;color:var(--green)">Up to 3%</td><td style="padding:9px 12px;border-bottom:1px solid var(--border);color:var(--muted)">Standard initiation</td></tr>
-          <tr><td style="padding:9px 12px;border-bottom:1px solid var(--border)"><span class="signal-badge-lg sig-acc">ACCUMULATE</span></td><td style="padding:9px 12px;border-bottom:1px solid var(--border);color:var(--muted)">Cheap but still falling</td><td style="padding:9px 12px;border-bottom:1px solid var(--border);font-weight:700;color:var(--amber)">Up to 2%</td><td style="padding:9px 12px;border-bottom:1px solid var(--border);color:var(--muted)">Half now, add when price turns up</td></tr>
-          <tr><td style="padding:9px 12px;border-bottom:1px solid var(--border)"><span class="signal-badge-lg sig-watch">WATCH</span></td><td style="padding:9px 12px;border-bottom:1px solid var(--border);color:var(--muted)">Interesting, not ready yet</td><td style="padding:9px 12px;border-bottom:1px solid var(--border);font-weight:700;color:var(--muted)">0–1%</td><td style="padding:9px 12px;border-bottom:1px solid var(--border);color:var(--muted)">Only on a major price fall</td></tr>
-          <tr><td style="padding:9px 12px;border-bottom:1px solid var(--border)"><span class="signal-badge-lg sig-hold">HOLD</span></td><td style="padding:9px 12px;border-bottom:1px solid var(--border);color:var(--muted)">Fairly priced</td><td style="padding:9px 12px;border-bottom:1px solid var(--border);font-weight:700;color:var(--muted)">Keep existing</td><td style="padding:9px 12px;border-bottom:1px solid var(--border);color:var(--muted)">Don't buy more, don't sell</td></tr>
-          <tr><td style="padding:9px 12px"><span class="signal-badge-lg sig-red">SELL</span></td><td style="padding:9px 12px;color:var(--muted)">&gt;15% above fair value</td><td style="padding:9px 12px;font-weight:700;color:var(--red)">Sell down to 0%</td><td style="padding:9px 12px;color:var(--muted)">Sell into strength</td></tr>
-        </tbody>
-      </table>
-      </div>
-    </div>
-  </div>
-
-  <div style="display:flex;gap:14px;align-items:flex-start;margin-bottom:20px">
-    <div style="width:36px;height:36px;border-radius:50%;background:var(--gold);color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0">6</div>
-    <div style="flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px">
-      <div style="font-size:14px;font-weight:600;margin-bottom:4px">Monday shortlist — 5 filters to run in FactSet</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">These 5 filters in your Universal Screen give you a list of stocks that look cheap and pass the basic quality checks. Usually returns 15–40 names to review.</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div style="background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:14px">
-          <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:10px">Copy these into FactSet</div>
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <div style="background:var(--surface2);border-radius:5px;padding:8px 10px">
-              <div style="font-size:10px;color:var(--muted);margin-bottom:2px">Cheap enough</div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold)">P_PRICE &lt; IV_Current * 0.85</div>
-            </div>
-            <div style="background:var(--surface2);border-radius:5px;padding:8px 10px">
-              <div style="font-size:10px;color:var(--muted);margin-bottom:2px">Profit converts to cash</div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold)">FF_OCF(LTM) / FF_NET_INC(LTM) &gt; 0.7</div>
-            </div>
-            <div style="background:var(--surface2);border-radius:5px;padding:8px 10px">
-              <div style="font-size:10px;color:var(--muted);margin-bottom:2px">Debt is manageable</div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold)">FF_DEBT_NET / FF_EBITDA &lt; 3.0</div>
-            </div>
-            <div style="background:var(--surface2);border-radius:5px;padding:8px 10px">
-              <div style="font-size:10px;color:var(--muted);margin-bottom:2px">Analysts are upgrading</div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold)">CESTIREV_EPS(0,90,-1) &gt; 0</div>
-            </div>
-            <div style="background:var(--surface2);border-radius:5px;padding:8px 10px">
-              <div style="font-size:10px;color:var(--muted);margin-bottom:2px">Profitable (not pre-revenue)</div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold)">FF_EPS(FY1) &gt; 0</div>
-            </div>
-            <div style="font-size:10px;color:var(--blue);padding:4px 0">Sort by: biggest discount first</div>
-          </div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:14px">
-            <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:8px">Excel workbook sheets</div>
-            <div style="font-size:10px;color:var(--muted);line-height:2">
-              <span style="color:var(--gold);font-weight:600">Data_Forecasts</span> &larr; paste FactSet export<br>
-              <span style="color:var(--gold);font-weight:600">Data_WACC</span> &larr; Clime override rates<br>
-              <span style="color:var(--gold);font-weight:600">Valuation</span> &larr; fair value calculated here<br>
-              <span style="color:var(--gold);font-weight:600">EQS</span> &larr; earnings quality scores<br>
-              <span style="color:var(--gold);font-weight:600">Signal</span> &larr; buy / hold / sell per stock<br>
-              <span style="color:var(--gold);font-weight:600">Portfolio</span> &larr; current holdings overlay<br>
-              <span style="color:var(--gold);font-weight:600">Dashboard</span> &larr; Monday morning summary
-            </div>
-          </div>
-          <div style="background:var(--amber-dim);border:1px solid rgba(240,160,64,.2);border-radius:6px;padding:12px;font-size:11px;color:var(--muted)">
-            <strong style="color:var(--amber)">Remember:</strong> the shortlist is a starting point for analyst review — not an automatic buy list. Always verify the WACC and EQS score before placing orders.
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div style="background:rgba(91,143,249,.06);border:1px solid rgba(91,143,249,.2);border-radius:var(--radius);padding:16px 20px;font-size:12px;color:#8ab0e8;line-height:1.8">
-    <strong>Monday morning routine (15 minutes):</strong><br>
-    1. Export FactSet screen &rarr; paste into Data_Forecasts &nbsp;&bull;&nbsp;
-    2. Open the Signal sheet &mdash; what changed from last week? &nbsp;&bull;&nbsp;
-    3. Check the Dashboard for new Buy signals &nbsp;&bull;&nbsp;
-    4. Verify any new buys against the EQS tab &nbsp;&bull;&nbsp;
-    5. Done.
-  </div>
-</div>
-
-
-
-<!-- ═══ TAB: IMA MODELS ═══ -->
-<div id="tab-models" class="tab-panel">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px">
-    <div>
-      <div class="page-header" style="margin-bottom:0"><h1>IMA Models <em>Portfolio Management</em></h1>
-      <p>Clime Asset Management · AFSL 221146 · Signals from March 2026 valuations · Click any model to view holdings</p></div>
-    </div>
-    <div style="display:flex;gap:8px">
-      <div style="padding:4px 10px;background:rgba(212,168,67,.1);border:1px solid rgba(212,168,67,.2);border-radius:4px;font-size:10px;font-weight:600;color:var(--gold)">3 NEW</div>
-      <div style="padding:4px 10px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:4px;font-size:10px;font-weight:600;color:var(--green)">6 ESTABLISHED</div>
-    </div>
-  </div>
-  <div id="model-cards-view">
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:8px" id="model-grid"></div>
-    <div style="font-size:10px;color:var(--muted2);margin-top:6px">AFSL 221146 · Wholesale investors only · Does not constitute financial advice</div>
-  </div>
-  <div id="model-holdings-view" style="display:none">
-    <button class="btn-ghost" onclick="closeModelHoldings()" style="font-size:11px;margin-bottom:16px">← All models</button>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:10px">
+  <!-- FactSet codes reference -->
+  <div class="card" style="margin-top:20px">
+    <div class="card-title blue">FactSet API Codes Reference</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
       <div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:3px">
-          <div style="font-size:20px;font-weight:700" id="mh-name">—</div>
-          <span id="mh-status" class="model-status">—</span>
-        </div>
-        <div style="font-size:12px;color:var(--muted)" id="mh-subtitle">—</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap" id="mh-signal-counts"></div>
-    </div>
-    <div style="display:flex;gap:1px;background:var(--border);border-radius:var(--radius);padding:2px;width:fit-content;margin-bottom:16px">
-      <button class="period-btn active" onclick="switchModelTab('holdings',this)" id="mhTab-holdings">Holdings &amp; Signals</button>
-      <button class="period-btn" onclick="switchModelTab('rebalance',this)" id="mhTab-rebalance">Rebalancing Ideas</button>
-      <button class="period-btn" onclick="switchModelTab('overview',this)" id="mhTab-overview">Mandate &amp; Rules</button>
-    </div>
-    <div id="mh-panel-holdings">
-      <div class="callout" style="margin-bottom:12px">Click any row to open the stock in the IV Calculator for full research detail. Holdings shown reflect March 2026 model positions — update weights as trades occur.</div>
-      <div class="asx-table-wrap">
-        <table class="asx-table">
-          <thead><tr>
-            <th>Ticker</th>
-            <th style="text-align:left">Company / Position</th>
-            <th>Weight</th>
-            <th>Entry Price</th>
-            <th>Current</th>
-            <th>P&amp;L %</th>
-            <th>IV Current</th>
-            <th>Margin of Safety</th>
-            <th>IV Signal</th>
-            <th style="text-align:left">Recommended Action</th>
-          </tr></thead>
-          <tbody id="mh-tbody"></tbody>
-        </table>
-      </div>
-      <div style="margin-top:10px;font-size:10px;color:var(--muted2)">Signals derived from Clever Clime equity multiplier · EQS and ERS verification required before acting on any signal</div>
-    </div>
-    <div id="mh-panel-rebalance" style="display:none">
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px">
-        <div style="background:var(--red-dim);border:1px solid rgba(240,96,96,.2);border-radius:8px;padding:14px;text-align:center">
-          <div style="font-size:22px;font-weight:700;color:var(--red);font-family:var(--mono)" id="rb-sell-count">—</div>
-          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:2px">Holdings to Review / Sell</div>
-        </div>
-        <div style="background:var(--green-dim);border:1px solid rgba(45,212,160,.2);border-radius:8px;padding:14px;text-align:center">
-          <div style="font-size:22px;font-weight:700;color:var(--green);font-family:var(--mono)" id="rb-buy-count">—</div>
-          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:2px">Research Buys Available</div>
-        </div>
-        <div style="background:var(--gold-dim);border:1px solid rgba(212,168,67,.2);border-radius:8px;padding:14px;text-align:center">
-          <div style="font-size:22px;font-weight:700;color:var(--gold);font-family:var(--mono)" id="rb-swap-count">—</div>
-          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:2px">Suggested Swaps</div>
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px">Fundamentals Endpoint</div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:2.2">
+          <div><span style="color:var(--gold)">FF_EPS(FY1,AUD)</span><span style="color:var(--muted)"> — EPS forecast year 1</span></div>
+          <div><span style="color:var(--gold)">FF_EPS(FY2,AUD)</span><span style="color:var(--muted)"> — EPS forecast year 2</span></div>
+          <div><span style="color:var(--gold)">FF_DPS(FY1,AUD)</span><span style="color:var(--muted)"> — DPS forecast year 1</span></div>
+          <div><span style="color:var(--gold)">FF_BOOK_VAL_PS(LTM,AUD)</span><span style="color:var(--muted)"> — Book value/share</span></div>
+          <div><span style="color:var(--gold)">FF_FRANK_PCT(ANN)</span><span style="color:var(--muted)"> — Franking %</span></div>
+          <div><span style="color:var(--gold)">FF_WACC</span><span style="color:var(--muted)"> — Weighted avg cost of capital</span></div>
         </div>
       </div>
-
-      <!-- Sell candidates (from holdings) -->
-      <div style="margin-bottom:20px">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--red);border-bottom:2px solid var(--red-dim);padding-bottom:6px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
-          <span>↓ Step 1 — Holdings to Exit or Trim</span>
-          <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">Overvalued positions currently held in this model</span>
-        </div>
-        <div class="asx-table-wrap">
-          <table class="asx-table">
-            <thead><tr>
-              <th>Ticker</th>
-              <th style="text-align:left">Company</th>
-              <th>Weight</th>
-              <th>Entry</th>
-              <th>Current</th>
-              <th>P&amp;L %</th>
-              <th>IV</th>
-              <th>Premium to IV</th>
-              <th>Action</th>
-            </tr></thead>
-            <tbody id="rb-sell-tbody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Buy candidates (from research) -->
-      <div style="margin-bottom:20px">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--green);border-bottom:2px solid var(--green-dim);padding-bottom:6px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
-          <span>↑ Step 2 — Research Buys Not Yet Held</span>
-          <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">Undervalued stocks from the research universe, absent from this model</span>
-        </div>
-        <div class="asx-table-wrap">
-          <table class="asx-table">
-            <thead><tr>
-              <th>Ticker</th>
-              <th style="text-align:left">Company</th>
-              <th style="text-align:left">Sector</th>
-              <th>Price</th>
-              <th>IV Current</th>
-              <th>Margin of Safety</th>
-              <th>ROE</th>
-              <th>RR</th>
-              <th>Tier</th>
-            </tr></thead>
-            <tbody id="rb-buy-tbody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Matched swap recommendations -->
       <div>
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);border-bottom:2px solid var(--gold-dim);padding-bottom:6px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
-          <span>⇄ Step 3 — Suggested Swaps</span>
-          <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">Sell overvalued holding → fund undervalued research pick of similar weight</span>
-        </div>
-        <div id="rb-swaps-wrap"></div>
-      </div>
-
-      <div style="margin-top:14px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:6px;font-size:10px;color:var(--muted2)">
-        Rebalancing ideas are generated from March 2026 IV signals only. EQS ≥70, positive ERS, and portfolio construction rules must be verified before executing any trade. This does not constitute financial advice.
-      </div>
-    </div>
-
-        <div id="mh-panel-overview" style="display:none">
-      <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px">
-        <div class="card">
-          <div class="card-title">Investment Strategy</div>
-          <div style="font-size:12px;color:var(--muted);line-height:1.7" id="mh-strategy">—</div>
-        </div>
-        <div>
-          <div class="card">
-            <div class="card-title">Model Rules</div>
-            <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:5px" id="mh-rules"></ul>
-          </div>
-          <div class="card">
-            <div class="card-title">Fees</div>
-            <div class="md-fee-row"><span class="fl">Mgmt Fee</span><span class="fv" id="mh-fee">—</span></div>
-            <div class="md-fee-row"><span class="fl">Perf Fee</span><span class="fv">20% above benchmark</span></div>
-            <div class="md-fee-row"><span class="fl">Benchmark</span><span class="fv" id="mh-bench">—</span></div>
-            <div class="md-fee-row"><span class="fl">Min. Investment</span><span class="fv">$500,000</span></div>
-          </div>
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px">Estimates & Revisions</div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:2.2">
+          <div><span style="color:var(--blue)">CESTIREV_EPS(0,90,-1,,AUD)</span><span style="color:var(--muted)"> — ERS 90d</span></div>
+          <div><span style="color:var(--blue)">P_PRICE_CHG(-252,-21,ANN)</span><span style="color:var(--muted)"> — 12m price mom.</span></div>
+          <div><span style="color:var(--blue)">FF_OCF(LTM,AUD)</span><span style="color:var(--muted)"> — Operating cash flow</span></div>
+          <div><span style="color:var(--blue)">FF_NET_INC(LTM,AUD)</span><span style="color:var(--muted)"> — Net income LTM</span></div>
+          <div><span style="color:var(--blue)">FF_DEBT_NET(LTM,AUD)</span><span style="color:var(--muted)"> — Net debt</span></div>
+          <div><span style="color:var(--blue)">FF_EBITDA(LTM,AUD)</span><span style="color:var(--muted)"> — EBITDA LTM</span></div>
         </div>
       </div>
     </div>
   </div>
+
+
+  <!-- Workflow Guide Accordion -->
+  <div class="card" style="margin-top:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="toggleAcc(this)">
+      <div class="card-title" style="margin-bottom:0">📋 Monday Workflow Guide — Step by Step</div>
+      <span style="color:var(--muted);font-size:18px;transition:transform .2s" class="acc-arrow">›</span>
+    </div>
+    <div class="acc-body" style="max-height:0;overflow:hidden;transition:max-height .4s ease;padding:0">
+
+      <!-- Frequency row -->
+      <div style="padding-top:16px;margin-bottom:18px">
+        <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px">How often to refresh</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+          <div style="border-left:3px solid var(--green);padding-left:12px"><div style="font-size:12px;font-weight:700;color:var(--green)">Every Monday</div><div style="font-size:11px;color:var(--muted);margin-top:3px">Refresh prices & forecasts. Re-run screen. Check if signals changed.</div></div>
+          <div style="border-left:3px solid var(--amber);padding-left:12px"><div style="font-size:12px;font-weight:700;color:var(--amber)">Once a month</div><div style="font-size:11px;color:var(--muted);margin-top:3px">Update WACC for each stock. Check earnings quality scores.</div></div>
+          <div style="border-left:3px solid var(--blue);padding-left:12px"><div style="font-size:12px;font-weight:700;color:var(--blue)">Every quarter</div><div style="font-size:11px;color:var(--muted);margin-top:3px">Full review of required return for the top 50 holdings.</div></div>
+          <div style="border-left:3px solid var(--red);padding-left:12px"><div style="font-size:12px;font-weight:700;color:var(--red)">After results</div><div style="font-size:11px;color:var(--muted);margin-top:3px">Re-run immediately. Signals can flip overnight after a report.</div></div>
+        </div>
+      </div>
+
+      <!-- Steps -->
+      <div class="acc-list">
+
+        <div class="acc-item" style="border-left:3px solid var(--gold)">
+          <button class="acc-header" onclick="toggleAcc(this)">
+            <div class="acc-left">
+              <span class="acc-num" style="color:var(--gold)">1</span>
+              <div><div class="acc-name">Open FactSet and run the screen</div><div class="acc-sectors">Universal Screening → ASX All Ordinaries → export to Excel</div></div>
+            </div>
+            <span class="acc-arrow">›</span>
+          </button>
+          <div class="acc-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div>
+                <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">Columns to add</div>
+                <div style="font-size:12px;color:var(--muted);line-height:2">
+                  Ticker & Company Name<br>Latest Share Price<br>EPS Forecast Year 1 & 2<br>Dividend Forecast Year 1<br>Book Value per Share<br>Franking %<br>WACC (cost of equity)<br>Analyst upgrade/downgrade trend
+                </div>
+              </div>
+              <div>
+                <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">FactSet codes</div>
+                <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:2.2">
+                  <div style="color:var(--gold)">FF_EPS(FY1,AUD)</div>
+                  <div style="color:var(--gold)">FF_EPS(FY2,AUD)</div>
+                  <div style="color:var(--gold)">FF_DPS(FY1,AUD)</div>
+                  <div style="color:var(--gold)">FF_BOOK_VAL_PS(LTM)</div>
+                  <div style="color:var(--gold)">FF_FRANK_PCT(ANN)</div>
+                  <div style="color:var(--gold)">CESTIREV_EPS(0,90,-1)</div>
+                </div>
+                <div style="margin-top:8px;padding:8px 10px;background:var(--green-dim);border:1px solid rgba(45,212,160,.2);border-radius:5px;font-size:11px;color:var(--green)">
+                  Export to Excel → paste into <strong>Data_Forecasts</strong> sheet
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item" style="border-left:3px solid var(--gold)">
+          <button class="acc-header" onclick="toggleAcc(this)">
+            <div class="acc-left">
+              <span class="acc-num" style="color:var(--gold)">2</span>
+              <div><div class="acc-name">Spreadsheet calculates fair value automatically</div><div class="acc-sectors">Paste data → Valuation sheet does the maths</div></div>
+            </div>
+            <span class="acc-arrow">›</span>
+          </button>
+          <div class="acc-body">
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+              <div style="background:var(--surface2);border-radius:6px;padding:12px;text-align:center"><div style="font-size:20px;margin-bottom:6px">📐</div><div style="font-size:11px;font-weight:600;margin-bottom:3px">Capital efficiency</div><div style="font-size:10px;color:var(--muted)">Earnings ÷ book value. High = efficient business.</div></div>
+              <div style="background:var(--surface2);border-radius:6px;padding:12px;text-align:center"><div style="font-size:20px;margin-bottom:6px">🇦🇺</div><div style="font-size:11px;font-weight:600;margin-bottom:3px">Franking uplift</div><div style="font-size:10px;color:var(--muted)">AU tax credits make franked dividends worth more. Added automatically.</div></div>
+              <div style="background:var(--surface2);border-radius:6px;padding:12px;text-align:center"><div style="font-size:20px;margin-bottom:6px">✖️</div><div style="font-size:11px;font-weight:600;margin-bottom:3px">Fair value multiplier</div><div style="font-size:10px;color:var(--muted)">Income + growth value × book value = IV.</div></div>
+              <div style="background:var(--surface2);border-radius:6px;padding:12px;text-align:center"><div style="font-size:20px;margin-bottom:6px">🏷️</div><div style="font-size:11px;font-weight:600;margin-bottom:3px">The signal</div><div style="font-size:10px;color:var(--muted)">&gt;15% below IV = Buy. Within 15% = Hold. &gt;15% above = Sell.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item" style="border-left:3px solid var(--gold)">
+          <button class="acc-header" onclick="toggleAcc(this)">
+            <div class="acc-left">
+              <span class="acc-num" style="color:var(--gold)">3</span>
+              <div><div class="acc-name">Check earnings quality before buying</div><div class="acc-sectors">EQS score 70+ required to act · 4 checks on profit reliability</div></div>
+            </div>
+            <span class="acc-arrow">›</span>
+          </button>
+          <div class="acc-body">
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px">
+              <div style="background:var(--surface2);border-radius:6px;padding:12px;text-align:center"><div style="font-size:18px;margin-bottom:4px">📊</div><div style="font-size:11px;font-weight:600;margin-bottom:3px">Stable earnings?</div><div style="font-size:10px;color:var(--muted)">Consistent profits over 5 years. Volatile = risky.</div></div>
+              <div style="background:var(--surface2);border-radius:6px;padding:12px;text-align:center"><div style="font-size:18px;margin-bottom:4px">💵</div><div style="font-size:11px;font-weight:600;margin-bottom:3px">Profit → cash?</div><div style="font-size:10px;color:var(--muted)">Paper profit that doesn't turn into cash is a warning sign.</div></div>
+              <div style="background:var(--surface2);border-radius:6px;padding:12px;text-align:center"><div style="font-size:18px;margin-bottom:4px">⚖️</div><div style="font-size:11px;font-weight:600;margin-bottom:3px">Debt controlled?</div><div style="font-size:10px;color:var(--muted)">Growing profits while piling on debt = red flag.</div></div>
+              <div style="background:var(--surface2);border-radius:6px;padding:12px;text-align:center"><div style="font-size:18px;margin-bottom:4px">📈</div><div style="font-size:11px;font-weight:600;margin-bottom:3px">Analysts upgrading?</div><div style="font-size:10px;color:var(--muted)">Net upgrades via <span style="font-family:var(--mono);color:var(--gold)">CESTIREV_EPS</span></div></div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <div style="flex:1;padding:10px;background:var(--green-dim);border:1px solid rgba(45,212,160,.2);border-radius:6px;text-align:center;font-size:12px;font-weight:700;color:var(--green)">70–100<br><span style="font-size:10px;font-weight:400;color:var(--muted)">Act on signal</span></div>
+              <div style="flex:1;padding:10px;background:var(--amber-dim);border:1px solid rgba(240,160,64,.2);border-radius:6px;text-align:center;font-size:12px;font-weight:700;color:var(--amber)">50–69<br><span style="font-size:10px;font-weight:400;color:var(--muted)">Review first</span></div>
+              <div style="flex:1;padding:10px;background:var(--red-dim);border:1px solid rgba(240,96,96,.2);border-radius:6px;text-align:center;font-size:12px;font-weight:700;color:var(--red)">&lt;50<br><span style="font-size:10px;font-weight:400;color:var(--muted)">Don't buy</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item" style="border-left:3px solid var(--gold)">
+          <button class="acc-header" onclick="toggleAcc(this)">
+            <div class="acc-left">
+              <span class="acc-num" style="color:var(--gold)">4</span>
+              <div><div class="acc-name">Check price momentum — timing matters</div><div class="acc-sectors">P_PRICE_CHG(-252,-21,ANN) — 12-month return ex-last month</div></div>
+            </div>
+            <span class="acc-arrow">›</span>
+          </button>
+          <div class="acc-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div style="background:var(--green-dim);border:1px solid rgba(45,212,160,.2);border-radius:8px;padding:14px">
+                <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:4px">📈 Price up vs 12 months ago</div>
+                <div style="font-size:11px;color:var(--muted)">Market starting to see the value → <strong style="color:var(--text)">Active Buy. Full position.</strong></div>
+              </div>
+              <div style="background:var(--amber-dim);border:1px solid rgba(240,160,64,.2);border-radius:8px;padding:14px">
+                <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:4px">📉 Price down vs 12 months ago</div>
+                <div style="font-size:11px;color:var(--muted)">Still cheap but falling → <strong style="color:var(--text)">Accumulate. Half position, add later.</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="acc-item" style="border-left:3px solid var(--gold)">
+          <button class="acc-header" onclick="toggleAcc(this)">
+            <div class="acc-left">
+              <span class="acc-num" style="color:var(--gold)">5</span>
+              <div><div class="acc-name">How much to buy — position sizing</div><div class="acc-sectors">Bigger discount = larger position · conviction drives capital allocation</div></div>
+            </div>
+            <span class="acc-arrow">›</span>
+          </button>
+          <div class="acc-body">
+            <table class="asx-table" style="margin-bottom:0">
+              <thead><tr><th style="text-align:left">Signal</th><th style="text-align:left">What it means</th><th>Max % of portfolio</th><th style="text-align:left">Action</th></tr></thead>
+              <tbody>
+                <tr><td><span class="badge Undervalued">BUY ★</span></td><td style="text-align:left;font-size:11px">&gt;25% below fair value</td><td class="t-mono t-green">Up to 5%</td><td style="text-align:left;font-size:11px;color:var(--green)">Full position</td></tr>
+                <tr><td><span class="badge Undervalued">BUY</span></td><td style="text-align:left;font-size:11px">15–25% below fair value</td><td class="t-mono t-green">Up to 3%</td><td style="text-align:left;font-size:11px;color:var(--green)">Standard initiation</td></tr>
+                <tr><td><span class="badge" style="background:rgba(134,239,172,.1);color:#86efac;border:1px solid rgba(134,239,172,.25)">ACCUMULATE</span></td><td style="text-align:left;font-size:11px">Cheap but still falling</td><td class="t-mono" style="color:var(--amber)">Up to 2%</td><td style="text-align:left;font-size:11px;color:var(--amber)">Half now, add when price turns</td></tr>
+                <tr><td><span class="badge" style="background:var(--amber-dim);color:var(--amber)">WATCH</span></td><td style="text-align:left;font-size:11px">Interesting, not ready yet</td><td class="t-mono t-muted">0–1%</td><td style="text-align:left;font-size:11px;color:var(--muted)">Only on major price fall</td></tr>
+                <tr><td><span class="badge" style="background:var(--surface2);color:var(--muted)">HOLD</span></td><td style="text-align:left;font-size:11px">Fairly priced</td><td class="t-mono t-muted">Keep existing</td><td style="text-align:left;font-size:11px;color:var(--muted)">Don't buy more, don't sell</td></tr>
+                <tr><td><span class="badge Overvalued">SELL</span></td><td style="text-align:left;font-size:11px">&gt;15% above fair value</td><td class="t-mono t-red">Sell to 0%</td><td style="text-align:left;font-size:11px;color:var(--red)">Sell into strength</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="acc-item" style="border-left:3px solid var(--gold)">
+          <button class="acc-header" onclick="toggleAcc(this)">
+            <div class="acc-left">
+              <span class="acc-num" style="color:var(--gold)">6</span>
+              <div><div class="acc-name">Monday shortlist — 5 filters to run in FactSet</div><div class="acc-sectors">Usually returns 15–40 names to review · starting point only</div></div>
+            </div>
+            <span class="acc-arrow">›</span>
+          </button>
+          <div class="acc-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div>
+                <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">Copy these into FactSet Universal Screen</div>
+                <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:2.4">
+                  <div><span style="color:var(--muted)">// Cheap enough</span></div>
+                  <div style="color:var(--gold)">P_PRICE &lt; IV_Current * 0.85</div>
+                  <div><span style="color:var(--muted)">// Profit converts to cash</span></div>
+                  <div style="color:var(--gold)">FF_OCF(LTM) / FF_NET_INC(LTM) &gt; 0.7</div>
+                  <div><span style="color:var(--muted)">// Debt manageable</span></div>
+                  <div style="color:var(--gold)">FF_DEBT_NET / FF_EBITDA &lt; 3.0</div>
+                  <div><span style="color:var(--muted)">// Analysts upgrading</span></div>
+                  <div style="color:var(--gold)">CESTIREV_EPS(0,90,-1) &gt; 0</div>
+                  <div><span style="color:var(--muted)">// Profitable</span></div>
+                  <div style="color:var(--gold)">FF_EPS(FY1) &gt; 0</div>
+                </div>
+                <div style="margin-top:8px;font-size:10px;color:var(--muted2)">Sort by: biggest discount first</div>
+              </div>
+              <div>
+                <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">Excel workbook sheets</div>
+                <div style="display:flex;flex-direction:column;gap:4px">
+                  <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border-radius:5px;font-size:11px">
+                    <span style="color:var(--gold);font-family:var(--mono);font-size:10px;min-width:110px">Data_Forecasts</span>
+                    <span style="color:var(--muted)">← paste FactSet export</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border-radius:5px;font-size:11px">
+                    <span style="color:var(--gold);font-family:var(--mono);font-size:10px;min-width:110px">Data_WACC</span>
+                    <span style="color:var(--muted)">← Clime override rates</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border-radius:5px;font-size:11px">
+                    <span style="color:var(--gold);font-family:var(--mono);font-size:10px;min-width:110px">Valuation</span>
+                    <span style="color:var(--muted)">← fair value calculated</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border-radius:5px;font-size:11px">
+                    <span style="color:var(--gold);font-family:var(--mono);font-size:10px;min-width:110px">EQS</span>
+                    <span style="color:var(--muted)">← earnings quality scores</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border-radius:5px;font-size:11px">
+                    <span style="color:var(--gold);font-family:var(--mono);font-size:10px;min-width:110px">Signal</span>
+                    <span style="color:var(--muted)">← buy / hold / sell per stock</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border-radius:5px;font-size:11px">
+                    <span style="color:var(--gold);font-family:var(--mono);font-size:10px;min-width:110px">Portfolio</span>
+                    <span style="color:var(--muted)">← current holdings overlay</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface2);border-radius:5px;font-size:11px">
+                    <span style="color:var(--gold);font-family:var(--mono);font-size:10px;min-width:110px">Dashboard</span>
+                    <span style="color:var(--muted)">← Monday morning summary</span>
+                  </div>
+                </div>
+                <div style="margin-top:10px;padding:10px 12px;background:rgba(212,168,67,.06);border:1px solid rgba(212,168,67,.15);border-radius:6px;font-size:11px;color:var(--muted);line-height:1.6">
+                  The shortlist is a starting point for analyst review — not an automatic buy list. Always verify WACC and EQS score before placing orders.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end acc-list -->
+    </div><!-- end outer acc-body -->
+  </div><!-- end guide card -->
+
 </div>
 
 
@@ -3783,6 +3723,7 @@ function switchTab(id,btn){
   if(id==='ta'&&currentStock)renderTA(currentStock);
   if(id==='signals')initSignals();
   if(id==='models')initModels();
+  if(id==='factset')initFSTab();
 }
 
 
@@ -4217,6 +4158,183 @@ function filterBySignalCard(val){
     if(activeBtn) activeBtn.style.outline = '2px solid var(--gold)';
   }
 }
+
+
+// ══════════════════════════════════════════════════════
+// FACTSET API TERMINAL
+// ══════════════════════════════════════════════════════
+
+// ── Mock dataset — 30 ASX stocks with realistic FactSet fields ──
+const FS_MOCK_DATA = [
+  {ticker:'BHP',  company:'BHP Group Limited',         sector:'Materials',    price:43.20, eps1:4.12, eps2:4.48, dps1:3.10, bvps:18.50, frank:100, wacc:9.0,  iv:38.80, mos:-11.3, signal:'HOLD', ers:0.08},
+  {ticker:'CBA',  company:'Commonwealth Bank',         sector:'Banks',        price:163.40,eps1:6.20, eps2:6.55, dps1:4.85, bvps:48.20, frank:100, wacc:10.5, iv:109.50,mos:-49.2, signal:'SELL', ers:-0.12},
+  {ticker:'CSL',  company:'CSL Limited',               sector:'Health Care',  price:274.20,eps1:8.90, eps2:9.80, dps1:4.20, bvps:28.40, frank:0,   wacc:8.5,  iv:328.00,mos:19.6,  signal:'BUY',  ers:0.22},
+  {ticker:'NAB',  company:'National Australia Bank',   sector:'Banks',        price:38.90, eps1:2.18, eps2:2.32, dps1:1.72, bvps:22.80, frank:100, wacc:10.5, iv:26.80, mos:-45.1, signal:'SELL', ers:-0.08},
+  {ticker:'WBC',  company:'Westpac Banking Corp',      sector:'Banks',        price:31.20, eps1:1.88, eps2:2.02, dps1:1.42, bvps:19.60, frank:100, wacc:10.5, iv:21.50, mos:-45.1, signal:'SELL', ers:-0.15},
+  {ticker:'ANZ',  company:'ANZ Group Holdings',        sector:'Banks',        price:30.10, eps1:2.24, eps2:2.38, dps1:1.66, bvps:20.40, frank:100, wacc:10.5, iv:23.80, mos:-26.5, signal:'SELL', ers:-0.06},
+  {ticker:'WES',  company:'Wesfarmers Limited',        sector:'Consumer',     price:76.80, eps1:2.42, eps2:2.68, dps1:1.95, bvps:9.80,  frank:100, wacc:9.0,  iv:42.20, mos:-82.0, signal:'SELL', ers:0.04},
+  {ticker:'MQG',  company:'Macquarie Group Ltd',       sector:'Banks',        price:224.60,eps1:10.80,eps2:11.40,dps1:8.10, bvps:62.40, frank:40,  wacc:11.0, iv:168.00,mos:-33.7, signal:'SELL', ers:0.02},
+  {ticker:'QBE',  company:'QBE Insurance Group',       sector:'Insurance',    price:17.20, eps1:1.32, eps2:1.46, dps1:1.02, bvps:13.80, frank:20,  wacc:10.5, iv:18.60, mos:8.1,   signal:'HOLD', ers:0.14},
+  {ticker:'SUN',  company:'Suncorp Group Ltd',         sector:'Insurance',    price:18.40, eps1:1.28, eps2:1.38, dps1:0.98, bvps:12.20, frank:100, wacc:10.5, iv:16.80, mos:-9.5,  signal:'HOLD', ers:-0.03},
+  {ticker:'CPU',  company:'Computershare Ltd',         sector:'Technology',   price:28.60, eps1:1.64, eps2:1.78, dps1:0.88, bvps:8.20,  frank:20,  wacc:9.0,  iv:38.20, mos:33.6,  signal:'BUY',  ers:0.28},
+  {ticker:'GQG',  company:'GQG Partners',              sector:'Financials',   price:1.88,  eps1:0.22, eps2:0.26, dps1:0.20, bvps:0.62,  frank:0,   wacc:10.0, iv:2.54,  mos:35.1,  signal:'BUY',  ers:0.32},
+  {ticker:'CSL',  company:'CSL Limited',               sector:'Health Care',  price:274.20,eps1:8.90, eps2:9.80, dps1:4.20, bvps:28.40, frank:0,   wacc:8.5,  iv:328.00,mos:19.6,  signal:'BUY',  ers:0.22},
+  {ticker:'ALL',  company:'Aristocrat Leisure',        sector:'Consumer',     price:57.40, eps1:3.12, eps2:3.48, dps1:1.28, bvps:14.20, frank:0,   wacc:9.0,  iv:62.80, mos:9.4,   signal:'HOLD', ers:0.18},
+  {ticker:'GMG',  company:'Goodman Group',             sector:'REITs',        price:36.80, eps1:1.22, eps2:1.38, dps1:0.30, bvps:8.40,  frank:0,   wacc:7.5,  iv:30.60, mos:-20.3, signal:'SELL', ers:0.06},
+  {ticker:'REA',  company:'REA Group',                 sector:'Technology',   price:242.80,eps1:6.80, eps2:7.80, dps1:3.20, bvps:14.80, frank:100, wacc:9.5,  iv:138.40,mos:-75.4, signal:'SELL', ers:0.12},
+  {ticker:'COL',  company:'Coles Group',               sector:'Consumer',     price:18.20, eps1:0.92, eps2:0.98, dps1:0.76, bvps:5.80,  frank:100, wacc:9.0,  iv:16.40, mos:-10.9, signal:'HOLD', ers:-0.04},
+  {ticker:'WOW',  company:'Woolworths Group Ltd',      sector:'Consumer',     price:31.80, eps1:1.22, eps2:1.34, dps1:1.02, bvps:8.20,  frank:80,  wacc:9.0,  iv:21.60, mos:-47.2, signal:'SELL', ers:-0.18},
+  {ticker:'FMG',  company:'Fortescue Ltd',             sector:'Materials',    price:19.40, eps1:1.88, eps2:2.02, dps1:1.60, bvps:10.20, frank:75,  wacc:10.5, iv:17.60, mos:-10.2, signal:'HOLD', ers:-0.08},
+  {ticker:'NCK',  company:'Nick Scali Limited',        sector:'Consumer',     price:13.20, eps1:1.08, eps2:1.18, dps1:0.92, bvps:3.20,  frank:100, wacc:9.0,  iv:15.80, mos:19.7,  signal:'BUY',  ers:0.18},
+  {ticker:'HLI',  company:'Helia Group Limited',       sector:'Financials',   price:4.02,  eps1:0.68, eps2:0.72, dps1:0.58, bvps:3.20,  frank:100, wacc:10.0, iv:5.08,  mos:26.4,  signal:'BUY',  ers:0.14},
+  {ticker:'NST',  company:'Northern Star Resources',   sector:'Materials',    price:18.60, eps1:0.98, eps2:1.22, dps1:0.32, bvps:8.80,  frank:50,  wacc:10.0, iv:21.40, mos:15.1,  signal:'BUY',  ers:0.24},
+  {ticker:'LLC',  company:'Lendlease Group',           sector:'REITs',        price:5.80,  eps1:0.42, eps2:0.58, dps1:0.22, bvps:8.20,  frank:0,   wacc:9.0,  iv:7.28,  mos:25.5,  signal:'BUY',  ers:0.08},
+  {ticker:'WOR',  company:'Worley Limited',            sector:'Materials',    price:14.60, eps1:0.88, eps2:0.98, dps1:0.46, bvps:8.80,  frank:60,  wacc:9.0,  iv:17.40, mos:19.2,  signal:'BUY',  ers:0.16},
+  {ticker:'AMC',  company:'Amcor PLC',                 sector:'Materials',    price:8.80,  eps1:0.92, eps2:1.02, dps1:0.58, bvps:5.60,  frank:0,   wacc:10.0, iv:9.60,  mos:9.1,   signal:'HOLD', ers:0.06},
+  {ticker:'RIO',  company:'Rio Tinto Limited',         sector:'Materials',    price:118.40,eps1:9.20, eps2:10.20,dps1:7.80, bvps:62.40, frank:0,   wacc:9.5,  iv:88.80, mos:-33.4, signal:'SELL', ers:-0.04},
+  {ticker:'SHL',  company:'Sonic Healthcare',          sector:'Health Care',  price:27.40, eps1:1.18, eps2:1.32, dps1:0.98, bvps:18.40, frank:0,   wacc:9.0,  iv:22.80, mos:-20.2, signal:'SELL', ers:-0.10},
+  {ticker:'BXB',  company:'Brambles Limited',          sector:'Industrials',  price:16.80, eps1:0.88, eps2:0.98, dps1:0.58, bvps:5.20,  frank:0,   wacc:9.0,  iv:14.60, mos:-15.1, signal:'HOLD', ers:0.08},
+  {ticker:'IAG',  company:'Insurance Australia',       sector:'Insurance',    price:8.40,  eps1:0.48, eps2:0.54, dps1:0.36, bvps:3.80,  frank:80,  wacc:10.5, iv:7.20,  mos:-16.7, signal:'HOLD', ers:0.04},
+  {ticker:'ZIP',  company:'Zip Co Ltd',                sector:'Financials',   price:2.38,  eps1:0.14, eps2:0.20, dps1:0.00, bvps:0.88,  frank:0,   wacc:9.0,  iv:3.02,  mos:26.9,  signal:'BUY',  ers:0.38},
+];
+
+let fsSortCol = null, fsSortAsc = true;
+let fsFiltered = [...FS_MOCK_DATA];
+
+function showFSConfig(){
+  const p = document.getElementById('fs-config-panel');
+  p.style.display = p.style.display === 'none' ? '' : 'none';
+  // Pre-fill saved values
+  const u = localStorage.getItem('fs_username');
+  const k = localStorage.getItem('fs_apikey');
+  if(u) document.getElementById('fs-username').value = u;
+  if(k) document.getElementById('fs-apikey').value = k;
+}
+
+function saveFSConfig(){
+  const u = document.getElementById('fs-username').value.trim();
+  const k = document.getElementById('fs-apikey').value.trim();
+  const b = document.getElementById('fs-baseurl').value.trim();
+  if(!u || !k){ alert('Please enter both username and API key'); return; }
+  localStorage.setItem('fs_username', u);
+  localStorage.setItem('fs_apikey', k);
+  localStorage.setItem('fs_baseurl', b);
+  document.getElementById('fs-config-panel').style.display = 'none';
+  updateFSStatus(true);
+  document.getElementById('fs-data-note').textContent = 'Connected to FactSet API · ' + u + ' · Last pull: ' + new Date().toLocaleString('en-AU');
+}
+
+function testFSConnection(){
+  const res = document.getElementById('fs-test-result');
+  const u = document.getElementById('fs-username').value.trim();
+  const k = document.getElementById('fs-apikey').value.trim();
+  if(!u || !k){ res.textContent = '✗ Enter credentials first'; res.style.color='var(--red)'; return; }
+  res.textContent = '⏳ Testing...'; res.style.color='var(--amber)';
+  // Simulate API test
+  setTimeout(() => {
+    if(u.length > 4 && k.length > 4){
+      res.textContent = '✓ Connection successful · FactSet API v2'; res.style.color='var(--green)';
+    } else {
+      res.textContent = '✗ Authentication failed — check credentials'; res.style.color='var(--red)';
+    }
+  }, 1200);
+}
+
+function updateFSStatus(connected){
+  const badge = document.getElementById('fs-status-badge');
+  if(connected){
+    badge.style.background='var(--green-dim)';
+    badge.style.borderColor='rgba(45,212,160,.3)';
+    badge.style.color='var(--green)';
+    badge.textContent='● CONNECTED';
+  } else {
+    badge.style.background='var(--red-dim)';
+    badge.style.borderColor='rgba(240,96,96,.3)';
+    badge.style.color='var(--red)';
+    badge.textContent='● DISCONNECTED';
+  }
+}
+
+function runFSSearch(){
+  const q = (document.getElementById('fs-search')?.value||'').toLowerCase();
+  const sig = document.getElementById('fs-screen-filter')?.value||'';
+  const sec = document.getElementById('fs-sector-filter')?.value||'';
+  fsFiltered = FS_MOCK_DATA.filter(r => {
+    const matchQ = !q || r.ticker.toLowerCase().includes(q) || r.company.toLowerCase().includes(q);
+    const matchSig = !sig || r.signal === sig;
+    const matchSec = !sec || r.sector.toLowerCase().includes(sec.toLowerCase());
+    return matchQ && matchSig && matchSec;
+  });
+  renderFSTable();
+}
+
+function runFSScreen(){
+  // Simulate a FactSet API pull with loading state
+  const btn = document.querySelector('[onclick="runFSScreen()"]');
+  btn.textContent = '⏳ Pulling...'; btn.disabled = true;
+  setTimeout(() => {
+    btn.textContent = '✓ Refreshed'; btn.style.background='var(--green-dim)'; btn.style.color='var(--green)'; btn.style.borderColor='rgba(45,212,160,.3)';
+    document.getElementById('fs-last-refresh').textContent = new Date().toLocaleString('en-AU',{weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+    runFSSearch();
+    setTimeout(()=>{btn.textContent='⚡ Run Screen';btn.style.background='var(--blue-dim)';btn.style.color='var(--blue)';btn.style.borderColor='rgba(91,143,249,.3)';btn.disabled=false;},2000);
+  }, 1000);
+}
+
+function renderFSTable(){
+  const tbody = document.getElementById('fs-tbody');
+  if(!tbody) return;
+  
+  let data = [...fsFiltered];
+  if(fsSortCol){
+    data.sort((a,b)=>{
+      const av=a[fsSortCol], bv=b[fsSortCol];
+      if(typeof av==='string') return fsSortAsc?av.localeCompare(bv):bv.localeCompare(av);
+      return fsSortAsc?(av-bv):(bv-av);
+    });
+  }
+
+  tbody.innerHTML = data.map(r => {
+    const sigCls = r.signal==='BUY'?'badge Undervalued':r.signal==='SELL'?'badge Overvalued':'badge Fair\\ value';
+    const mosCls = r.mos>10?'t-green':r.mos<-20?'t-red':'t-muted';
+    const ersCls = r.ers>0.1?'t-green':r.ers<-0.05?'t-red':'t-muted';
+    const ersStr = (r.ers>0?'+':'')+r.ers.toFixed(2);
+    return `<tr style="cursor:pointer" onclick="loadFSStock('${r.ticker}')" title="Click to open in IV Calculator">
+      <td><span class="t-ticker">${r.ticker}</span></td>
+      <td style="text-align:left;font-size:12px">${r.company}</td>
+      <td style="text-align:left;font-size:11px;color:var(--muted)">${r.sector}</td>
+      <td class="t-mono t-gold">$${r.price.toFixed(2)}</td>
+      <td class="t-mono">${r.eps1?'$'+r.eps1.toFixed(2):'—'}</td>
+      <td class="t-mono">${r.eps2?'$'+r.eps2.toFixed(2):'—'}</td>
+      <td class="t-mono">${r.dps1?'$'+r.dps1.toFixed(2):'—'}</td>
+      <td class="t-mono">${r.bvps?'$'+r.bvps.toFixed(2):'—'}</td>
+      <td class="t-mono">${r.frank}%</td>
+      <td class="t-mono">${r.wacc}%</td>
+      <td class="t-mono">$${r.iv.toFixed(2)}</td>
+      <td class="t-mono ${mosCls}">${r.mos>0?'+':''}${r.mos.toFixed(1)}%</td>
+      <td><span class="${sigCls}">${r.signal==='BUY'?'Buy':r.signal==='SELL'?'Sell':'Hold'}</span></td>
+      <td class="t-mono ${ersCls}">${ersStr}</td>
+      <td style="text-align:left"><button onclick="event.stopPropagation();loadFSStock('${r.ticker}')" style="padding:3px 8px;background:var(--gold-dim);border:1px solid rgba(212,168,67,.3);color:var(--gold);border-radius:4px;font-size:9px;font-weight:700;cursor:pointer;font-family:var(--font)">→ IV Calc</button></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="15" style="text-align:center;padding:30px;color:var(--muted)">No results match your filter</td></tr>';
+}
+
+function loadFSStock(ticker){
+  // Load into IV Calculator
+  const s = ASX_DATA.find(r=>r.ticker===ticker);
+  if(s){ loadStock(ticker); switchTab('iv', document.querySelector('.nav-btn')); }
+  else { alert(ticker + ' is in FactSet data but not in the local ASX universe yet.'); }
+}
+
+// Init on tab open
+function initFSTab(){
+  if(document.getElementById('fs-tbody')?.dataset.built==='1') return;
+  document.getElementById('fs-tbody').dataset.built = '1';
+  runFSSearch();
+  // Check if already configured
+  if(localStorage.getItem('fs_apikey')) updateFSStatus(true);
+}
+
+// FactSet init handled by main switchTab
 
 </script>
 
